@@ -1,27 +1,52 @@
+# ===========================================
+# intelliCore - Git Ignore Configuration
+# ===========================================
+
+# ===========================================
+# Claude Code / AI Agent Configuration
+# ===========================================
+.claude/
+
+# ===========================================
 # Dependencies
+# ===========================================
 node_modules/
 .pnp
 .pnp.js
+.yarn/install-state.gz
 
-# Testing
-coverage/
-.nyc_output
-
-# Production
-build/
+# ===========================================
+# Build outputs
+# ===========================================
 dist/
+build/
 .next/
 out/
+*.tsbuildinfo
 
-# Environment
+# ===========================================
+# Environment files (NEVER commit secrets!)
+# ===========================================
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
+!.env.*.example
+!.env.local.example
+!.env.production.example
 
+# ===========================================
+# Testing & Coverage
+# ===========================================
+coverage/
+.nyc_output/
+*.lcov
+.jest/
+junit.xml
+
+# ===========================================
 # Logs
-logs
+# ===========================================
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -29,27 +54,92 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
-# OS
+# ===========================================
+# OS files
+# ===========================================
 .DS_Store
-*.pem
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+*.pem
 
-# IDE
+# ===========================================
+# IDE & Editors
+# ===========================================
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
+*.sublime-workspace
+*.sublime-project
 
+# ===========================================
 # Docker
+# ===========================================
 docker-compose.override.yml
+docker-compose.local.yml
 
-# Database
+# ===========================================
+# Database files
+# ===========================================
 *.db
 *.sqlite
 *.sqlite3
+*.sql.gz
+postgres-data/
+redis-data/
+minio-data/
+qdrant_storage/
+nebula-data/
 
+# ===========================================
+# Python (LLM Gateway)
+# ===========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+.eggs/
+*.egg-info/
+*.egg
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+htmlcov/
+.coverage
+.coverage.*
+
+# ===========================================
+# Temporary files
+# ===========================================
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# ===========================================
 # Misc
+# ===========================================
 .turbo
 .vercel
 .cache
+.parcel-cache
+.netlify
+
+# ===========================================
+# Upload directories (user data)
+# ===========================================
+uploads/
+storage/
+public/uploads/
