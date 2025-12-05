@@ -9,9 +9,38 @@
 
 ## MISSION STATEMENT
 
-**intelliCore** is a revolutionary **AI-native meta-modeling platform** that enables the creation of any business object (Customer, Account, Product, Transaction) **without programming**, using only **natural language** and **intelligent LLM validation**.
+**intelliCore** is a revolutionary **AI-native universal meta-modeling platform** that enables the creation of **ANY business object, system, or domain model** without programming, using only **natural language** and **intelligent LLM validation**.
 
-This platform will power a **complete core banking system** that can be deployed and configured in **days, not months**, by defining business rules, workflows, and policies in plain Portuguese.
+### 🎯 Core Philosophy: 100% Abstract & Generic
+
+**CRITICAL**: This is NOT a core banking system with hardcoded entities. This is a **generic meta-modeling engine** that can model ANY domain:
+
+- ✅ **Financial**: Core banking, payments, insurance, investments
+- ✅ **Healthcare**: Patient records, medical procedures, insurance claims
+- ✅ **E-commerce**: Products, orders, inventory, customers
+- ✅ **Real Estate**: Properties, contracts, tenants, owners
+- ✅ **Education**: Students, courses, grades, certifications
+- ✅ **Manufacturing**: Products, supply chain, quality control
+- ✅ **Government**: Citizen records, permits, licenses, compliance
+- ✅ **ANY DOMAIN**: The system is domain-agnostic
+
+### 📚 Examples are NOT Features
+
+When documentation mentions "Cliente PF", "Cliente PJ", "Conta", these are **reference examples** to illustrate capabilities, NOT hardcoded features. The platform itself has ZERO domain-specific code.
+
+**Example**: Core banking is ONE possible use case where users would:
+1. Define ObjectType "Cliente PF" with fields (CPF, nome, renda)
+2. Define ObjectType "Conta" with fields (numero, saldo, tipo)
+3. Define relationships between them
+4. Upload BACEN compliance documents for RAG validation
+5. Create workflows for KYC/AML processes
+
+But users could equally create:
+- Hospital system (Patient, Doctor, Procedure)
+- School system (Student, Course, Grade)
+- Logistics system (Vehicle, Route, Delivery)
+
+**The meta-modeling engine is the product. Domain examples are documentation aids.**
 
 ---
 
@@ -93,16 +122,197 @@ This project is being built as a **commercial product** that will:
 
 ## TABLE OF CONTENTS
 
-1. [Architecture Overview](#architecture-overview)
-2. [Technology Stack](#technology-stack)
-3. [Project Structure](#project-structure)
-4. [Agent Ecosystem](#agent-ecosystem)
-5. [Development Guidelines](#development-guidelines)
-6. [Coding Standards](#coding-standards)
-7. [Testing Requirements](#testing-requirements)
-8. [Autonomous Development Framework](#autonomous-development-framework)
-9. [Domain Context](#domain-context)
-10. [Quick Reference](#quick-reference)
+1. [Abstract Meta-Modeling Architecture](#abstract-meta-modeling-architecture) ⭐ **READ FIRST**
+2. [Architecture Overview](#architecture-overview)
+3. [Technology Stack](#technology-stack)
+4. [Project Structure](#project-structure)
+5. [Agent Ecosystem](#agent-ecosystem)
+6. [Development Guidelines](#development-guidelines)
+7. [Coding Standards](#coding-standards)
+8. [Testing Requirements](#testing-requirements)
+9. [Autonomous Development Framework](#autonomous-development-framework)
+10. [Domain Context](#domain-context)
+11. [Quick Reference](#quick-reference)
+
+---
+
+## ABSTRACT META-MODELING ARCHITECTURE
+
+> **⭐ CRITICAL**: This section defines the CORE philosophy of intelliCore. All development MUST follow these principles.
+
+### 🏗️ Zero Domain-Specific Code
+
+**Rule #1**: The platform MUST NOT contain hardcoded business entities.
+
+```
+❌ WRONG (Hardcoded Domain Logic):
+class ClientePF {
+  cpf: string;
+  nome: string;
+  renda: number;
+}
+
+✅ CORRECT (Abstract Meta-Model):
+class ObjectTypeEntity {
+  id: UUID;
+  name: string;              // User defines: "Cliente PF" OR "Patient" OR "Product"
+  description: string;
+  fields: FieldEntity[];     // User defines fields dynamically
+}
+
+class InstanceEntity {
+  id: UUID;
+  objectTypeId: UUID;        // References ANY ObjectType
+  data: JSONB;               // Stores ANY field structure
+}
+```
+
+### 🔄 The Meta-Modeling Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  USER (Non-Programmer)                                               │
+├─────────────────────────────────────────────────────────────────────┤
+│  "I want to manage customer registration for my banking system"     │
+│  OR                                                                  │
+│  "I want to manage patient records for my hospital"                 │
+│  OR                                                                  │
+│  "I want to manage product catalog for my e-commerce"               │
+└─────────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────────┐
+│  BACKOFFICE: Define ObjectTypes (Natural Language or UI)            │
+├─────────────────────────────────────────────────────────────────────┤
+│  Example 1 (Banking):                                               │
+│    ObjectType: "Cliente PF"                                         │
+│      ├─ Field: cpf (STRING, validation: isCpf)                      │
+│      ├─ Field: nome (STRING, required, minLength: 3)                │
+│      ├─ Field: renda (NUMBER, min: 0)                               │
+│      └─ Relationship: tem_conta → ObjectType "Conta"                │
+│                                                                      │
+│  Example 2 (Healthcare):                                            │
+│    ObjectType: "Patient"                                            │
+│      ├─ Field: medical_id (STRING, required, pattern: "^PT[0-9]+")  │
+│      ├─ Field: full_name (STRING, required)                         │
+│      ├─ Field: birth_date (DATE, required)                          │
+│      └─ Relationship: has_doctor → ObjectType "Doctor"              │
+│                                                                      │
+│  Example 3 (E-commerce):                                            │
+│    ObjectType: "Product"                                            │
+│      ├─ Field: sku (STRING, required, unique)                       │
+│      ├─ Field: title (STRING, required)                             │
+│      ├─ Field: price (NUMBER, min: 0)                               │
+│      └─ Relationship: belongs_to_category → ObjectType "Category"   │
+└─────────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────────┐
+│  SYSTEM: Stores Abstract Definition                                 │
+├─────────────────────────────────────────────────────────────────────┤
+│  Database Table: object_types                                       │
+│    { id: "uuid-1", name: "Cliente PF", description: "..." }         │
+│    { id: "uuid-2", name: "Patient", description: "..." }            │
+│    { id: "uuid-3", name: "Product", description: "..." }            │
+│                                                                      │
+│  Database Table: fields                                             │
+│    { object_type_id: "uuid-1", name: "cpf", type: "STRING", ... }   │
+│    { object_type_id: "uuid-2", name: "medical_id", type: "STRING"}  │
+│    { object_type_id: "uuid-3", name: "sku", type: "STRING", ... }   │
+└─────────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────────┐
+│  FRONT-OFFICE: Create Instances (Real Data)                         │
+├─────────────────────────────────────────────────────────────────────┤
+│  Instance of "Cliente PF":                                          │
+│    { objectTypeId: "uuid-1", data: {                                │
+│        cpf: "123.456.789-00",                                       │
+│        nome: "João Silva",                                          │
+│        renda: 5000                                                  │
+│    }}                                                               │
+│                                                                      │
+│  Instance of "Patient":                                             │
+│    { objectTypeId: "uuid-2", data: {                                │
+│        medical_id: "PT12345",                                       │
+│        full_name: "Maria Santos",                                   │
+│        birth_date: "1985-03-15"                                     │
+│    }}                                                               │
+│                                                                      │
+│  Instance of "Product":                                             │
+│    { objectTypeId: "uuid-3", data: {                                │
+│        sku: "PROD-001",                                             │
+│        title: "Laptop Dell XPS 13",                                 │
+│        price: 1299.99                                               │
+│    }}                                                               │
+└─────────────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────────────┐
+│  RAG & AI VALIDATION: Domain-Specific Intelligence                  │
+├─────────────────────────────────────────────────────────────────────┤
+│  User uploads domain-specific documents:                            │
+│    - Banking: BACEN regulations, KYC policies                       │
+│    - Healthcare: HIPAA compliance, medical protocols                │
+│    - E-commerce: Product specifications, return policies            │
+│                                                                      │
+│  LLM validates instances against uploaded documents:                │
+│    - "Does this CPF comply with BACEN rules?"                       │
+│    - "Is this medical procedure authorized by insurance?"           │
+│    - "Does this product meet FDA requirements?"                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### 🎯 Core Components (100% Abstract)
+
+| Component | What It Does | NOT Hardcoded |
+|-----------|--------------|---------------|
+| **ObjectTypeEntity** | Stores type definitions (schema) | No "Cliente" table, no "Patient" table |
+| **FieldEntity** | Stores field definitions with types | No hardcoded "cpf" column, no "medical_id" column |
+| **InstanceEntity** | Stores actual data in JSONB | No domain-specific structure |
+| **InstanceValidationService** | Validates ANY data against ANY schema | Generic validation engine |
+| **Document + RAG** | Ingest ANY domain documents | Not limited to BACEN/banking |
+| **LLM Gateway** | Validate against ANY uploaded rules | Domain-agnostic prompts |
+| **Graph Relationships** | Relate ANY objects together | No hardcoded relationship types |
+| **Workflows** | State machines for ANY process | User defines states/transitions |
+
+### 📖 Documentation Translation Guide
+
+When you see documentation saying:
+
+| Documentation Says | What It ACTUALLY Means |
+|--------------------|------------------------|
+| "Cliente PF entity" | **Example** of an ObjectType a banking user might create |
+| "CPF validation" | **Example** of a validation rule (one of many possible) |
+| "BACEN compliance" | **Example** of domain documents for RAG (not the only use case) |
+| "Core banking system" | **One possible application** of the meta-modeling platform |
+| "KYC workflow" | **Example** of a workflow users could configure |
+
+### 🚫 What NOT to Build
+
+❌ **DO NOT** create:
+- Hardcoded entities (ClientePF, ClientePJ, Conta, etc.)
+- Domain-specific services (BankingService, PaymentService, etc.)
+- Fixed validation rules (only CPF/CNPJ validators)
+- Hardcoded workflows (KYC process, approval flows)
+- Domain-specific UI components (CustomerForm, AccountForm)
+
+✅ **DO** create:
+- Generic ObjectType CRUD
+- Generic Field definition system
+- Generic validation engine (extensible rules)
+- Generic workflow engine (user-defined states)
+- Generic form renderer (reads ObjectType schema)
+
+### 🎓 For Development Squads
+
+**When implementing any feature, ask:**
+
+1. "Could this feature be used for a hospital system?"
+2. "Could this feature be used for an e-commerce platform?"
+3. "Does this require domain-specific code?"
+
+If the answer to #3 is YES → You're implementing it WRONG. Refactor to be generic.
+
+**Example**:
+- ❌ `createClientePF(cpf, nome, renda)` → Too specific!
+- ✅ `createInstance(objectTypeId, data)` → Generic! ✅
 
 ---
 
