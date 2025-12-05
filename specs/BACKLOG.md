@@ -1,9 +1,22 @@
 # intelliCore - Product Backlog
 
-> **Version**: 3.3
-> **Updated**: 2025-12-04
-> **Sprint Atual**: Sprint 19 ✅ COMPLETE (CoreBanking Brain) | Sprint 20 ⏳ PLANNED
-> **Status**: Core Platform Complete - CoreBanking Brain Sprint 19 Complete (90%)
+> **Version**: 4.0
+> **Updated**: 2025-12-05
+> **Sprint Atual**: OBJ-S1 ⏳ PLANNED (Object Management Sub-Project)
+> **Status**: Core Platform Complete - Starting Object Management Refactoring
+
+---
+
+## 🎯 Sub-Project Strategy
+
+O desenvolvimento do intelliCore está organizado em **sub-projetos independentes e sequenciais**:
+
+1. **✅ Core Platform** (Sprints 1-15) - COMPLETE
+2. **✅ CoreBanking Brain** (Sprints 16-20) - 90% COMPLETE
+3. **🎯 Object Management** (OBJ-S1 to OBJ-S6) - ACTIVE → [Detailed Plan](SUB_PROJECT_OBJECT_MANAGEMENT.md)
+4. **⏳ Instance Management** (INST-S1 to INST-SX) - PLANNED
+5. **🔮 Workflow Engine** - Future
+6. **🔮 Analytics & Reporting** - Future
 
 ---
 
@@ -11,12 +24,13 @@
 
 | Metric | Value |
 |--------|-------|
-| **Total Epics** | 7 |
-| **Total User Stories** | 81 |
-| **Total Story Points** | ~524 |
-| **Core Sprints** | 15 (Complete) |
-| **CoreBanking Brain Sprints** | 5 (Planned: 16-20) |
-| **Completion** | Core: 100% (Sprint 15/15) |
+| **Total Epics** | 10 |
+| **Total User Stories** | 111 (81 complete + 30 new) |
+| **Total Story Points** | ~674 (524 complete + 150 new) |
+| **Core Sprints** | 15 ✅ COMPLETE |
+| **CoreBanking Brain Sprints** | 5 (16-20) - 90% COMPLETE |
+| **Object Management Sprints** | 6 (OBJ-S1 to OBJ-S6) ⏳ PLANNED |
+| **Overall Completion** | 77% (524/674 points) |
 
 ---
 
@@ -1311,6 +1325,161 @@
 
 ---
 
+## 🎯 Sub-Project: Object Management (OBJ-S1 to OBJ-S6)
+
+> **Status**: ⏳ PLANNED
+> **Duration**: 12 weeks (6 sprints)
+> **Start Date**: Dec 09, 2025
+> **End Date**: Feb 28, 2026
+> **Total Story Points**: 150
+
+**Detailed Plan**: [SUB_PROJECT_OBJECT_MANAGEMENT.md](SUB_PROJECT_OBJECT_MANAGEMENT.md)
+
+### Mission
+
+Implementar o **sistema de gestão de ObjectTypes** - a camada de meta-modelagem que permite aos usuários definir qualquer tipo de objeto de negócio de forma abstrata, sem programação, usando apenas linguagem natural e validação inteligente via LLM.
+
+### Key Deliverables
+
+- ✅ **Backend Foundation**: PostgreSQL schema, TypeORM entities, service layer
+- ✅ **GraphQL API**: 12+ operations (queries + mutations) com RBAC
+- ✅ **Validation Engine**: Sistema extensível para validar tipos dinâmicos
+- ✅ **Relationship Management**: Sistema de relacionamentos entre ObjectTypes
+- ✅ **Graph Visualization**: Interface interativa (Cytoscape.js) para hierarquias
+- ✅ **LLM Integration**: Sugestão de campos, geração de regras de validação
+
+### Sprints Overview
+
+| Sprint | Goal | Lead | Points | Status |
+|--------|------|------|--------|--------|
+| **OBJ-S1** | Backend Foundation (ObjectTypes & Fields) | `backend-architect` | 26 | ⏳ PLANNED |
+| **OBJ-S2** | GraphQL API & Validation Engine | `graphql-architect` | 24 | 🔮 Next |
+| **OBJ-S3** | Frontend CRUD & Forms | `frontend-developer` | 28 | 🔮 Future |
+| **OBJ-S4** | Relationship Management | `database-architect` | 26 | 🔮 Future |
+| **OBJ-S5** | Graph Visualization | `frontend-developer` | 24 | 🔮 Future |
+| **OBJ-S6** | LLM Integration & Polish | `ai-engineer` | 22 | 🔮 Future |
+
+### Sprint OBJ-S1: Backend Foundation ⏳ PLANNED
+
+**Duration**: 2 weeks (Dec 09 - Dec 20, 2025)
+**Goal**: Estabelecer a fundação backend completa para ObjectTypes e Fields
+
+**Squad Lead**: `backend-architect`
+
+**User Stories** (26 points):
+- **OBJ-US-001**: Database Schema for ObjectTypes & Fields (8 pts)
+- **OBJ-US-002**: ObjectType Entity & Repository (5 pts)
+- **OBJ-US-003**: Field Entity with Dynamic Typing (5 pts)
+- **OBJ-US-004**: ObjectTypes Service Layer (5 pts)
+- **OBJ-US-005**: Fields Service Layer (3 pts)
+
+**Key Technical Tasks**:
+1. Criar migrations para `object_types` e `fields` tables
+2. Definir enum `FieldType` com 6 tipos base
+3. Implementar entities TypeORM com validação
+4. Criar service layer com CRUD completo
+5. Implementar validation engine extensível
+6. Testes unitários (>90% coverage)
+
+**Deliverables**:
+- ✅ Database schema com migrations
+- ✅ TypeORM entities completas
+- ✅ Service layer testado
+- ✅ Validation engine robusto
+
+### Sprint OBJ-S2: GraphQL API & Validation 🔮 NEXT
+
+**Duration**: 2 weeks (Dec 23 - Jan 03, 2026)
+**Goal**: Expor ObjectTypes e Fields via GraphQL API com validação robusta
+
+**Squad Lead**: `graphql-architect`
+
+**User Stories** (24 points):
+- **OBJ-US-006**: GraphQL Schema Design (5 pts)
+- **OBJ-US-007**: ObjectTypes GraphQL Resolver (8 pts)
+- **OBJ-US-008**: Fields GraphQL Resolver (5 pts)
+- **OBJ-US-009**: Validation Engine (6 pts)
+
+### Sprint OBJ-S3: Frontend CRUD & Forms 🔮 FUTURE
+
+**Duration**: 2 weeks (Jan 06 - Jan 17, 2026)
+**Goal**: Implementar interface completa para gerenciamento de ObjectTypes
+
+**Squad Lead**: `frontend-developer`
+
+**User Stories** (28 points):
+- **OBJ-US-010**: Apollo Client Configuration (3 pts)
+- **OBJ-US-011**: ObjectTypes List Page (5 pts)
+- **OBJ-US-012**: Create ObjectType Form (8 pts)
+- **OBJ-US-013**: Edit ObjectType Form (5 pts)
+- **OBJ-US-014**: View ObjectType Page (3 pts)
+- **OBJ-US-015**: Design System Components (4 pts)
+
+### Sprint OBJ-S4: Relationship Management 🔮 FUTURE
+
+**Duration**: 2 weeks (Jan 20 - Jan 31, 2026)
+**Goal**: Implementar sistema de relacionamentos entre ObjectTypes
+
+**Squad Lead**: `database-architect`
+
+**User Stories** (26 points):
+- **OBJ-US-016**: Relationship Schema & Entity (5 pts)
+- **OBJ-US-017**: Relationships Service Layer (5 pts)
+- **OBJ-US-018**: Relationships GraphQL API (5 pts)
+- **OBJ-US-019**: Graph Traversal Algorithms (8 pts)
+- **OBJ-US-020**: Relationship Validation Rules (3 pts)
+
+### Sprint OBJ-S5: Graph Visualization 🔮 FUTURE
+
+**Duration**: 2 weeks (Feb 03 - Feb 14, 2026)
+**Goal**: Interface visual para explorar relacionamentos
+
+**Squad Lead**: `frontend-developer`
+
+**User Stories** (24 points):
+- **OBJ-US-021**: Graph Visualization Component (8 pts)
+- **OBJ-US-022**: Relationship Creation UI (5 pts)
+- **OBJ-US-023**: Graph Navigation & Filtering (5 pts)
+- **OBJ-US-024**: Hierarchies List View (3 pts)
+- **OBJ-US-025**: Performance Optimization (3 pts)
+
+### Sprint OBJ-S6: LLM Integration & Polish 🔮 FUTURE
+
+**Duration**: 2 weeks (Feb 17 - Feb 28, 2026)
+**Goal**: Integrar LLM para sugestões inteligentes e polir interface
+
+**Squad Lead**: `ai-engineer`
+
+**User Stories** (22 points):
+- **OBJ-US-026**: LLM Field Suggestion (8 pts)
+- **OBJ-US-027**: Validation Rule Generation (5 pts)
+- **OBJ-US-028**: Example Data Generation (3 pts)
+- **OBJ-US-029**: UI/UX Polish (3 pts)
+- **OBJ-US-030**: Security Audit & Final Review (3 pts)
+
+### Success Metrics
+
+**Code Quality**:
+- [ ] Test coverage >85% overall
+- [ ] Zero critical security vulnerabilities
+- [ ] TypeScript strict mode: 0 errors
+
+**Performance**:
+- [ ] GraphQL queries <100ms (p95)
+- [ ] Graph rendering <2s for 500 nodes
+
+**User Experience**:
+- [ ] WCAG 2.1 AA compliance
+- [ ] Mobile responsive
+- [ ] Multi-language (pt-BR, en-US, es-ES)
+
+### Next Sub-Project
+
+Após completar Object Management, avançaremos para:
+**Instance Management** - Sistema para criar, gerenciar e buscar instâncias dos ObjectTypes definidos
+
+---
+
 ## Legend
 
 ### Status Icons
@@ -1346,5 +1515,5 @@
 
 ---
 
-**Last Updated**: 2025-12-04
-**Next Update**: After Sprint 20 Kickoff
+**Last Updated**: 2025-12-05
+**Next Update**: After OBJ-S1 Kickoff (Object Management Sub-Project)
