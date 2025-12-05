@@ -1,0 +1,40 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+
+# Development files
+.env
+.env.local
+.env.*.local
+
+# Test files
+coverage
+*.spec.ts
+*.test.ts
+test
+
+# Editor and IDE
+.vscode
+.idea
+*.swp
+*.swo
+.DS_Store
+
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+LICENSE
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Temporary files
+tmp
+temp

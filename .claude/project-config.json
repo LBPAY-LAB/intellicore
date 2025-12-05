@@ -1,0 +1,127 @@
+{
+  "project_name": "intelliCore",
+  "version": "1.0.0",
+  "autonomous_mode": {
+    "enabled": true,
+    "description": "Agents are authorized to execute all tasks within project scope without user approval",
+    "scope": {
+      "approved_operations": [
+        "read_files",
+        "write_files",
+        "edit_files",
+        "create_directories",
+        "execute_bash_commands",
+        "run_tests",
+        "commit_changes",
+        "create_pull_requests",
+        "deploy_to_dev_environment",
+        "update_documentation",
+        "run_ci_cd_pipelines",
+        "create_database_schemas",
+        "execute_sql_queries",
+        "execute_nGQL_queries",
+        "install_dependencies",
+        "configure_services",
+        "generate_code",
+        "refactor_code",
+        "fix_bugs",
+        "implement_user_stories",
+        "run_dagster_assets",
+        "create_terraform_resources",
+        "update_backlog",
+        "create_issues"
+      ],
+      "restricted_operations": [
+        "delete_production_data",
+        "deploy_to_production",
+        "modify_aws_iam_policies",
+        "change_security_configurations",
+        "modify_budget_limits",
+        "access_production_secrets",
+        "force_push_to_main",
+        "delete_git_history"
+      ],
+      "auto_approve_patterns": [
+        "feat(*): implement US-*",
+        "fix(*): resolve bug in *",
+        "chore(*): update dependencies",
+        "docs(*): update documentation",
+        "test(*): add tests for *",
+        "refactor(*): improve code structure"
+      ]
+    },
+    "guardrails": {
+      "require_approval_for": [
+        "production_deployment",
+        "schema_breaking_changes",
+        "security_policy_changes",
+        "cost_exceeding_budget",
+        "deletion_of_critical_data"
+      ],
+      "cost_threshold_usd": 100,
+      "always_run_tests_before_commit": true,
+      "always_run_linters_before_commit": true,
+      "require_code_review_for_critical_files": [
+        "*.tf",
+        "**/security/**",
+        "**/auth/**",
+        "**/*secret*",
+        "**/*credential*"
+      ]
+    }
+  },
+  "agent_squad_config": {
+    "autonomous_execution": true,
+    "planning_squad": {
+      "can_create_adrs": true,
+      "can_modify_architecture": true,
+      "can_create_user_stories": true,
+      "requires_approval": false
+    },
+    "development_squad": {
+      "can_write_code": true,
+      "can_run_tests": true,
+      "can_commit": true,
+      "can_create_prs": true,
+      "requires_approval": false
+    },
+    "quality_squad": {
+      "can_run_security_scans": true,
+      "can_review_code": true,
+      "can_reject_prs": true,
+      "requires_approval": false
+    },
+    "operations_squad": {
+      "can_provision_dev_infra": true,
+      "can_provision_staging_infra": true,
+      "can_provision_production_infra": false,
+      "can_configure_services": true,
+      "requires_approval_for_production": true
+    }
+  },
+  "sprint_workflow": {
+    "auto_start_next_sprint": false,
+    "auto_pick_next_story": true,
+    "auto_assign_stories": true,
+    "auto_update_backlog": true,
+    "auto_create_retrospective": true,
+    "daily_standup_automated": true
+  },
+  "notification_preferences": {
+    "notify_on_sprint_complete": true,
+    "notify_on_blocker": true,
+    "notify_on_critical_bug": true,
+    "notify_on_security_issue": true,
+    "notify_on_cost_threshold": true,
+    "notification_channels": [
+      "slack:#zefora-gold-3d",
+      "email:cto@zefora.com"
+    ]
+  },
+  "budget_controls": {
+    "max_daily_spend_usd": 50,
+    "max_monthly_spend_usd": 1500,
+    "alert_at_percent": 80,
+    "pause_at_percent": 95
+  }
+}

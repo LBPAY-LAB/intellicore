@@ -1,0 +1,1577 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input AIChatInput {
+  context: String
+  documentCategoryIds: [String!]
+  maxTokens: Int
+  message: String!
+
+  """LLM model to use for this request (e.g., llama3.1:8b)"""
+  model: String
+  sessionId: String
+  temperature: Float
+  useRag: Boolean = true
+}
+
+type AIChatResponse {
+  content: String!
+  createdAt: String!
+  id: String!
+  model: String!
+  processingTimeMs: Int!
+  role: String!
+  sources: [ChatSource!]
+}
+
+input AnalyticsInput {
+  edgeTypes: [String!]
+  limit: Int
+  options: JSON
+  type: AnalyticsType!
+  vertexIds: [String!]
+}
+
+input AnalyticsQueryInput {
+  dateRange: DateRangeInput
+  dimensions: [DimensionInput!]
+  filters: [FilterInput!]
+  limit: Int = 100
+  metrics: [MetricDefinitionInput!]!
+  objectTypeIds: [String!]
+}
+
+type AnalyticsResult {
+  data: [DataPoint!]!
+  executionTimeMs: Float!
+  rowCount: Int!
+  totals: [MetricValue!]!
+  truncated: Boolean
+}
+
+type AnalyticsResultItem {
+  metadata: JSON
+  rank: Int
+  score: Float!
+  vertexId: String!
+}
+
+"""Type of graph analytics operation"""
+enum AnalyticsType {
+  BETWEENNESS_CENTRALITY
+  CLOSENESS_CENTRALITY
+  CLUSTERING_COEFFICIENT
+  CONNECTED_COMPONENTS
+  DEGREE_CENTRALITY
+  PAGERANK
+  SHORTEST_PATH
+}
+
+type AvailableTransitionOutput {
+  description: String
+  id: ID!
+  name: String!
+  requiredRoles: [String!]
+  requiresComment: Boolean!
+  toState: String!
+}
+
+"""Cardinality constraints for relationships"""
+enum Cardinality {
+  MANY_TO_MANY
+  ONE_TO_MANY
+  ONE_TO_ONE
+}
+
+type ChatMessage {
+  content: String!
+  createdAt: String!
+  id: String!
+  role: String!
+  sources: [ChatSource!]
+}
+
+type ChatSession {
+  context: String
+  createdAt: String!
+  id: String!
+  messages: [ChatMessage!]!
+  sessionId: String!
+  title: String
+  updatedAt: String!
+}
+
+type ChatSource {
+  chunkText: String!
+  documentId: String!
+  documentName: String!
+  pageNumber: Int
+  score: Float!
+}
+
+input ConfirmDocumentUploadInput {
+  documentTypeId: ID!
+  fileKey: String!
+  fileSize: Int!
+  mimeType: String!
+  originalFilename: String!
+}
+
+input CreateChatSessionInput {
+  context: String
+  title: String
+}
+
+input CreateDocumentCategoryInput {
+  description: String
+  metadataSchema: JSON
+  name: String!
+  ragConfig: JSON
+  targetGoldLayers: [GoldLayer!]!
+}
+
+input CreateDocumentTypeInput {
+  allowedExtensions: [String!]!
+  description: String
+  maxFileSizeMb: Int!
+  name: String!
+}
+
+input CreateExternalSourceInput {
+  connectionConfig: JSON!
+  description: String
+  isEnabled: Boolean
+  name: String!
+  sourceType: ExternalSourceType!
+  syncConfig: JSON
+}
+
+input CreateFieldInput {
+  field_type: FieldType!
+  is_required: Boolean = false
+  name: String!
+  object_type_id: ID!
+  validation_rules: JSON
+}
+
+input CreateInstanceInput {
+  data: JSON
+  displayName: String
+  objectTypeId: ID!
+  status: InstanceStatus = DRAFT
+}
+
+input CreateInstanceRelationshipInput {
+  metadata: JSON
+  objectRelationshipId: ID!
+  sourceInstanceId: ID!
+  targetInstanceId: ID!
+}
+
+input CreateObjectTypeInput {
+  description: String
+  is_active: Boolean = true
+  name: String!
+}
+
+input CreateRelationshipInput {
+  cardinality: Cardinality!
+  description: String
+  is_bidirectional: Boolean
+  relationship_rules: JSON
+  relationship_type: RelationshipType!
+  source_id: String!
+  target_id: String!
+}
+
+input CreateReportInput {
+  columns: [String!]
+  description: String
+  format: ExportFormat!
+  name: String!
+  query: AnalyticsQueryInput!
+}
+
+input CreateStateInput {
+  color: String
+  description: String
+  displayName: String
+  displayOrder: Int
+  entryActions: JSON
+  exitActions: JSON
+  icon: String
+  metadata: JSON
+  name: String!
+  workflowId: ID!
+}
+
+input CreateTransitionInput {
+  actions: JSON
+  conditions: JSON
+  description: String
+  displayOrder: Int
+  fromState: String!
+  isAutomatic: Boolean
+  metadata: JSON
+  name: String!
+  requiredRoles: [String!]
+  requiresComment: Boolean
+  toState: String!
+  workflowId: ID!
+}
+
+input CreateWorkflowInput {
+  description: String
+  finalStates: [String!]!
+  initialState: String!
+  metadata: JSON
+  name: String!
+  objectTypeId: String
+  workflowType: WorkflowType
+}
+
+type DashboardSummary {
+  activeWorkflows: Int!
+  instanceStatusDistribution: [StatusDistribution!]!
+  instancesCreatedOverTime: [TimeSeriesDataPoint!]!
+  objectTypeStats: [ObjectTypeStats!]!
+  pendingWorkflows: Int!
+  totalDocuments: Int!
+  totalInstances: Int!
+  totalObjectTypes: Int!
+  totalRelationships: Int!
+}
+
+type DataPoint {
+  dimensions: JSON!
+  metrics: [MetricValue!]!
+}
+
+"""Time granularity for aggregations"""
+enum DateGranularity {
+  DAY
+  HOUR
+  MONTH
+  QUARTER
+  WEEK
+  YEAR
+}
+
+input DateRangeInput {
+  endDate: String!
+  startDate: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type DictValidationError {
+  field: String!
+  message: String!
+  severity: String!
+  suggestion: String
+}
+
+input DictValidationInput {
+  accountNumber: String
+  accountType: String
+  branchNumber: String
+  keyType: String!
+  keyValue: String!
+  ownerDocument: String
+  ownerName: String
+  participantIspb: String
+  requestType: String!
+}
+
+type DictValidationResult {
+  errors: [DictValidationError!]!
+  isValid: Boolean!
+  processingTimeMs: Int!
+  sources: [ChatSource!]!
+  suggestions: [DictValidationSuggestion!]!
+  validationScore: Float!
+  warnings: [DictValidationWarning!]!
+}
+
+type DictValidationSuggestion {
+  currentValue: String!
+  field: String!
+  reason: String!
+  suggestedValue: String!
+}
+
+type DictValidationWarning {
+  field: String!
+  message: String!
+  suggestion: String
+}
+
+input DimensionInput {
+  field: String!
+  granularity: DateGranularity
+  label: String
+}
+
+type Document {
+  bronzeMetadata: String
+  bronzeProcessedAt: DateTime
+  createdAt: DateTime!
+  deletedAt: DateTime
+  documentCategoryId: String
+  documentType: DocumentType!
+  documentTypeId: ID!
+  downloadUrl: String!
+  embeddedAt: DateTime
+  embeddingError: String
+  embeddingStatus: String!
+  extractedText: String
+  fileKey: String!
+  fileSize: Int!
+  goldADistributedAt: DateTime
+  goldBDistributedAt: DateTime
+  goldCDistributedAt: DateTime
+  goldDistributionStatus: String
+  id: ID!
+  isProcessed: Boolean!
+  mimeType: String!
+  originalFilename: String!
+  s3Bucket: String!
+  silverChunkCount: Int
+  silverMetadata: String
+  silverProcessedAt: DateTime
+  storedFilename: String!
+  updatedAt: DateTime!
+  uploadedBy: String!
+}
+
+type DocumentCategory {
+  createdAt: DateTime!
+  deletedAt: DateTime
+  description: String
+  id: ID!
+  isActive: Boolean!
+  metadataSchema: JSON
+  name: String!
+  ragConfig: JSON!
+  targetGoldLayers: [GoldLayer!]!
+  updatedAt: DateTime!
+}
+
+type DocumentProcessingStats {
+  goldA: GoldLayerStats!
+  goldB: GoldLayerStats!
+  goldC: GoldLayerStats!
+  total: Int!
+}
+
+type DocumentType {
+  allowedExtensions: [String!]!
+  createdAt: DateTime!
+  deletedAt: DateTime
+  description: String
+  documents: [Document!]
+  id: ID!
+  isActive: Boolean!
+  maxFileSizeMb: Int!
+  name: String!
+  updatedAt: DateTime!
+}
+
+type DocumentTypeResponse {
+  allowedExtensions: [String!]!
+  createdAt: DateTime!
+  description: String
+  id: ID!
+  isActive: Boolean!
+  maxFileSizeMb: Int!
+  name: String!
+  updatedAt: DateTime!
+}
+
+input DocumentsFilterInput {
+  documentTypeId: ID
+  limit: Int = 20
+  offset: Int = 0
+}
+
+input ExecuteNGQLInput {
+  parameters: JSON
+  query: String!
+}
+
+input ExecuteTransitionInput {
+  comment: String
+  instanceId: ID!
+  transitionData: JSON
+  transitionId: ID!
+}
+
+input ExportDataInput {
+  columns: [String!]
+  dateRange: DateRangeInput
+  filename: String
+  filters: [FilterInput!]
+  format: ExportFormat!
+  objectTypeIds: [String!]
+}
+
+"""Export file format"""
+enum ExportFormat {
+  CSV
+  EXCEL
+  JSON
+  PDF
+}
+
+type ExportResult {
+  createdAt: DateTime!
+  downloadUrl: String!
+  expiresAt: DateTime!
+  fileSizeBytes: Int!
+  filename: String!
+  format: ExportFormat!
+  id: ID!
+  rowCount: Int!
+}
+
+type ExternalSource {
+  connectionConfig: JSON!
+  createdAt: DateTime!
+  description: String
+  id: ID!
+  isEnabled: Boolean!
+  lastSyncAt: DateTime
+  lastSyncError: String
+  lastTestMessage: String
+  lastTestSuccess: Boolean
+  lastTestedAt: DateTime
+  name: String!
+  sourceType: ExternalSourceType!
+  status: ExternalSourceStatus!
+  syncConfig: JSON
+  syncFailureCount: Float!
+  syncSuccessCount: Float!
+  updatedAt: DateTime!
+}
+
+"""Status of external data source connection"""
+enum ExternalSourceStatus {
+  ACTIVE
+  ERROR
+  INACTIVE
+  TESTING
+}
+
+"""Type of external data source"""
+enum ExternalSourceType {
+  GRAPHQL_API
+  MYSQL
+  POSTGRES
+  REST_API
+  TIGERBEETLE
+  WEB_CRAWLER
+}
+
+type FieldEntity {
+  created_at: DateTime!
+  field_type: FieldType!
+  id: ID!
+  is_required: Boolean!
+  name: String!
+  objectType: ObjectTypeEntity!
+  object_type_id: String!
+  updated_at: DateTime!
+  validation_rules: String
+}
+
+"""Types of fields supported by the system"""
+enum FieldType {
+  BOOLEAN
+  DATE
+  ENUM
+  NUMBER
+  RELATION
+  STRING
+}
+
+input FilterInput {
+  field: String!
+  operator: String!
+  value: JSON!
+}
+
+input GetUploadPresignedUrlInput {
+  contentType: String!
+  documentTypeId: ID!
+  fileSize: Int!
+  filename: String!
+}
+
+type GoldDistribution {
+  createdAt: DateTime!
+  distributionMetadata: JSON!
+  document: Document!
+  documentId: ID!
+  goldADistributedAt: DateTime
+  goldARecordId: String
+  goldAStatus: GoldDistributionStatus!
+  goldBDistributedAt: DateTime
+  goldBNodeId: String
+  goldBStatus: GoldDistributionStatus!
+  goldCDistributedAt: DateTime
+  goldCStatus: GoldDistributionStatus!
+  goldCVectorId: String
+  id: ID!
+  silverChunk: SilverChunk!
+  silverChunkId: ID!
+  updatedAt: DateTime!
+}
+
+"""Distribution status for each gold layer"""
+enum GoldDistributionStatus {
+  COMPLETED
+  FAILED
+  PENDING
+  PROCESSING
+  SKIPPED
+}
+
+"""Gold layer classification for document distribution"""
+enum GoldLayer {
+  A
+  B
+  C
+}
+
+type GoldLayerStats {
+  completed: Int!
+  failed: Int!
+  pending: Int!
+  skipped: Int!
+}
+
+type GraphAnalyticsResult {
+  executionTimeMs: Float!
+  items: [AnalyticsResultItem!]!
+  summary: JSON
+  type: AnalyticsType!
+}
+
+type GraphCircularReferenceInfo {
+  cycle: [String!]
+  cycleLength: Int
+  hasCircularReference: Boolean!
+}
+
+type GraphEdge {
+  id: String!
+  properties: JSON!
+  rank: Int!
+  sourceId: String!
+  targetId: String!
+  type: String!
+}
+
+type GraphHealthStatus {
+  healthy: Boolean!
+  message: String
+  syncEnabled: Boolean!
+}
+
+type GraphPath {
+  edges: [GraphEdge!]!
+  length: Int!
+  vertices: [GraphVertex!]!
+}
+
+type GraphPathInfo {
+  depth: Int!
+  objectType: ObjectTypeEntity!
+  objectTypeId: ID!
+  path: [String!]!
+}
+
+type GraphSchema {
+  edges: [GraphSchemaEdge!]!
+  space: String!
+  tags: [GraphSchemaTag!]!
+}
+
+type GraphSchemaEdge {
+  name: String!
+  properties: [String!]!
+}
+
+type GraphSchemaTag {
+  name: String!
+  properties: [String!]!
+}
+
+type GraphStats {
+  edgesByType: JSON!
+  totalEdges: Int!
+  totalVertices: Int!
+  verticesByTag: JSON!
+}
+
+type GraphStructure {
+  edges: [ObjectRelationshipEntity!]!
+  nodes: [ObjectTypeEntity!]!
+}
+
+type GraphSyncResult {
+  errors: [String!]!
+  instancesSync: Int!
+  relationshipsSync: Int!
+  success: Boolean!
+}
+
+type GraphVertex {
+  id: String!
+  properties: JSON!
+  tag: String!
+}
+
+type InstanceEntity {
+  createdAt: DateTime!
+  createdBy: String
+  data: JSON!
+  deletedAt: DateTime
+  displayName: String
+  id: ID!
+  incomingRelationships: [InstanceRelationshipEntity!]
+  isActive: Boolean!
+  objectType: ObjectTypeEntity!
+  objectTypeId: String!
+  outgoingRelationships: [InstanceRelationshipEntity!]
+  status: InstanceStatus!
+  updatedAt: DateTime!
+  updatedBy: String
+}
+
+type InstancePageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+}
+
+type InstanceRelationshipEntity {
+  createdAt: DateTime!
+  createdBy: String
+  deletedAt: DateTime
+  id: ID!
+  isActive: Boolean!
+  metadata: JSON
+  objectRelationship: ObjectRelationshipEntity!
+  objectRelationshipId: String!
+  sourceInstance: InstanceEntity!
+  sourceInstanceId: String!
+  targetInstance: InstanceEntity!
+  targetInstanceId: String!
+  updatedAt: DateTime!
+}
+
+"""Status of an instance in its lifecycle"""
+enum InstanceStatus {
+  ACTIVE
+  ARCHIVED
+  DELETED
+  DRAFT
+  INACTIVE
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+type LLMModel {
+  details: LLMModelDetails
+  digest: String
+  modifiedAt: String
+  name: String!
+  size: Float
+}
+
+type LLMModelDetails {
+  family: String
+  format: String
+  parameterSize: String
+  quantizationLevel: String
+}
+
+type LLMModelsResponse {
+  defaultModel: String!
+  models: [LLMModel!]!
+  selectedModel: String
+}
+
+input MetricDefinitionInput {
+  field: String
+  label: String
+  name: String!
+  type: MetricType!
+}
+
+"""Type of metric calculation"""
+enum MetricType {
+  AVG
+  COUNT
+  DISTINCT_COUNT
+  MAX
+  MIN
+  SUM
+}
+
+type MetricValue {
+  formattedValue: String
+  label: String
+  name: String!
+  value: Float!
+}
+
+type Mutation {
+  """Send a message to the AI Assistant and get a response"""
+  aiChatCompletion(input: AIChatInput!): AIChatResponse!
+  cancelWorkflow(instanceId: ID!, reason: String): Boolean!
+
+  """Change Instance status (requires admin or backoffice role)"""
+  changeInstanceStatus(id: ID!, status: InstanceStatus!): InstanceEntity!
+  confirmDocumentUpload(input: ConfirmDocumentUploadInput!): Document!
+
+  """Create a new chat session"""
+  createChatSession(input: CreateChatSessionInput!): ChatSession!
+  createDefaultInstanceWorkflow: WorkflowDefinitionEntity!
+  createDocumentCategory(input: CreateDocumentCategoryInput!): DocumentCategory!
+  createDocumentType(input: CreateDocumentTypeInput!): DocumentType!
+  createExternalSource(input: CreateExternalSourceInput!): ExternalSource!
+  createField(input: CreateFieldInput!): FieldEntity!
+
+  """Create a new Instance (requires admin or backoffice role)"""
+  createInstance(
+    """Instance creation input"""
+    input: CreateInstanceInput!
+  ): InstanceEntity!
+
+  """Create a relationship between two instances"""
+  createInstanceRelationship(input: CreateInstanceRelationshipInput!): InstanceRelationshipEntity!
+
+  """Create a new ObjectType"""
+  createObjectType(
+    """ObjectType creation input"""
+    input: CreateObjectTypeInput!
+  ): ObjectTypeEntity!
+  createRelationship(input: CreateRelationshipInput!): ObjectRelationshipEntity!
+
+  """Create and run one-time report"""
+  createReport(input: CreateReportInput!): ReportExecution!
+  createWorkflow(input: CreateWorkflowInput!): WorkflowDefinitionEntity!
+  createWorkflowState(input: CreateStateInput!): WorkflowStateEntity!
+  createWorkflowTransition(input: CreateTransitionInput!): WorkflowTransitionEntity!
+
+  """Delete a chat session and its history"""
+  deleteChatSession(sessionId: String!): Boolean!
+  deleteDocument(id: String!): Boolean!
+  deleteDocumentCategory(id: String!): Boolean!
+  deleteDocumentType(id: String!): Boolean!
+  deleteExternalSource(id: String!): Boolean!
+  deleteField(id: ID!): Boolean!
+
+  """Soft delete an Instance (requires admin role)"""
+  deleteInstance(
+    """Instance UUID to delete"""
+    id: ID!
+  ): Boolean!
+
+  """Delete an instance relationship"""
+  deleteInstanceRelationship(id: ID!): Boolean!
+
+  """Soft delete an ObjectType"""
+  deleteObjectType(
+    """ObjectType UUID to delete"""
+    id: ID!
+  ): Boolean!
+  deleteRelationship(id: ID!): Boolean!
+
+  """Delete scheduled report"""
+  deleteScheduledReport(id: ID!): Boolean!
+  deleteWorkflow(id: ID!): Boolean!
+  deleteWorkflowState(id: ID!): Boolean!
+  deleteWorkflowTransition(id: ID!): Boolean!
+
+  """Execute report now"""
+  executeReport(reportId: ID!): ReportExecution!
+  executeTransition(input: ExecuteTransitionInput!): TransitionResultOutput!
+
+  """Export data to file"""
+  exportData(input: ExportDataInput!): ExportResult!
+  getUploadPresignedUrl(input: GetUploadPresignedUrlInput!): UploadPresignedUrlResponse!
+
+  """Clear all data from graph database"""
+  graphClear: Boolean!
+
+  """Disable graph sync"""
+  graphDisableSync: Boolean!
+
+  """Enable graph sync"""
+  graphEnableSync: Boolean!
+
+  """Perform full sync from PostgreSQL to NebulaGraph"""
+  graphFullSync: GraphSyncResult!
+  processDocumentForRag(documentId: String!): Document!
+  reindexInstances: ReindexResponse!
+
+  """Restore a soft-deleted Instance (requires admin role)"""
+  restoreInstance(
+    """Instance UUID to restore"""
+    id: ID!
+  ): InstanceEntity!
+
+  """Restore a soft-deleted ObjectType"""
+  restoreObjectType(
+    """ObjectType UUID to restore"""
+    id: ID!
+  ): ObjectTypeEntity!
+  retryFailedGoldDistribution(documentId: String!): Boolean!
+
+  """Schedule recurring report"""
+  scheduleReport(input: ScheduleReportInput!): ReportDefinition!
+  startWorkflow(input: StartWorkflowInput!): WorkflowInstanceEntity!
+  syncExternalSource(fullSync: Boolean, id: String!): SyncResult!
+  syncInstanceIndex(instanceId: String!): Boolean!
+  testExternalSourceConnection(id: String!): TestConnectionResult!
+  toggleExternalSourceEnabled(id: String!): ExternalSource!
+
+  """Toggle report active status"""
+  toggleReportActive(id: ID!, isActive: Boolean!): ReportDefinition!
+  triggerSilverProcessing(documentId: String!): Boolean!
+  updateDocumentCategory(input: UpdateDocumentCategoryInput!): DocumentCategory!
+  updateDocumentType(input: UpdateDocumentTypeInput!): DocumentType!
+  updateExternalSource(input: UpdateExternalSourceInput!): ExternalSource!
+  updateField(input: UpdateFieldInput!): FieldEntity!
+
+  """Update an existing Instance (requires admin or backoffice role)"""
+  updateInstance(
+    """Instance update input"""
+    input: UpdateInstanceInput!
+  ): InstanceEntity!
+
+  """Update an existing ObjectType"""
+  updateObjectType(
+    """ObjectType update input"""
+    input: UpdateObjectTypeInput!
+  ): ObjectTypeEntity!
+  updateRelationship(input: UpdateRelationshipInput!): ObjectRelationshipEntity!
+
+  """Update scheduled report"""
+  updateScheduledReport(id: ID!, input: ScheduleReportInput!): ReportDefinition!
+  updateWorkflow(input: UpdateWorkflowInput!): WorkflowDefinitionEntity!
+  updateWorkflowState(input: UpdateStateInput!): WorkflowStateEntity!
+  updateWorkflowTransition(input: UpdateTransitionInput!): WorkflowTransitionEntity!
+
+  """Validate a DICT (PIX) request against BACEN rules"""
+  validateDictRequest(input: DictValidationInput!): DictValidationResult!
+}
+
+type NGQLResult {
+  columns: [String!]!
+  errorMessage: String
+  executionTimeMs: Float!
+  rowCount: Int!
+  rows: [[JSON!]!]!
+  success: Boolean!
+}
+
+input NeighborsInput {
+  direction: TraversalDirection! = BOTH
+  edgeTypes: [String!]
+  limit: Int! = 100
+  vertexId: String!
+}
+
+type ObjectRelationshipEntity {
+  cardinality: Cardinality!
+  created_at: DateTime!
+  deleted_at: DateTime
+  description: String
+  id: ID!
+  is_active: Boolean!
+  is_bidirectional: Boolean!
+  relationship_rules: String
+  relationship_type: RelationshipType!
+  source: ObjectTypeEntity!
+  source_id: String!
+  target: ObjectTypeEntity!
+  target_id: String!
+  updated_at: DateTime!
+}
+
+type ObjectTypeEntity {
+  created_at: DateTime!
+  deleted_at: DateTime
+  description: String
+  fields: [FieldEntity!]
+  id: ID!
+  is_active: Boolean!
+  name: String!
+  relationships: [ObjectRelationshipEntity!]
+  updated_at: DateTime!
+}
+
+type ObjectTypeStats {
+  fieldCount: Int!
+  id: ID!
+  instanceCount: Int!
+  name: String!
+  relationshipCount: Int!
+}
+
+type PageInfo {
+  endCursor: String
+  hasNextPage: Boolean!
+}
+
+type PaginatedInstancesResponse {
+  nodes: [InstanceEntity!]!
+  pageInfo: InstancePageInfo!
+  totalCount: Float!
+}
+
+type PaginatedObjectTypesResponse {
+  nodes: [ObjectTypeEntity!]!
+  pageInfo: PageInfo!
+  totalCount: Float!
+}
+
+type PaginatedRelationshipsResponse {
+  nodes: [ObjectRelationshipEntity!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type Query {
+  activeDocumentCategories: [DocumentCategory!]!
+  activeDocumentTypes: [DocumentType!]!
+  activeExternalSources: [ExternalSource!]!
+
+  """Execute analytics query"""
+  analyticsQuery(input: AnalyticsQueryInput!): AnalyticsResult!
+
+  """List all available LLM models from Ollama"""
+  availableLLMModels: LLMModelsResponse!
+  availableTransitions(instanceId: ID!): [AvailableTransitionOutput!]!
+
+  """Get chat history for a session"""
+  chatHistory(limit: Float = 50, sessionId: String!): ChatSession
+  currentWorkflowState(instanceId: ID!): WorkflowStateEntity
+
+  """Get dashboard summary"""
+  dashboardSummary(endDate: String, startDate: String): DashboardSummary!
+  document(id: String!): Document!
+  documentCategories: [DocumentCategory!]!
+  documentCategoriesByGoldLayer(goldLayer: GoldLayer!): [DocumentCategory!]!
+  documentCategory(id: String!): DocumentCategory!
+  documentGoldDistributions(documentId: String!): [GoldDistribution!]!
+  documentProcessingStats(documentId: String!): DocumentProcessingStats!
+  documentSilverChunks(documentId: String!): [SilverChunk!]!
+  documentType(id: String!): DocumentType!
+  documentTypes: [DocumentType!]!
+  documents(filter: DocumentsFilterInput): [Document!]!
+
+  """Execute a raw nGQL query"""
+  executeNGQL(input: ExecuteNGQLInput!): NGQLResult!
+
+  """Get export file info"""
+  exportFile(id: ID!): ExportResult
+  externalSource(id: String!): ExternalSource!
+  externalSources: [ExternalSource!]!
+  externalSourcesByType(type: ExternalSourceType!): [ExternalSource!]!
+  field(id: ID!): FieldEntity!
+  fields: [FieldEntity!]!
+  fieldsByObjectType(objectTypeId: ID!): [FieldEntity!]!
+
+  """Find all paths between two vertices"""
+  graphAllPaths(edgeTypes: [String!], maxDepth: Int! = 5, sourceId: String!, targetId: String!): [GraphPath!]!
+
+  """Run graph analytics"""
+  graphAnalytics(input: AnalyticsInput!): GraphAnalyticsResult!
+
+  """Find ancestors of a vertex"""
+  graphAncestors(edgeTypes: [String!], maxDepth: Int! = 5, vertexId: String!): TraversalResult!
+
+  """Get average node degree"""
+  graphAverageDegree: Float!
+  graphBFS(maxDepth: Int = 100, startId: ID!): [GraphPathInfo!]!
+  graphDFS(maxDepth: Int = 100, startId: ID!): [GraphPathInfo!]!
+
+  """Get graph density"""
+  graphDensity: Float!
+
+  """Find descendants of a vertex"""
+  graphDescendants(edgeTypes: [String!], maxDepth: Int! = 5, vertexId: String!): TraversalResult!
+  graphDetectCircularReferences(maxDepth: Int = 100, startId: ID!): GraphCircularReferenceInfo!
+
+  """Get graph service health status"""
+  graphHealth: GraphHealthStatus!
+
+  """Check if two vertices are connected"""
+  graphIsConnected(maxDepth: Int! = 10, vertexId1: String!, vertexId2: String!): Boolean!
+
+  """Find neighbors of a vertex"""
+  graphNeighbors(input: NeighborsInput!): TraversalResult!
+
+  """Get graph schema (tags and edges)"""
+  graphSchema: GraphSchema!
+
+  """Find shortest path between two vertices"""
+  graphShortestPath(input: ShortestPathInput!): GraphPath
+
+  """Get graph statistics"""
+  graphStats: GraphStats!
+  graphStructure(maxNodes: Int = 1000): GraphStructure!
+
+  """Get subgraph around specified vertices"""
+  graphSubgraph(depth: Int! = 1, edgeTypes: [String!], vertexIds: [String!]!): TraversalResult!
+
+  """Traverse graph from a starting vertex"""
+  graphTraverse(input: TraversalInput!): TraversalResult!
+
+  """Retrieve a single Instance by ID"""
+  instance(
+    """Instance UUID"""
+    id: ID!
+  ): InstanceEntity!
+
+  """Get a single instance relationship by ID"""
+  instanceRelationship(id: ID!): InstanceRelationshipEntity!
+
+  """Get relationships for an instance"""
+  instanceRelationships(direction: RelationshipDirection = ALL, instanceId: ID!): [InstanceRelationshipEntity!]!
+
+  """Retrieve paginated list of Instances"""
+  instances(after: String, first: Int = 10, objectTypeId: ID, status: InstanceStatus): PaginatedInstancesResponse!
+
+  """Retrieve Instances for a specific ObjectType"""
+  instancesByObjectType(after: String, first: Int = 10, objectTypeId: ID, status: InstanceStatus): PaginatedInstancesResponse!
+
+  """Retrieve a single ObjectType by ID"""
+  objectType(
+    """ObjectType UUID"""
+    id: ID!
+  ): ObjectTypeEntity!
+
+  """Retrieve paginated list of ObjectTypes"""
+  objectTypes(after: String, first: Int = 10): PaginatedObjectTypesResponse!
+
+  """Get instances related to a given instance"""
+  relatedInstances(instanceId: ID!, objectRelationshipId: ID): [InstanceEntity!]!
+  relationship(id: ID!): ObjectRelationshipEntity!
+  relationships(after: String, first: Int = 10): PaginatedRelationshipsResponse!
+  relationshipsByObjectType(objectTypeId: ID!): [ObjectRelationshipEntity!]!
+
+  """Get report definition"""
+  report(id: ID!): ReportDefinition!
+
+  """Get execution status"""
+  reportExecution(id: ID!): ReportExecution!
+
+  """List report executions"""
+  reportExecutions(limit: Float = 20, reportId: ID!): ReportExecutionList!
+
+  """List scheduled reports"""
+  scheduledReports(limit: Float = 50, offset: Float = 0): ScheduledReportList!
+  searchHealth: SearchHealthResponse!
+  searchInstances(input: SearchInstancesInput!): SearchInstancesResponse!
+  searchStats: SearchStatsResponse!
+  searchSuggestions(objectTypeId: String, query: String!): [String!]!
+
+  """Performs semantic search across document embeddings"""
+  semanticSearch(input: SemanticSearchInput!): SemanticSearchResponse!
+
+  """Get time series data"""
+  timeSeries(endDate: String!, granularity: DateGranularity!, metricName: String!, objectTypeIds: [String!], startDate: String!): TimeSeriesResult!
+
+  """Validate instance data against ObjectType schema without creating"""
+  validateInstanceData(data: JSON!, objectTypeId: ID!): ValidationResultType!
+  workflow(id: ID!): WorkflowDefinitionEntity
+  workflowByObjectType(objectTypeId: ID!): WorkflowDefinitionEntity
+  workflowHistory(instanceId: ID!): [WorkflowHistoryEntity!]!
+  workflowInstance(instanceId: ID!): WorkflowInstanceEntity
+  workflowStates(workflowId: ID!): [WorkflowStateEntity!]!
+  workflowTransitions(workflowId: ID!): [WorkflowTransitionEntity!]!
+  workflows(objectTypeId: ID): [WorkflowDefinitionEntity!]!
+}
+
+type ReindexResponse {
+  failed: Int!
+  indexed: Int!
+}
+
+"""Direction of relationship to query"""
+enum RelationshipDirection {
+  ALL
+  INCOMING
+  OUTGOING
+}
+
+"""Types of relationships between ObjectTypes"""
+enum RelationshipType {
+  BELONGS_TO
+  CHILD_OF
+  HAS_MANY
+  HAS_ONE
+  PARENT_OF
+}
+
+type ReportDefinition {
+  createdAt: DateTime!
+  cronExpression: String
+  description: String
+  format: ExportFormat!
+  frequency: ReportFrequency
+  id: ID!
+  isActive: Boolean!
+  lastRunAt: DateTime
+  name: String!
+  nextRunAt: DateTime
+  query: JSON!
+  recipients: [String!]
+  updatedAt: DateTime!
+}
+
+type ReportExecution {
+  completedAt: DateTime
+  downloadUrl: String
+  errorMessage: String
+  executionTimeMs: Float
+  fileSizeBytes: Int
+  id: ID!
+  reportId: ID!
+  rowCount: Int
+  startedAt: DateTime!
+  status: ReportStatus!
+}
+
+type ReportExecutionList {
+  executions: [ReportExecution!]!
+  totalCount: Int!
+}
+
+"""Frequency for scheduled reports"""
+enum ReportFrequency {
+  DAILY
+  MONTHLY
+  ONCE
+  QUARTERLY
+  WEEKLY
+}
+
+"""Status of report generation"""
+enum ReportStatus {
+  CANCELLED
+  COMPLETED
+  FAILED
+  GENERATING
+  PENDING
+}
+
+input ScheduleReportInput {
+  cronExpression: String
+  description: String
+  format: ExportFormat!
+  frequency: ReportFrequency!
+  isActive: Boolean = true
+  name: String!
+  query: AnalyticsQueryInput!
+  recipients: [String!]
+}
+
+type ScheduledReportList {
+  reports: [ReportDefinition!]!
+  totalCount: Int!
+}
+
+type SearchFacets {
+  creators: String!
+  objectTypes: String!
+  statuses: String!
+}
+
+input SearchFiltersInput {
+  createdAfter: DateTime
+  createdBefore: DateTime
+  createdBy: String
+  objectTypeId: String
+  objectTypeName: String
+  status: [InstanceStatus!]
+}
+
+type SearchHealthResponse {
+  error: String
+  healthy: Boolean!
+  version: String
+}
+
+input SearchInstancesInput {
+  filters: SearchFiltersInput
+  includeFacets: Boolean! = false
+  limit: Int! = 20
+  offset: Int! = 0
+  query: String! = ""
+  sort: String! = "relevance"
+}
+
+type SearchInstancesResponse {
+  facets: SearchFacets
+  instances: [InstanceEntity!]!
+  limit: Int!
+  offset: Int!
+  processingTimeMs: Int!
+  query: String!
+  total: Int!
+}
+
+type SearchResultChunk {
+  chunkId: String!
+  chunkIndex: Int!
+  chunkText: String!
+  createdAt: String!
+  documentId: String!
+  documentTypeId: String!
+  documentTypeName: String!
+  endOffset: Int!
+  originalFilename: String!
+  score: Float!
+  startOffset: Int!
+  tokenCount: Int!
+}
+
+type SearchStatsResponse {
+  fieldDistribution: String!
+  isIndexing: Boolean!
+  totalIndexed: Int!
+}
+
+input SemanticSearchInput {
+  documentTypeId: String
+  limit: Int = 10
+  query: String!
+  scoreThreshold: Float = 0.7
+}
+
+type SemanticSearchResponse {
+  processingTimeMs: Float!
+  query: String!
+  results: [SearchResultChunk!]!
+  total: Int!
+}
+
+input ShortestPathInput {
+  direction: TraversalDirection! = BOTH
+  edgeTypes: [String!]
+  maxDepth: Int! = 5
+  sourceVertexId: String!
+  targetVertexId: String!
+}
+
+type SilverChunk {
+  chunkIndex: Int!
+  content: String!
+  createdAt: DateTime!
+  document: Document!
+  documentId: ID!
+  errorMessage: String
+  extractedEntities: JSON!
+  hasImage: Boolean!
+  hasTable: Boolean!
+  id: ID!
+  pageNumber: Int
+  processingStatus: SilverProcessingStatus!
+  sectionHierarchy: JSON!
+  tokenCount: Int!
+  updatedAt: DateTime!
+}
+
+"""Processing status for silver layer chunks"""
+enum SilverProcessingStatus {
+  COMPLETED
+  FAILED
+  PENDING
+  PROCESSING
+}
+
+input StartWorkflowInput {
+  contextData: JSON
+  instanceId: ID!
+  workflowId: ID!
+}
+
+type StatusDistribution {
+  count: Int!
+  percentage: Float!
+  status: String!
+}
+
+type SyncResult {
+  recordsProcessed: Float!
+  success: Boolean!
+}
+
+type TestConnectionResult {
+  latencyMs: Float
+  message: String!
+  success: Boolean!
+}
+
+type TimeSeriesDataPoint {
+  label: String
+  timestamp: String!
+  value: Float!
+}
+
+type TimeSeriesResult {
+  data: [TimeSeriesDataPoint!]!
+  granularity: DateGranularity!
+  metricName: String!
+}
+
+type TransitionResultOutput {
+  fromState: String!
+  historyEntryId: ID!
+  success: Boolean!
+  toState: String!
+}
+
+"""Direction for graph traversal"""
+enum TraversalDirection {
+  BOTH
+  INBOUND
+  OUTBOUND
+}
+
+input TraversalInput {
+  direction: TraversalDirection! = OUTBOUND
+  edgeTypes: [String!]
+  limit: Int
+  maxDepth: Int! = 3
+  minDepth: Int! = 1
+  startVertexId: String!
+}
+
+type TraversalResult {
+  edges: [GraphEdge!]!
+  paths: [GraphPath!]
+  totalEdges: Int!
+  totalVertices: Int!
+  vertices: [GraphVertex!]!
+}
+
+input UpdateDocumentCategoryInput {
+  description: String
+  id: ID!
+  isActive: Boolean
+  metadataSchema: JSON
+  name: String
+  ragConfig: JSON
+  targetGoldLayers: [GoldLayer!]
+}
+
+input UpdateDocumentTypeInput {
+  allowedExtensions: [String!]
+  description: String
+  id: ID!
+  isActive: Boolean
+  maxFileSizeMb: Int
+  name: String
+}
+
+input UpdateExternalSourceInput {
+  connectionConfig: JSON
+  description: String
+  id: ID!
+  isEnabled: Boolean
+  name: String
+  sourceType: ExternalSourceType
+  status: ExternalSourceStatus
+  syncConfig: JSON
+}
+
+input UpdateFieldInput {
+  field_type: FieldType
+  id: ID!
+  is_required: Boolean
+  name: String
+  validation_rules: JSON
+}
+
+input UpdateInstanceInput {
+  data: JSON
+  displayName: String
+  id: ID!
+  isActive: Boolean
+  status: InstanceStatus
+}
+
+input UpdateObjectTypeInput {
+  description: String
+  id: ID!
+  is_active: Boolean
+  name: String
+}
+
+input UpdateRelationshipInput {
+  cardinality: Cardinality
+  description: String
+  id: ID!
+  is_active: Boolean
+  is_bidirectional: Boolean
+  relationship_rules: JSON
+  relationship_type: RelationshipType
+}
+
+input UpdateStateInput {
+  color: String
+  description: String
+  displayName: String
+  displayOrder: Int
+  entryActions: JSON
+  exitActions: JSON
+  icon: String
+  id: ID!
+  metadata: JSON
+}
+
+input UpdateTransitionInput {
+  actions: JSON
+  conditions: JSON
+  description: String
+  displayOrder: Int
+  id: ID!
+  isAutomatic: Boolean
+  metadata: JSON
+  name: String
+  requiredRoles: [String!]
+  requiresComment: Boolean
+}
+
+input UpdateWorkflowInput {
+  description: String
+  finalStates: [String!]
+  id: ID!
+  initialState: String
+  isActive: Boolean
+  metadata: JSON
+  name: String
+  objectTypeId: String
+  workflowType: WorkflowType
+}
+
+type UploadPresignedUrlResponse {
+  expiresIn: Int!
+  fileKey: String!
+  uploadUrl: String!
+}
+
+type ValidationErrorType {
+  code: String!
+  field: String!
+  message: String!
+  value: JSON
+}
+
+type ValidationResultType {
+  errors: [ValidationErrorType!]!
+  isValid: Boolean!
+  warnings: [ValidationErrorType!]!
+}
+
+type WorkflowDefinitionEntity {
+  createdAt: DateTime!
+  createdBy: String
+  deletedAt: DateTime
+  description: String
+  finalStates: [String!]!
+  id: ID!
+  initialState: String!
+  isActive: Boolean!
+  metadata: JSON!
+  name: String!
+  objectType: ObjectTypeEntity
+  objectTypeId: String
+  updatedAt: DateTime!
+  version: Float!
+  workflowType: WorkflowType!
+}
+
+type WorkflowHistoryEntity {
+  comment: String
+  createdAt: DateTime!
+  durationMs: Float!
+  fromState: String!
+  id: ID!
+  performedBy: String
+  toState: String!
+  transitionData: JSON
+  transitionName: String!
+  workflowInstanceId: String!
+}
+
+type WorkflowInstanceEntity {
+  completedAt: DateTime
+  contextData: JSON
+  createdAt: DateTime!
+  currentState: String!
+  id: ID!
+  instanceId: String!
+  isCompleted: Boolean!
+  previousState: String
+  startedBy: String
+  updatedAt: DateTime!
+  workflow: WorkflowDefinitionEntity!
+  workflowId: String!
+  workflowVersion: Float!
+}
+
+type WorkflowStateEntity {
+  color: String
+  createdAt: DateTime!
+  description: String
+  displayName: String
+  displayOrder: Float!
+  entryActions: JSON
+  exitActions: JSON
+  icon: String
+  id: ID!
+  metadata: JSON
+  name: String!
+  updatedAt: DateTime!
+  workflowId: String!
+}
+
+type WorkflowTransitionEntity {
+  actions: JSON
+  conditions: JSON
+  createdAt: DateTime!
+  description: String
+  displayOrder: Float!
+  fromState: String!
+  id: ID!
+  isAutomatic: Boolean!
+  metadata: JSON
+  name: String!
+  requiredRoles: [String!]
+  requiresComment: Boolean!
+  toState: String!
+  updatedAt: DateTime!
+  workflowId: String!
+}
+
+"""Type of workflow"""
+enum WorkflowType {
+  APPROVAL
+  LINEAR
+  STATE_MACHINE
+}

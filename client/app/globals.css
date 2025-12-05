@@ -1,0 +1,229 @@
+@import "tailwindcss";
+
+/* ============================================
+   INTELLICORE - CENTRALIZED THEME SYSTEM
+   Change colors here to update ALL pages
+   ============================================ */
+
+:root {
+  /* Light Mode (Default) */
+  --background: #ffffff;
+  --foreground: #111827;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #f3f4f6;
+  --secondary-foreground: #374151;
+  --muted: #9ca3af;
+  --muted-foreground: #6b7280;
+  --accent: #22c55e;
+  --accent-foreground: #ffffff;
+  --border: #d1d5db;
+  --input: #ffffff;
+  --input-border: #d1d5db;
+  --ring: #3b82f6;
+
+  /* Text Colors - Centralized */
+  --text-primary: #111827;      /* gray-900 - Main text, titles, labels */
+  --text-secondary: #374151;    /* gray-700 - Secondary text, descriptions */
+  --text-muted: #6b7280;        /* gray-500 - Muted text, placeholders */
+  --text-disabled: #9ca3af;     /* gray-400 - Disabled text */
+
+  /* Form Colors */
+  --form-label: #111827;        /* gray-900 */
+  --form-input-bg: #ffffff;
+  --form-input-text: #111827;
+  --form-input-border: #d1d5db; /* gray-300 */
+  --form-input-focus: #3b82f6;
+  --form-placeholder: #9ca3af;  /* gray-400 */
+
+  /* Card/Surface Colors */
+  --card-bg: #ffffff;
+  --card-border: #e5e7eb;       /* gray-200 */
+  --card-hover: #f9fafb;        /* gray-50 */
+
+  /* Table Colors */
+  --table-header-bg: #f9fafb;   /* gray-50 */
+  --table-header-text: #374151; /* gray-700 */
+  --table-row-border: #e5e7eb;  /* gray-200 */
+  --table-row-hover: #f9fafb;   /* gray-50 */
+}
+
+/* Dark Mode */
+.dark, [data-theme="dark"] {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #1e293b;
+  --secondary-foreground: #f1f5f9;
+  --muted: #334155;
+  --muted-foreground: #94a3b8;
+  --accent: #22c55e;
+  --accent-foreground: #ffffff;
+  --border: #334155;
+  --input: #1e293b;
+  --input-border: #475569;
+  --ring: #3b82f6;
+
+  /* Text Colors - Dark Mode */
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  --text-disabled: #6b7280;
+
+  /* Form Colors - Dark Mode */
+  --form-label: #f9fafb;
+  --form-input-bg: #1e293b;
+  --form-input-text: #f9fafb;
+  --form-input-border: #475569;
+  --form-input-focus: #3b82f6;
+  --form-placeholder: #6b7280;
+
+  /* Card/Surface Colors - Dark Mode */
+  --card-bg: #1e293b;
+  --card-border: #334155;
+  --card-hover: #334155;
+
+  /* Table Colors - Dark Mode */
+  --table-header-bg: #1e293b;
+  --table-header-text: #d1d5db;
+  --table-row-border: #334155;
+  --table-row-hover: #334155;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ============================================
+   BASE STYLES - Form Elements
+   These apply globally to all form elements
+   ============================================ */
+
+/* Labels */
+label {
+  color: var(--form-label);
+}
+
+/* Text Inputs, Textareas, Selects */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"],
+textarea,
+select {
+  background-color: var(--form-input-bg);
+  color: var(--form-input-text);
+  border-color: var(--form-input-border);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--form-placeholder);
+}
+
+/* Focus states */
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--form-input-focus);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* ============================================
+   UTILITY CLASSES - Use these in components
+   ============================================ */
+
+/* Text utilities */
+.text-theme-primary {
+  color: var(--text-primary);
+}
+
+.text-theme-secondary {
+  color: var(--text-secondary);
+}
+
+.text-theme-muted {
+  color: var(--text-muted);
+}
+
+/* Background utilities */
+.bg-theme-card {
+  background-color: var(--card-bg);
+}
+
+.bg-theme-surface {
+  background-color: var(--background);
+}
+
+/* Border utilities */
+.border-theme {
+  border-color: var(--border);
+}
+
+.border-theme-card {
+  border-color: var(--card-border);
+}
+
+/* Form element utilities */
+.form-label {
+  color: var(--form-label);
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.form-input {
+  background-color: var(--form-input-bg);
+  color: var(--form-input-text);
+  border: 1px solid var(--form-input-border);
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+}
+
+.form-input:focus {
+  border-color: var(--form-input-focus);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* Card utilities */
+.card-theme {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 0.5rem;
+}
+
+/* Table utilities */
+.table-header-theme {
+  background-color: var(--table-header-bg);
+  color: var(--table-header-text);
+}
+
+.table-row-theme {
+  border-bottom: 1px solid var(--table-row-border);
+}
+
+.table-row-theme:hover {
+  background-color: var(--table-row-hover);
+}

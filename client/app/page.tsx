@@ -1,0 +1,127 @@
+'use client';
+
+import { useTranslation } from 'react-i18next';
+import Link from 'next/link';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+
+export default function HomePage() {
+  const { t } = useTranslation();
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
+      {/* Language Switcher in top right */}
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
+
+      <div className="container mx-auto px-4 py-16">
+        {/* Header */}
+        <div className="text-center mb-16">
+          <h1 className="text-5xl font-bold text-gray-900 mb-4">{t('common.appName')}</h1>
+          <p className="text-xl text-gray-600">
+            Plataforma Universal de Meta-Modelagem Orientada por IA
+          </p>
+        </div>
+
+        {/* Main Navigation Cards */}
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          {/* Backoffice Card */}
+          <Link href="/backoffice">
+            <div className="bg-white border border-gray-200 rounded-lg p-8 hover:border-blue-500 hover:shadow-lg transition-all cursor-pointer group shadow-sm">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mr-4">
+                  <svg
+                    className="w-6 h-6 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                    />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                  {t('nav.backoffice')}
+                </h2>
+              </div>
+              <p className="text-gray-600 mb-4">{t('backoffice.description')}</p>
+              <ul className="space-y-2 text-sm text-gray-500">
+                <li className="flex items-center">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></span>
+                  {t('nav.objectTypes')}
+                </li>
+                <li className="flex items-center">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></span>
+                  {t('nav.hierarchies')}
+                </li>
+                <li className="flex items-center">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></span>
+                  {t('nav.documents')}
+                </li>
+                <li className="flex items-center">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></span>
+                  {t('nav.agents')}
+                </li>
+              </ul>
+            </div>
+          </Link>
+
+          {/* Front-office Card */}
+          <Link href="/frontoffice">
+            <div className="bg-white border border-gray-200 rounded-lg p-8 hover:border-green-500 hover:shadow-lg transition-all cursor-pointer group shadow-sm">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mr-4">
+                  <svg
+                    className="w-6 h-6 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 group-hover:text-green-600 transition-colors">
+                  {t('nav.frontoffice')}
+                </h2>
+              </div>
+              <p className="text-gray-600 mb-4">{t('frontoffice.description')}</p>
+              <ul className="space-y-2 text-sm text-gray-500">
+                <li className="flex items-center">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></span>
+                  {t('nav.createInstance')}
+                </li>
+                <li className="flex items-center">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></span>
+                  {t('nav.listInstances')}
+                </li>
+                <li className="flex items-center">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></span>
+                  {t('nav.search')}
+                </li>
+                <li className="flex items-center">
+                  <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></span>
+                  {t('nav.reports')}
+                </li>
+              </ul>
+            </div>
+          </Link>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center mt-16 text-gray-500 text-sm">
+          <p>intelliCore - Universal Meta-Modeling Platform v2.0</p>
+          <p className="mt-2">Powered by Next.js 16 + NestJS + PostgreSQL + Keycloak</p>
+        </div>
+      </div>
+    </div>
+  );
+}
