@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  Unique,
 } from 'typeorm';
 import { ObjectTypeEntity } from '../../object-types/entities/object-type.entity';
 
@@ -26,6 +27,7 @@ registerEnumType(FieldType, {
 
 @ObjectType()
 @Entity('fields')
+@Unique(['object_type_id', 'name'])
 export class FieldEntity {
   @Field(() => ID)
   @PrimaryGeneratedColumn('uuid')
@@ -60,6 +62,14 @@ export class FieldEntity {
   @Field(() => String, { nullable: true })
   @Column('jsonb', { nullable: true })
   validation_rules?: any;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true, length: 100 })
+  created_by?: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true, length: 100 })
+  updated_by?: string;
 
   @Field()
   @CreateDateColumn()

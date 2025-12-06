@@ -37,6 +37,14 @@ export class ObjectTypeEntity {
   // We don't define OneToMany here to avoid circular dependency issues
   // The field resolver will query relationships dynamically
 
+  @Field({ nullable: true })
+  @Column({ nullable: true, length: 100 })
+  created_by?: string;
+
+  @Field({ nullable: true })
+  @Column({ nullable: true, length: 100 })
+  updated_by?: string;
+
   @Field()
   @CreateDateColumn()
   created_at: Date;
