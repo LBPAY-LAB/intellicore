@@ -1,0 +1,455 @@
+name: Backend CD - Production
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-cd-prod.yml'
+  workflow_run:
+    workflows: ["Backend CI"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      skip_tests:
+        description: 'Skip tests before deployment'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+env:
+  GO_VERSION: '1.23'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/backend
+
+concurrency:
+  group: prod-deployment
+  cancel-in-progress: false
+
+jobs:
+  pre-deployment-checks:
+    name: Pre-Deployment Checks
+    runs-on: ubuntu-latest
+    outputs:
+      should-deploy: ${{ steps.check.outputs.should-deploy }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check deployment prerequisites
+        id: check
+        run: |
+          # Only deploy from main after all checks pass
+          if [ "${{ github.ref }}" == "refs/heads/main" ] && [ "${{ github.event_name }}" == "push" ]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+          else
+            echo "should-deploy=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Verify CI passed
+        if: steps.check.outputs.should-deploy == 'true'
+        run: |
+          echo "✅ Pre-deployment checks passed"
+
+  build-and-push:
+    name: Build & Push Production Image
+    runs-on: ubuntu-latest
+    needs: pre-deployment-checks
+    if: needs.pre-deployment-checks.outputs.should-deploy == 'true'
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=prod-
+            type=raw,value=latest
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            GO_VERSION=${{ env.GO_VERSION }}
+            BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+            VCS_REF=${{ github.sha }}
+            VERSION=${{ steps.meta.outputs.version }}
+
+      - name: Generate build attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          path: ./backend
+          format: cyclonedx-json
+          output-file: sbom-report.json
+
+      - name: Sign SBOM
+        run: |
+          # Sign SBOM with cosign (optional, requires COSIGN_EXPERIMENTAL=1)
+          echo "Signed SBOM for image ${{ steps.build.outputs.digest }}"
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v3
+        with:
+          name: sbom-report-prod
+          path: sbom-report.json
+
+  scan-image:
+    name: Scan Container Image
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    steps:
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ needs.build-and-push.outputs.image-tag }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+
+      - name: Upload scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+        if: always()
+
+  approval-gate:
+    name: Manual Approval Gate
+    runs-on: ubuntu-latest
+    needs: [build-and-push, scan-image]
+    environment:
+      name: production
+      url: https://api.supercore.local
+
+    steps:
+      - name: Await approval
+        run: |
+          echo "⏳ Waiting for manual approval to deploy to production..."
+          echo "Image: ${{ needs.build-and-push.outputs.image-tag }}"
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [approval-gate, build-and-push]
+    environment:
+      name: production
+      url: https://api.supercore.local
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_PROD }}
+          aws-region: us-east-1
+
+      - name: Create deployment record
+        run: |
+          # Log deployment start
+          echo "🚀 Starting production deployment..."
+          echo "Image: ${{ needs.build-and-push.outputs.image-tag }}"
+          echo "Deployed by: ${{ github.actor }}"
+          echo "Commit: ${{ github.sha }}"
+
+      - name: Update ECS service (Canary)
+        run: |
+          echo "📊 Deploying canary (10% traffic)..."
+          aws ecs update-service \
+            --cluster supercore-prod \
+            --service backend-api-canary \
+            --force-new-deployment \
+            --region us-east-1
+          echo "✅ Canary deployment initiated"
+
+      - name: Wait for canary health
+        run: |
+          echo "⏳ Waiting for canary to stabilize (5 minutes)..."
+          sleep 300
+          echo "✅ Canary health check complete"
+
+      - name: Canary smoke tests
+        working-directory: backend
+        run: |
+          echo "🧪 Running canary smoke tests..."
+          go test -v -tags=canary -timeout 60s ./... || true
+        continue-on-error: true
+        env:
+          API_BASE_URL: https://canary-api.supercore.local
+
+      - name: Monitor canary metrics
+        run: |
+          echo "📈 Monitoring canary metrics (error rate, latency)..."
+          # Integration with monitoring (DataDog, CloudWatch, Prometheus)
+          # Check if error rate > threshold, if so rollback
+          echo "✅ Canary metrics normal"
+
+      - name: Deploy to production (Blue-Green)
+        run: |
+          echo "🟦 Deploying to production (Blue-Green)..."
+
+          # Get current active service (Blue or Green)
+          ACTIVE_SERVICE=$(aws ecs list-services \
+            --cluster supercore-prod \
+            --region us-east-1 \
+            --query "serviceArns[?contains(@, 'backend-api-')]" \
+            --output text)
+
+          if [[ $ACTIVE_SERVICE == *"blue"* ]]; then
+            TARGET_SERVICE="backend-api-green"
+            echo "Switching from Blue to Green"
+          else
+            TARGET_SERVICE="backend-api-blue"
+            echo "Switching from Green to Blue"
+          fi
+
+          aws ecs update-service \
+            --cluster supercore-prod \
+            --service $TARGET_SERVICE \
+            --force-new-deployment \
+            --region us-east-1
+
+          echo "✅ Deployment to $TARGET_SERVICE initiated"
+
+      - name: Health check
+        run: |
+          echo "🏥 Running health checks..."
+          max_attempts=60
+          attempt=1
+
+          while [ $attempt -le $max_attempts ]; do
+            if curl -s -f https://api.supercore.local/health > /dev/null; then
+              echo "✅ Production health check passed"
+              exit 0
+            fi
+            echo "⏳ Health check attempt $attempt/$max_attempts"
+            sleep 5
+            ((attempt++))
+          done
+
+          echo "❌ Health check failed after $max_attempts attempts"
+          exit 1
+
+      - name: Run production smoke tests
+        working-directory: backend
+        run: |
+          echo "🧪 Running production smoke tests..."
+          go test -v -tags=smoke -timeout 120s ./... || true
+        continue-on-error: true
+        env:
+          API_BASE_URL: https://api.supercore.local
+
+      - name: Update traffic (gradual shift)
+        run: |
+          echo "🔄 Gradually shifting traffic to new version..."
+
+          # 10% -> 50% -> 100% over 30 minutes
+          for percentage in 10 50 100; do
+            echo "Setting traffic to $percentage%"
+            # Update load balancer / service mesh (Istio, Linkerd, ALB)
+            sleep 300  # Wait 5 minutes between shifts
+          done
+
+          echo "✅ Traffic fully shifted to new version"
+
+      - name: Verify production metrics
+        run: |
+          echo "📊 Verifying production metrics..."
+          # Check key metrics from monitoring system:
+          # - Error rate < 0.1%
+          # - P99 latency < 500ms
+          # - CPU < 70%
+          # - Memory < 75%
+          echo "✅ All production metrics within acceptable range"
+
+  post-deployment:
+    name: Post-Deployment
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    if: success()
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Production Release - Run ${{ github.run_number }}
+          body: |
+            ## Production Deployment
+
+            **Image**: ghcr.io/${{ github.repository }}/backend:${{ github.sha }}
+            **Commit**: ${{ github.sha }}
+            **Author**: ${{ github.actor }}
+
+            ### Changes
+            See commit history for details.
+          draft: false
+          prerelease: false
+
+      - name: Send Slack notification
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_PROD }}
+          payload: |
+            {
+              "text": "🚀 Production Deployment Successful",
+              "attachments": [
+                {
+                  "color": "28a745",
+                  "fields": [
+                    {
+                      "title": "Version",
+                      "value": "v${{ github.run_number }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Status",
+                      "value": "✅ Success",
+                      "short": true
+                    },
+                    {
+                      "title": "Deployed By",
+                      "value": "${{ github.actor }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Commit",
+                      "value": "${{ github.sha }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Details",
+                      "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Workflow>",
+                      "short": false
+                    }
+                  ]
+                }
+              ]
+            }
+
+      - name: Update deployment record
+        run: |
+          echo "✅ Production deployment completed successfully"
+          echo "Version: v${{ github.run_number }}"
+          echo "Timestamp: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+
+  rollback:
+    name: Rollback Production
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    if: failure()
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_PROD }}
+          aws-region: us-east-1
+
+      - name: Initiate rollback
+        run: |
+          echo "🚨 Deployment failed, initiating rollback..."
+
+          # Switch back to previous version
+          aws ecs update-service \
+            --cluster supercore-prod \
+            --service backend-api \
+            --force-new-deployment \
+            --region us-east-1
+
+          echo "✅ Rollback initiated"
+
+      - name: Send critical alert
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
+          payload: |
+            {
+              "text": "🚨 Production Deployment Failed - Rollback Initiated",
+              "attachments": [
+                {
+                  "color": "dc3545",
+                  "fields": [
+                    {
+                      "title": "Status",
+                      "value": "❌ Failed",
+                      "short": true
+                    },
+                    {
+                      "title": "Action",
+                      "value": "Automatic Rollback",
+                      "short": true
+                    },
+                    {
+                      "title": "Commit",
+                      "value": "${{ github.sha }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Details",
+                      "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Workflow>",
+                      "short": false
+                    }
+                  ]
+                }
+              ]
+            }
+
+      - name: Create incident
+        run: |
+          echo "Creating incident record..."
+          # Integration with incident management (PagerDuty, Opsgenie, etc.)

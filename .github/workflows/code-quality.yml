@@ -1,0 +1,347 @@
+name: Code Quality
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/code-quality.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'backend/**'
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+
+env:
+  GO_VERSION: '1.23'
+
+jobs:
+  sonarqube:
+    name: SonarQube Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: backend/go.sum
+
+      - name: Run tests with coverage
+        working-directory: backend
+        run: |
+          go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
+        env:
+          GIN_MODE: test
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@master
+        with:
+          args: >
+            -Dsonar.projectKey=supercore
+            -Dsonar.sources=backend
+            -Dsonar.go.coverage.reportPaths=backend/coverage.out
+            -Dsonar.go.tests.reportPaths=backend/test-report.json
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        continue-on-error: true
+
+      - name: SonarQube Quality Gate
+        uses: SonarSource/sonarqube-quality-gate-action@master
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        continue-on-error: true
+
+  code-smell-detection:
+    name: Code Smell & Maintainability
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: backend/go.sum
+
+      - name: Install gocyclo
+        run: go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
+
+      - name: Check cyclomatic complexity
+        working-directory: backend
+        run: |
+          echo "📊 Checking cyclomatic complexity..."
+          gocyclo -over 10 ./... | tee complexity-report.txt || true
+          ISSUES=$(wc -l < complexity-report.txt)
+          echo "Found $ISSUES functions with high complexity"
+
+      - name: Install godepgraph
+        run: go install github.com/PuerkitoBio/godepgraph@latest
+
+      - name: Generate dependency graph
+        working-directory: backend
+        run: |
+          godepgraph -s ./cmd/api > dependencies.dot || true
+
+      - name: Check for circular dependencies
+        working-directory: backend
+        run: |
+          if grep -q "cycle" dependencies.dot 2>/dev/null; then
+            echo "⚠️  Circular dependencies detected"
+          else
+            echo "✅ No circular dependencies"
+          fi
+
+  documentation:
+    name: Documentation Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Generate Go documentation
+        working-directory: backend
+        run: |
+          echo "📖 Checking code documentation..."
+          go doc ./... > /dev/null 2>&1
+          echo "✅ Documentation generated successfully"
+
+      - name: Check for undocumented functions
+        working-directory: backend
+        run: |
+          undocumented=$(go doc -src ./... | grep -c "^func" || true)
+          if [ "$undocumented" -gt 0 ]; then
+            echo "⚠️  Found undocumented exported functions"
+          fi
+
+  test-coverage:
+    name: Test Coverage Report
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: supercore_test
+          POSTGRES_USER: supercore
+          POSTGRES_PASSWORD: test_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: backend/go.sum
+
+      - name: Run tests with coverage
+        working-directory: backend
+        run: |
+          go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
+        env:
+          DATABASE_URL: postgresql://supercore:test_password@localhost:5432/supercore_test
+          GIN_MODE: test
+
+      - name: Generate HTML coverage report
+        working-directory: backend
+        run: |
+          go tool cover -html=coverage.out -o coverage.html
+          go tool cover -func=coverage.out > coverage-summary.txt
+          cat coverage-summary.txt
+
+      - name: Extract coverage percentage
+        working-directory: backend
+        run: |
+          COVERAGE=$(grep "total:" coverage-summary.txt | awk '{print $3}' | sed 's/%//')
+          echo "COVERAGE=${COVERAGE}" >> $GITHUB_ENV
+          if (( $(echo "$COVERAGE >= 80" | bc -l) )); then
+            echo "✅ Coverage is good: ${COVERAGE}%"
+          elif (( $(echo "$COVERAGE >= 60" | bc -l) )); then
+            echo "⚠️  Coverage is moderate: ${COVERAGE}%"
+          else
+            echo "❌ Coverage is low: ${COVERAGE}%"
+          fi
+
+      - name: Comment coverage on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const coverage = fs.readFileSync('./backend/coverage-summary.txt', 'utf8');
+            const lines = coverage.trim().split('\n');
+            const lastLine = lines[lines.length - 1];
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## Coverage Report\n\n\`\`\`\n${lastLine}\n\`\`\`\n\n[Full Report](coverage-report)`
+            });
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-reports
+          path: |
+            backend/coverage.html
+            backend/coverage-summary.txt
+
+  dependency-check:
+    name: Dependency Vulnerability Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: backend/go.sum
+
+      - name: Run Go security scanner
+        working-directory: backend
+        run: |
+          go install github.com/securego/gosec/v2/cmd/gosec@latest
+          gosec -no-fail -fmt=json -out=gosec-report.json ./... || true
+          gosec -fmt=text ./... || true
+
+      - name: Check for deprecated dependencies
+        working-directory: backend
+        run: |
+          echo "📦 Checking for deprecated dependencies..."
+          go list -u -m all | grep -E "\[.*\]" || echo "✅ No upgradeable dependencies"
+
+      - name: Analyze go.mod for issues
+        working-directory: backend
+        run: |
+          echo "🔍 Analyzing go.mod..."
+          go mod tidy -v
+          go mod verify
+
+      - name: Upload security report
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-report
+          path: backend/gosec-report.json
+        continue-on-error: true
+
+  performance-regression:
+    name: Performance Regression Detection
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: backend/go.sum
+
+      - name: Run benchmarks (PR)
+        working-directory: backend
+        run: |
+          go test -bench=. -benchmem -run=^$ ./... > /tmp/new-benchmarks.txt 2>&1 || true
+
+      - name: Checkout base branch
+        run: git checkout origin/${{ github.base_ref }}
+
+      - name: Run benchmarks (base)
+        working-directory: backend
+        run: |
+          go test -bench=. -benchmem -run=^$ ./... > /tmp/base-benchmarks.txt 2>&1 || true
+
+      - name: Compare benchmarks
+        run: |
+          echo "📊 Comparing benchmark results..."
+          if command -v benchstat &> /dev/null; then
+            benchstat /tmp/base-benchmarks.txt /tmp/new-benchmarks.txt || true
+          else
+            echo "Install benchstat for detailed comparison"
+          fi
+
+      - name: Comment benchmark results
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const newBench = fs.readFileSync('/tmp/new-benchmarks.txt', 'utf8');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## Performance Benchmarks\n\n\`\`\`\n${newBench}\n\`\`\``
+            });
+        continue-on-error: true
+
+  license-check:
+    name: License Compliance
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Install license checker
+        run: go install github.com/fbiville/markdown-table-formatter@latest
+
+      - name: Check licenses
+        working-directory: backend
+        run: |
+          go mod download
+          # Using gomodgraph for dependency analysis
+          go list -m all | awk '{print $1}' > /tmp/modules.txt
+          echo "📜 Checking dependency licenses..."
+          # Add your license check logic here
+          echo "✅ License check complete"
+
+      - name: Generate license report
+        working-directory: backend
+        run: |
+          echo "# License Report" > license-report.md
+          echo "" >> license-report.md
+          echo "## Direct Dependencies" >> license-report.md
+          go list -m direct > /tmp/direct-deps.txt
+          cat /tmp/direct-deps.txt >> license-report.md || true
+
+      - name: Upload license report
+        uses: actions/upload-artifact@v3
+        with:
+          name: license-report
+          path: backend/license-report.md

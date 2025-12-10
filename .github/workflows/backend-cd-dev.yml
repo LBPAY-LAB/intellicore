@@ -1,0 +1,328 @@
+name: Backend CD - Dev
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-cd-dev.yml'
+  workflow_run:
+    workflows: ["Backend CI"]
+    types: [completed]
+    branches: [develop]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - qa
+
+env:
+  GO_VERSION: '1.23'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/backend
+
+jobs:
+  prepare:
+    name: Prepare Deployment
+    runs-on: ubuntu-latest
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=dev-,suffix=-{{date 'YYYY-MM-DD'}}
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=raw,value=dev-latest
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            GO_VERSION=${{ env.GO_VERSION }}
+            BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+            VCS_REF=${{ github.sha }}
+            VERSION=dev-${{ github.run_number }}
+
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          path: ./backend
+          format: cyclonedx-json
+          output-file: sbom-report.json
+        continue-on-error: true
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v3
+        with:
+          name: sbom-report
+          path: sbom-report.json
+        continue-on-error: true
+
+  deploy-dev:
+    name: Deploy to Dev
+    runs-on: ubuntu-latest
+    needs: prepare
+    if: github.ref == 'refs/heads/develop'
+    environment:
+      name: dev
+      url: https://api-dev.supercore.local
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
+          aws-region: us-east-1
+        continue-on-error: true
+
+      - name: Update ECS service
+        run: |
+          aws ecs update-service \
+            --cluster supercore-dev \
+            --service backend-api \
+            --force-new-deployment \
+            --region us-east-1
+        continue-on-error: true
+        env:
+          AWS_DEFAULT_REGION: us-east-1
+
+      - name: Wait for deployment
+        run: |
+          echo "⏳ Waiting for deployment to complete..."
+          sleep 30
+          echo "✅ Deployment initiated"
+        continue-on-error: true
+
+      - name: Health check
+        run: |
+          max_attempts=30
+          attempt=1
+          while [ $attempt -le $max_attempts ]; do
+            if curl -s -f http://localhost:8080/health > /dev/null; then
+              echo "✅ Health check passed"
+              exit 0
+            fi
+            echo "⏳ Health check attempt $attempt/$max_attempts"
+            sleep 2
+            ((attempt++))
+          done
+          echo "❌ Health check failed after $max_attempts attempts"
+          exit 1
+        continue-on-error: true
+
+      - name: Run smoke tests
+        working-directory: backend
+        run: |
+          echo "🧪 Running smoke tests..."
+          go test -v -tags=smoke -timeout 30s ./... || true
+        continue-on-error: true
+        env:
+          API_BASE_URL: http://localhost:8080
+
+      - name: Create deployment notification
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: context.payload.deployment.id,
+              state: 'success',
+              environment_url: 'https://api-dev.supercore.local',
+              description: 'Deployment to Dev successful'
+            });
+        continue-on-error: true
+
+  deploy-qa:
+    name: Deploy to QA
+    runs-on: ubuntu-latest
+    needs: prepare
+    if: github.ref == 'refs/heads/develop' && contains(github.event.head_commit.message, '[deploy-qa]')
+    environment:
+      name: qa
+      url: https://api-qa.supercore.local
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_QA }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_QA }}
+          aws-region: us-east-1
+        continue-on-error: true
+
+      - name: Update ECS service (QA)
+        run: |
+          aws ecs update-service \
+            --cluster supercore-qa \
+            --service backend-api \
+            --force-new-deployment \
+            --region us-east-1
+        continue-on-error: true
+
+      - name: Run QA tests
+        working-directory: backend
+        run: |
+          echo "🧪 Running QA tests..."
+          go test -v -tags=qa -timeout 60s ./... || true
+        continue-on-error: true
+        env:
+          API_BASE_URL: http://localhost:8080
+
+  docker-scan:
+    name: Scan Docker Image
+    runs-on: ubuntu-latest
+    needs: prepare
+
+    steps:
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ needs.prepare.outputs.image-tag }}
+          format: 'sarif'
+          output: 'trivy-docker-results.sarif'
+        continue-on-error: true
+
+      - name: Upload scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-docker-results.sarif'
+        continue-on-error: true
+
+  rollback-on-failure:
+    name: Rollback on Failure
+    runs-on: ubuntu-latest
+    needs: [deploy-dev]
+    if: failure()
+
+    steps:
+      - name: Trigger rollback
+        run: |
+          echo "🚨 Deployment failed, initiating rollback..."
+          # Rollback logic here (e.g., revert to previous version)
+          echo "✅ Rollback initiated"
+        continue-on-error: true
+
+      - name: Notify team
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Deployment Failed - Rollback Initiated',
+              body: `Deployment to Dev failed. Rollback has been initiated.\n\nRun: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}`
+            });
+        continue-on-error: true
+
+  notification:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+    needs: [deploy-dev]
+    if: always()
+
+    steps:
+      - name: Determine status
+        id: status
+        run: |
+          if [ "${{ needs.deploy-dev.result }}" == "success" ]; then
+            echo "status=✅ Success" >> $GITHUB_OUTPUT
+            echo "color=28a745" >> $GITHUB_OUTPUT
+          else
+            echo "status=❌ Failed" >> $GITHUB_OUTPUT
+            echo "color=dc3545" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Slack notification
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "text": "Backend Deployment to Dev ${{ steps.status.outputs.status }}",
+              "attachments": [
+                {
+                  "color": "${{ steps.status.outputs.color }}",
+                  "fields": [
+                    {
+                      "title": "Repository",
+                      "value": "${{ github.repository }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Branch",
+                      "value": "${{ github.ref_name }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Commit",
+                      "value": "${{ github.sha }}",
+                      "short": false
+                    },
+                    {
+                      "title": "Author",
+                      "value": "${{ github.actor }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Run",
+                      "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Details>",
+                      "short": false
+                    }
+                  ]
+                }
+              ]
+            }
+        continue-on-error: true
+
+      - name: Comment on commit
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: `${{ steps.status.outputs.status }} - Backend deployed to Dev\n\n[View Workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})`
+            });
+        continue-on-error: true

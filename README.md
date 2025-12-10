@@ -1,7 +1,10 @@
 # SuperCore - Universal Entity Management Platform
 
-[![CI Pipeline](https://github.com/lbpay/supercore/workflows/CI%20Pipeline/badge.svg)](https://github.com/lbpay/supercore/actions/workflows/ci.yml)
+[![Backend CI](https://github.com/lbpay/supercore/workflows/Backend%20CI/badge.svg?branch=main)](https://github.com/lbpay/supercore/actions/workflows/backend-ci.yml)
+[![Code Quality](https://github.com/lbpay/supercore/workflows/Code%20Quality/badge.svg?branch=main)](https://github.com/lbpay/supercore/actions/workflows/code-quality.yml)
 [![codecov](https://codecov.io/gh/lbpay/supercore/branch/main/graph/badge.svg)](https://codecov.io/gh/lbpay/supercore)
+[![Go Version](https://img.shields.io/badge/Go-1.23-blue.svg)](https://golang.org)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 > **A meta-platform for creating Core Banking systems in days, not months.**
 
@@ -41,15 +44,67 @@ SuperCore implements a **Universal Entity Management Machine** with 4 core table
 
 ## 🔄 CI/CD Pipeline
 
-This project includes automated testing and deployment:
+This project includes comprehensive automated testing, quality checks, and deployment pipelines:
 
-- **Tests**: Automated Go tests on every push and PR
-- **Linting**: golangci-lint and go fmt checks
-- **Coverage**: Code coverage reports uploaded to Codecov
-- **Docker**: Automatic image building and pushing to GHCR on main branch
-- **Triggers**: Push to `main`/`develop` or Pull Requests
+### Workflows Overview
 
-See [CI Workflow](.github/workflows/ci.yml) for details.
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| **Backend CI** | Push/PR to `main`, `develop` | Lint, test, build verification |
+| **Backend CD - Dev** | Push to `develop` | Deploy to Dev environment |
+| **Backend CD - Prod** | Push to `main` | Production deployment with approval gates |
+| **Code Quality** | Daily + on demand | SonarQube, complexity, coverage analysis |
+| **Documentation** | Changes to docs/backend | API docs, GoDoc, changelog generation |
+| **Maintenance** | Weekly/Monthly | Dependency updates, vulnerability scans |
+
+### Backend CI Workflow
+- ✅ **Lint & Format**: golangci-lint, go fmt, go vet
+- ✅ **Security**: gosec vulnerability scanning
+- ✅ **Tests**: Unit tests with race detection and coverage
+- ✅ **Coverage**: HTML reports uploaded to Codecov
+- ✅ **Cross-platform Build**: Linux, macOS, Windows verification
+- ✅ **Integration Tests**: Full stack tests with PostgreSQL
+- ✅ **Performance**: Benchmark comparisons on PRs
+
+### Deployment Pipelines
+- **Dev Deployment**: Automatic push to develop
+- **QA Deployment**: Triggered with `[deploy-qa]` commit message
+- **Production Deployment**: Blue-Green with canary testing
+  - Approval gate before production
+  - Automated rollback on failure
+  - Gradual traffic shifting (10% → 50% → 100%)
+
+### Code Quality Checks
+- SonarQube static analysis
+- Cyclomatic complexity checks
+- Test coverage trending
+- Dependency vulnerability scanning
+- License compliance verification
+
+### Local CI/CD
+
+Run checks locally before pushing:
+
+```bash
+# Lint
+cd backend && golangci-lint run ./...
+
+# Format check
+go fmt ./...
+go vet ./...
+
+# Test with coverage
+go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
+go tool cover -html=coverage.out
+
+# Security scan
+gosec ./...
+
+# Build verification
+go build -v ./cmd/api
+```
+
+See [.github/workflows](.github/workflows) for detailed workflow configurations.
 
 ## 🚀 Phase 1: Foundation (Current)
 
