@@ -9,10 +9,10 @@ from pathlib import Path
 from typing import Any
 
 import fitz  # PyMuPDF
-import pdfplumber
-import pytesseract
 from PIL import Image
 
+from .ocr import OCREngine
+from .table_extractor import TableExtractor
 from .types import (
     DocumentMetadata,
     DocumentStructure,
@@ -35,14 +35,20 @@ class BACENDocumentParser:
     - Metadata extraction
     """
 
-    def __init__(self, ocr_language: str = "por"):
+    def __init__(self, ocr_language: str = "por", use_advanced_extraction: bool = True):
         """
         Initialize parser
 
         Args:
             ocr_language: Tesseract OCR language (default: "por" for Portuguese)
+            use_advanced_extraction: Use advanced OCR and table extraction (recommended)
         """
         self.ocr_language = ocr_language
+        self.use_advanced_extraction = use_advanced_extraction
+
+        if use_advanced_extraction:
+            self.ocr_engine = OCREngine(primary_lang=ocr_language)
+            self.table_extractor = TableExtractor()
 
     def parse(self, pdf_path: str | Path) -> DocumentStructure:
         """
@@ -146,7 +152,15 @@ class BACENDocumentParser:
             if len(text.strip()) < 100:
                 pix = page.get_pixmap()
                 img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
-                text = pytesseract.image_to_string(img, lang=self.ocr_language)
+
+                if self.use_advanced_extraction:
+                    # Use advanced OCR engine with preprocessing
+                    ocr_result = self.ocr_engine.extract_text(img, preprocess=True)
+                    text = ocr_result["text"]
+                else:
+                    # Basic OCR fallback
+                    import pytesseract
+                    text = pytesseract.image_to_string(img, lang=self.ocr_language)
 
             full_text += f"\n--- Página {page_num + 1} ---\n{text}"
 
@@ -155,7 +169,7 @@ class BACENDocumentParser:
 
     def _extract_tables(self, pdf_path: Path) -> list[Table]:
         """
-        Extract tables from PDF using pdfplumber
+        Extract tables from PDF using advanced table extractor
 
         Args:
             pdf_path: Path to PDF file
@@ -163,35 +177,39 @@ class BACENDocumentParser:
         Returns:
             List of extracted tables
         """
-        tables: list[Table] = []
+        if self.use_advanced_extraction:
+            # Use advanced table extractor (Camelot + pdfplumber)
+            return self.table_extractor.extract_tables(
+                pdf_path, strategy="auto", detect_captions=True
+            )
+        else:
+            # Basic pdfplumber extraction
+            import pdfplumber
 
-        with pdfplumber.open(pdf_path) as pdf:
-            for page_num, page in enumerate(pdf.pages):
-                page_tables = page.extract_tables()
+            tables: list[Table] = []
 
-                for table_data in page_tables:
-                    if not table_data or len(table_data) < 2:
-                        continue
+            with pdfplumber.open(pdf_path) as pdf:
+                for page_num, page in enumerate(pdf.pages):
+                    page_tables = page.extract_tables()
 
-                    # First row is usually headers
-                    headers = [str(h).strip() for h in table_data[0]]
-                    rows = [[str(cell).strip() for cell in row] for row in table_data[1:]]
+                    for table_data in page_tables:
+                        if not table_data or len(table_data) < 2:
+                            continue
 
-                    # Try to find caption (text above table)
-                    caption = None
-                    # TODO: Implement caption detection
+                        headers = [str(h).strip() for h in table_data[0]]
+                        rows = [[str(cell).strip() for cell in row] for row in table_data[1:]]
 
-                    tables.append(
-                        Table(
-                            headers=headers,
-                            rows=rows,
-                            caption=caption,
-                            page_number=page_num + 1,
-                            confidence=0.9,  # High confidence for pdfplumber
+                        tables.append(
+                            Table(
+                                headers=headers,
+                                rows=rows,
+                                caption=None,
+                                page_number=page_num + 1,
+                                confidence=0.9,
+                            )
                         )
-                    )
 
-        return tables
+            return tables
 
     def _extract_sections(self, full_text: str, tables: list[Table]) -> list[Section]:
         """
