@@ -3,48 +3,60 @@ name: CI Pipeline
 on:
   push:
     branches: [main, develop]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/ci.yml'
   pull_request:
     branches: [main, develop]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/ci.yml'
 
 env:
-  NODE_VERSION: '20.x'
-  POSTGRES_DB: lbpay_test
-  POSTGRES_USER: lbpay
+  GO_VERSION: '1.23'
+  POSTGRES_DB: supercore_test
+  POSTGRES_USER: supercore
   POSTGRES_PASSWORD: test_password
 
 jobs:
-  lint:
-    name: Lint & Format Check
+  backend-lint:
+    name: Backend Lint & Format Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: server/package-lock.json
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: backend/go.sum
 
-      - name: Install dependencies (server)
-        working-directory: server
-        run: npm ci
+      - name: Install golangci-lint
+        uses: golangci/golangci-lint-action@v4
+        with:
+          version: latest
+          working-directory: backend
 
-      - name: Run ESLint
-        working-directory: server
-        run: npm run lint
+      - name: Check go fmt
+        working-directory: backend
+        run: |
+          if [ -n "$(go fmt ./...)" ]; then
+            echo "Go code needs formatting. Run 'go fmt ./...'"
+            exit 1
+          fi
 
-      - name: Check TypeScript
-        working-directory: server
-        run: npx tsc --noEmit
+      - name: Run go vet
+        working-directory: backend
+        run: go vet ./...
 
-  test-server:
-    name: Server Tests
+  backend-test:
+    name: Backend Tests & Coverage
     runs-on: ubuntu-latest
-    needs: lint
+    needs: backend-lint
     services:
       postgres:
-        image: postgres:16
+        image: postgres:16-alpine
         env:
           POSTGRES_DB: ${{ env.POSTGRES_DB }}
           POSTGRES_USER: ${{ env.POSTGRES_USER }}
@@ -57,78 +69,47 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: server/package-lock.json
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+          cache-dependency-path: backend/go.sum
 
-      - name: Install dependencies
-        working-directory: server
-        run: npm ci
+      - name: Download Go dependencies
+        working-directory: backend
+        run: go mod download
 
-      - name: Run unit tests
-        working-directory: server
-        run: npm run test
+      - name: Build backend
+        working-directory: backend
+        run: go build -v ./cmd/api
+
+      - name: Run tests with coverage
+        working-directory: backend
+        run: |
+          go test -v -race -covermode=atomic -coverprofile=coverage.out ./...
         env:
           DATABASE_URL: postgresql://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@localhost:5432/${{ env.POSTGRES_DB }}
-          REDIS_HOST: localhost
-          REDIS_PORT: 6379
-          NODE_ENV: test
 
-      - name: Run e2e tests
-        working-directory: server
-        run: npm run test:e2e
-        env:
-          DATABASE_URL: postgresql://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@localhost:5432/${{ env.POSTGRES_DB }}
-          REDIS_HOST: localhost
-          REDIS_PORT: 6379
-          NODE_ENV: test
-
-  test-client:
-    name: Client Tests
-    runs-on: ubuntu-latest
-    needs: lint
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
         with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: client/package-lock.json
+          files: ./backend/coverage.out
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
 
-      - name: Install dependencies
-        working-directory: client
-        run: npm ci
+      - name: Generate coverage report
+        working-directory: backend
+        run: go tool cover -func=coverage.out
 
-      - name: Run tests
-        working-directory: client
-        run: npm run test -- --passWithNoTests
-
-      - name: Build client
-        working-directory: client
-        run: npm run build
-
-  build:
-    name: Build & Push Docker Images
+  build-docker:
+    name: Build & Push Docker Image
     runs-on: ubuntu-latest
-    needs: [test-server, test-client]
+    needs: backend-test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
       contents: read
@@ -151,33 +132,18 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}/server
+          images: ghcr.io/${{ github.repository }}/backend
           tags: |
             type=sha
             type=ref,event=branch
             type=semver,pattern={{version}}
 
-      - name: Build and push server image
+      - name: Build and push backend image
         uses: docker/build-push-action@v5
         with:
-          context: ./server
+          context: ./backend
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-  security-scan:
-    name: Security Scan
-    runs-on: ubuntu-latest
-    needs: lint
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          severity: 'CRITICAL,HIGH'
-          exit-code: '1'
