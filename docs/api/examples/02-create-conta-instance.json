@@ -1,0 +1,16 @@
+{
+  "_comment": "This creates an instance of conta_corrente_pf",
+  "_note": "Replace 'object_definition_id' with the actual UUID from step 01",
+  "object_definition_id": "REPLACE_WITH_ACTUAL_UUID_FROM_STEP_01",
+  "data": {
+    "cpf": "12345678901",
+    "nome_completo": "João da Silva Santos",
+    "data_nascimento": "1990-05-15",
+    "email": "joao.silva@example.com",
+    "telefone": "11987654321",
+    "tipo_conta": "CORRENTE",
+    "agencia": "0001",
+    "numero_conta": "123456",
+    "saldo": 0
+  }
+}

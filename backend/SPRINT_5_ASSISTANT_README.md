@@ -1,0 +1,394 @@
+# Sprint 5: Natural Language Assistant - LLM Integration
+
+## Implementation Summary
+
+This Sprint implements the **Conversational Natural Language Assistant** that allows users to create Object Definitions through a structured 7-step conversation powered by LLM (Claude or OpenAI GPT).
+
+## What Was Built
+
+### 1. Database Layer
+- **Migration**: `database/migrations/006_create_conversations.sql`
+  - Table: `conversations` - Stores conversation sessions
+  - Tracks: steps, answers, preview, completion status
+  - Indexes: For performance on queries
+
+### 2. Service Layer
+- **Package**: `internal/services/nlassistant/`
+  - `types.go` - Data models and conversation flow
+  - `service.go` - Core business logic
+
+#### Key Features:
+- ✅ 7-step structured conversation flow
+- ✅ LLM integration for schema generation
+- ✅ Preview caching before confirmation
+- ✅ State management (in-progress, completed, confirmed)
+- ✅ Field and state counting for UI metadata
+
+### 3. Handler Layer
+- **File**: `internal/handlers/assistant_handler.go`
+  - 5 API endpoints for conversation management
+  - Input validation and error handling
+  - User ID extraction from context
+
+### 4. Configuration
+- **File**: `internal/config/llm_config.go`
+  - Environment-based LLM configuration
+  - Support for OpenAI and Claude
+  - Feature flags (caching, metrics, rate limiting)
+
+### 5. Documentation
+- **Integration Guide**: `ASSISTANT_INTEGRATION.md`
+- **Main.go Snippet**: `MAIN_INTEGRATION_SNIPPET.go`
+- **Test Script**: `test_assistant.sh`
+
+## Architecture
+
+```
+Frontend Request
+     ↓
+Assistant Handler (API Layer)
+     ↓
+Assistant Service (Business Logic)
+     ↓
+     ├─→ Database (conversations table)
+     └─→ LLM Client (schema generation)
+          ↓
+          └─→ OpenAI/Claude API
+```
+
+## Conversation Flow
+
+```
+Step 1: Object Name
+  ↓
+Step 2: Description
+  ↓
+Step 3: Fields List
+  ↓
+Step 4: BACEN Validations
+  ↓
+Step 5: Lifecycle States
+  ↓
+Step 6: Relationships
+  ↓
+Step 7: Preview & Confirm
+  ↓
+Object Definition Created ✓
+```
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/v1/assistant/conversations` | Start new conversation |
+| POST | `/api/v1/assistant/conversations/:id/messages` | Send answer |
+| GET | `/api/v1/assistant/conversations/:id` | Get conversation state |
+| POST | `/api/v1/assistant/conversations/:id/confirm` | Create object definition |
+| GET | `/api/v1/assistant/flow` | Get flow metadata |
+
+## Environment Variables
+
+```bash
+# LLM Provider
+LLM_PROVIDER=openai              # or "claude"
+OPENAI_API_KEY=sk-...
+OPENAI_MODEL=gpt-4o-mini
+
+# Alternative: Claude
+CLAUDE_API_KEY=sk-ant-...
+CLAUDE_MODEL=claude-3-5-sonnet-20241022
+
+# Features
+LLM_ENABLE_CACHE=true
+LLM_ENABLE_METRICS=true
+LLM_RATE_LIMIT_RPS=5
+
+# Context
+ORACLE_IDENTITY=LBPAY - Instituição de Pagamento licenciada pelo BACEN
+```
+
+## Installation & Setup
+
+### 1. Apply Database Migration
+
+```bash
+# Using psql
+psql $DATABASE_URL -f database/migrations/006_create_conversations.sql
+
+# Or using make (if available)
+make migrate
+```
+
+### 2. Configure Environment
+
+```bash
+# Copy example
+cp .env.example .env
+
+# Edit .env and add your API keys
+nano .env
+```
+
+### 3. Update main.go
+
+Use the code from `MAIN_INTEGRATION_SNIPPET.go`:
+
+```go
+// Add imports
+import (
+	"github.com/lbpay/supercore/internal/config"
+	"github.com/lbpay/supercore/internal/services/llm"
+	"github.com/lbpay/supercore/internal/services/nlassistant"
+)
+
+// Initialize LLM client
+llmConfig := config.GetLLMConfig()
+llmClient, err := llm.NewClient(llmConfig)
+// ... handle error
+
+// Initialize assistant service
+assistantService := nlassistant.NewService(db.StdDB, llmClient, llmConfig.OracleIdentity)
+
+// Register routes
+assistantHandler := handlers.NewAssistantHandler(assistantService)
+assistant := v1.Group("/assistant")
+{
+	assistant.POST("/conversations", assistantHandler.StartConversation)
+	assistant.POST("/conversations/:id/messages", assistantHandler.SendMessage)
+	// ... other routes
+}
+```
+
+### 4. Build & Run
+
+```bash
+# Build
+go build -o api cmd/api/main.go
+
+# Run
+./api
+
+# Or using Docker
+docker-compose up backend
+```
+
+## Testing
+
+### Manual Testing
+
+```bash
+# Run the test script
+./test_assistant.sh
+
+# Or manually
+curl -X POST http://localhost:8080/api/v1/assistant/conversations
+```
+
+### Unit Tests
+
+```bash
+go test ./internal/services/nlassistant/... -v
+go test ./internal/handlers/... -v -run TestAssistant
+```
+
+### Integration Tests
+
+```bash
+go test -tags=integration ./tests/... -v
+```
+
+## Example Conversation
+
+```json
+// 1. Start
+POST /api/v1/assistant/conversations
+→ { "conversation_id": "uuid", "current_step": 1, "next_step": {...} }
+
+// 2. Answer Step 1
+POST /api/v1/assistant/conversations/{id}/messages
+Body: {"message": "Cliente Pessoa Física"}
+→ { "current_step": 2, "next_step": {...} }
+
+// 3-6. Continue answering...
+
+// 7. Preview (auto-generated by LLM)
+POST /api/v1/assistant/conversations/{id}/messages
+Body: {"message": "sim"}
+→ {
+  "preview": {
+    "name": "cliente_pf",
+    "display_name": "Cliente Pessoa Física",
+    "schema": {...},
+    "states": {...},
+    "field_count": 9,
+    "state_count": 5
+  }
+}
+
+// 8. Confirm
+POST /api/v1/assistant/conversations/{id}/confirm
+→ {
+  "object_definition_id": "uuid",
+  "message": "Object Definition criada com sucesso!"
+}
+```
+
+## LLM Integration Details
+
+### Schema Generation
+
+The assistant uses the existing LLM service (`internal/services/llm`) to:
+
+1. **Parse Natural Language**: Extract entities and intent
+2. **Generate JSON Schema**: Create JSON Schema Draft 7
+3. **Build FSM**: Generate finite state machine
+4. **Map Validations**: Connect to `validation_rules` table
+5. **Create UI Hints**: Widget mappings for form rendering
+
+### Prompt Engineering
+
+Prompts are in `internal/services/llm/prompts.go`:
+- `SchemaGenerationPrompt` - Generates complete object definitions
+- Uses Oracle identity context for domain knowledge
+
+### Cost Management
+
+- **Caching**: Enabled by default (15min TTL)
+- **Rate Limiting**: 5 requests/second default
+- **Model Selection**:
+  - Development: `gpt-4o-mini` ($0.15/$0.60 per 1M tokens)
+  - Production: `gpt-4o` or `claude-3-5-sonnet`
+
+## Monitoring & Metrics
+
+### LLM Metrics
+
+If `LLM_ENABLE_METRICS=true`:
+
+```bash
+# Get metrics
+curl http://localhost:8080/api/v1/metrics
+
+# Shows:
+# - Request count
+# - Token usage
+# - Cost (USD)
+# - Latency
+# - Error rate
+```
+
+### Database Queries
+
+```sql
+-- Active conversations
+SELECT COUNT(*) FROM conversations WHERE completed = false;
+
+-- Completed conversations
+SELECT COUNT(*) FROM conversations WHERE completed = true;
+
+-- Confirmed creations
+SELECT COUNT(*) FROM conversations WHERE confirmed = true;
+
+-- Average steps to completion
+SELECT AVG(current_step) FROM conversations WHERE completed = true;
+```
+
+## Troubleshooting
+
+### Issue: "LLM generation failed"
+
+**Possible Causes:**
+- Invalid API key
+- Rate limit exceeded
+- Network connectivity issues
+
+**Solution:**
+```bash
+# Check API key
+echo $OPENAI_API_KEY
+
+# Test connectivity
+curl https://api.openai.com/v1/models \
+  -H "Authorization: Bearer $OPENAI_API_KEY"
+
+# Reduce rate limit
+LLM_RATE_LIMIT_RPS=2
+```
+
+### Issue: "Conversation not found"
+
+**Possible Causes:**
+- Migration not applied
+- Wrong conversation ID
+- Database connection issue
+
+**Solution:**
+```bash
+# Check migration
+psql $DATABASE_URL -c "SELECT * FROM conversations LIMIT 1;"
+
+# Verify ID format
+# Must be valid UUID
+```
+
+### Issue: "Schema validation failed"
+
+**Possible Causes:**
+- LLM returned invalid JSON
+- Schema doesn't match JSON Schema Draft 7
+- Required fields missing
+
+**Solution:**
+```sql
+-- Inspect generated preview
+SELECT preview_schema FROM conversations WHERE id = 'uuid';
+
+-- Check LLM response manually
+-- Adjust prompts in internal/services/llm/prompts.go
+```
+
+## Production Checklist
+
+- [ ] API keys configured and secured
+- [ ] Database migration applied
+- [ ] LLM caching enabled
+- [ ] Rate limiting configured appropriately
+- [ ] Metrics enabled for monitoring
+- [ ] Error logging configured
+- [ ] CORS configured for production domains
+- [ ] Authentication middleware enabled
+- [ ] Cost alerts configured (LLM usage)
+- [ ] Backup strategy for conversations table
+
+## Future Enhancements
+
+1. **Multi-step Refinement**: Allow users to go back and edit previous answers
+2. **Templates**: Pre-built object templates (Cliente, Conta, Transação)
+3. **Validation Preview**: Test generated schema before creation
+4. **Multi-language**: Support Portuguese and English
+5. **Voice Input**: Speech-to-text integration
+6. **Collaborative Mode**: Multiple users on same conversation
+7. **Version Control**: Track schema evolution
+8. **Export/Import**: Share conversation flows
+
+## Related Documentation
+
+- **LLM Service**: `internal/services/llm/README.md`
+- **Object Definitions**: `docs/api/object-definitions.md`
+- **Database Schema**: `database/migrations/001_initial_schema.sql`
+- **Claude.md**: Main project documentation
+
+## Support
+
+For questions or issues:
+- Check logs: `docker-compose logs backend`
+- Review conversation state in DB
+- Inspect LLM metrics
+- Contact: dev@lbpay.com.br
+
+---
+
+**Implementation Date**: December 2024
+**Sprint**: 5
+**Status**: ✅ Complete
+**Version**: 1.0.0
