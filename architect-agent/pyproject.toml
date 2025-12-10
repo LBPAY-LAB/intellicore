@@ -1,0 +1,93 @@
+[tool.poetry]
+name = "architect-agent"
+version = "0.1.0"
+description = "Architect Agent - Auto-generates object_definitions from BACEN documents"
+authors = ["SuperCore Team <team@lbpay.com>"]
+readme = "README.md"
+packages = [{include = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+# FastAPI for REST API
+fastapi = "^0.104.1"
+uvicorn = {extras = ["standard"], version = "^0.24.0"}
+pydantic = "^2.5.0"
+pydantic-settings = "^2.1.0"
+
+# Document Intelligence (PDF parsing)
+PyMuPDF = "^1.23.8"  # fitz for PDF text extraction
+pdfplumber = "^0.10.3"  # Table extraction
+pytesseract = "^0.3.10"  # OCR for scanned PDFs
+Pillow = "^10.1.0"  # Image processing
+camelot-py = {extras = ["cv"], version = "^0.11.0"}  # Advanced table extraction
+opencv-python = "^4.8.1"  # Required by camelot
+
+# NLP (Entity Extraction)
+spacy = "^3.7.2"
+# Download model: python -m spacy download pt_core_news_lg
+
+# LLM Integration (Schema Generation)
+anthropic = "^0.7.8"  # Claude Opus 4
+openai = "^1.6.1"  # For embeddings (text-embedding-3-large)
+tiktoken = "^0.5.2"  # Token counting
+
+# Database
+psycopg2-binary = "^2.9.9"  # PostgreSQL
+pgvector = "^0.2.4"  # Vector similarity search
+sqlalchemy = "^2.0.23"
+alembic = "^1.13.0"  # Migrations
+
+# Task Queue
+celery = "^5.3.4"
+redis = "^5.0.1"
+
+# Web Scraping (BACEN Crawler)
+beautifulsoup4 = "^4.12.2"
+scrapy = "^2.11.0"
+requests = "^2.31.0"
+lxml = "^4.9.3"
+
+# Utilities
+python-dotenv = "^1.0.0"
+pyyaml = "^6.0.1"
+python-multipart = "^0.0.6"  # File uploads
+aiofiles = "^23.2.1"  # Async file I/O
+httpx = "^0.25.2"  # Async HTTP client
+
+# Logging & Monitoring
+structlog = "^23.2.0"
+prometheus-client = "^0.19.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.3"
+pytest-asyncio = "^0.21.1"
+pytest-cov = "^4.1.0"
+black = "^23.12.0"
+ruff = "^0.1.8"
+mypy = "^1.7.1"
+ipython = "^8.18.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
