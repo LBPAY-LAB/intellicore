@@ -39,6 +39,27 @@ Serão populadas seguindo a mesma metodologia após conclusão das fases anterio
 
 ## ⚠️ REGRA FUNDAMENTAL PARA AGENTS
 
+### Modo de Operação: Desenvolvimento Autônomo
+
+**Referências de autonomia**:
+- **[.claude/AUTONOMOUS_DEVELOPMENT_FRAMEWORK.md](.claude/AUTONOMOUS_DEVELOPMENT_FRAMEWORK.md)** - Framework completo de autonomia
+- **[.claude/AUTONOMOUS_MODE_GUIDE.md](.claude/AUTONOMOUS_MODE_GUIDE.md)** - Guia prático de modo autônomo
+
+**Permissões autônomas concedidas**:
+- ✅ Criar/editar/deletar arquivos dentro do projeto
+- ✅ Instalar pacotes (npm, pip, go get)
+- ✅ Executar testes automatizados
+- ✅ Fazer commits e push (seguindo convenções)
+- ✅ Criar branches, PRs, merge
+- ✅ Executar builds e deploys (dev/staging)
+
+**Restrições**:
+- ❌ Deploy em produção (requer aprovação)
+- ❌ Modificar .env com secrets reais
+- ❌ Deletar branches principais (main, master)
+
+### Checklist Obrigatório Antes de Implementar
+
 **ANTES de iniciar trabalho em QUALQUER fase:**
 
 1. ✅ Leia `docs/architecture/visao_arquitetura.md` (entenda a arquitetura universal)
@@ -46,7 +67,8 @@ Serão populadas seguindo a mesma metodologia após conclusão das fases anterio
 3. ✅ Leia `docs/backlog/backlog_geral.md` (status atual do projeto)
 4. ✅ Leia `docs/fases/faseN/01_especificacoes.md` (especificações APROVADAS)
 5. ✅ Leia `docs/fases/faseN/06_squad_agents.md` (sua responsabilidade na squad)
-6. ❌ **NUNCA implemente código sem especificações aprovadas**
+6. ✅ Leia `.claude/AUTONOMOUS_DEVELOPMENT_FRAMEWORK.md` (suas permissões e limites)
+7. ❌ **NUNCA implemente código sem especificações aprovadas**
 
 **Estrutura de pastas de cada fase:**
 ```
