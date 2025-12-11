@@ -1,6 +1,6 @@
 # SuperCore - Sprints e Squads Completo (6 Fases)
 
-> **Visão Revisada**: Sistema redesenhado SEM autenticação de terceiros (Keycloak/Logto/Cerbos). JWT + RBAC nativo implementado como object_definitions.
+> **Visão Definitiva**: Plataforma universal de gestão de objetos. ZERO autenticação, ZERO lógica de negócio hardcoded. 100% genérico.
 
 ---
 
@@ -8,21 +8,21 @@
 
 | Fase | Duração | Sprints | Objetivo Principal | Status |
 |------|---------|---------|-------------------|--------|
-| **Fase 1: Foundation** | 12 semanas | 6 sprints | Engine de Objetos + RAG | ✅ Implementado (precisa limpeza) |
+| **Fase 1: Foundation** | 10 semanas | 5 sprints | Engine de Objetos + RAG | ✅ Implementado (precisa limpeza) |
 | **Fase 2: Brain** | 12 semanas | 6 sprints | Architect Agent (PDF→Schema) | 📝 Especificado |
 | **Fase 3: BackOffice** | 10 semanas | 5 sprints | 11 módulos operacionais | 📋 A implementar |
 | **Fase 4: Client Portal** | 12 semanas | 6 sprints | 11 módulos cliente + mobile | 📋 A implementar |
 | **Fase 5: Autonomy** | 12 semanas | 6 sprints | Descoberta + Auto-Deploy | 📋 A implementar |
 | **Fase 6: Production** | 12 semanas | 6 sprints | BACEN real + 10k clientes | 📋 A implementar |
 
-**Total**: 70 semanas (~17 meses)
+**Total**: 68 semanas (~17 meses)
 
 ---
 
-## 🎯 FASE 1: FOUNDATION (12 semanas - REFATORAÇÃO)
+## 🎯 FASE 1: FOUNDATION (10 semanas)
 
-### Objetivo Revisado
-Reimplementar o core do SuperCore SEM dependências de autenticação externa. Foco 100% no engine genérico de objetos.
+### Objetivo
+Engine genérico 100% abstrato para gestão de objetos, instâncias e relacionamentos. ZERO lógica de negócio.
 
 ### Squad Fase 1
 
@@ -46,8 +46,7 @@ Reimplementar o core do SuperCore SEM dependências de autenticação externa. F
 - ✅ API CRUD para object_definitions
 - ✅ API CRUD para instances
 - ✅ API CRUD para relationships
-- ✅ Validation engine básico
-- ❌ REMOVER: Toda infraestrutura Keycloak/Logto
+- ✅ Validation engine básico (5 tipos: regex, function, api_call, jsonschema, custom)
 
 **Entregas**:
 ```
@@ -65,30 +64,146 @@ backend/
     └── validator/validator.go (5 tipos de regras)
 ```
 
-**Testes Críticos**:
+**Schema PostgreSQL**:
+```sql
+-- object_definitions: DNA dos objetos
+CREATE TABLE object_definitions (
+    id UUID PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    display_name VARCHAR(200),
+    description TEXT,
+    version INT DEFAULT 1,
+
+    -- Estrutura (JSON Schema)
+    schema JSONB NOT NULL,
+
+    -- Regras de validação
+    rules JSONB DEFAULT '[]'::jsonb,
+
+    -- FSM (ciclo de vida)
+    states JSONB DEFAULT '{}'::jsonb,
+
+    -- UI hints (como renderizar)
+    ui_hints JSONB DEFAULT '{}'::jsonb,
+
+    -- Relacionamentos permitidos
+    relationships JSONB DEFAULT '[]'::jsonb,
+
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    is_active BOOLEAN DEFAULT true
+);
+
+-- instances: Células vivas
+CREATE TABLE instances (
+    id UUID PRIMARY KEY,
+    object_definition_id UUID REFERENCES object_definitions(id),
+
+    -- Dados flexíveis (validados contra schema)
+    data JSONB NOT NULL,
+
+    -- Estado atual (FSM)
+    current_state VARCHAR(50) NOT NULL,
+    state_history JSONB DEFAULT '[]'::jsonb,
+
+    -- Metadados
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    version INT DEFAULT 1,
+    is_deleted BOOLEAN DEFAULT false,
+    deleted_at TIMESTAMP
+);
+
+-- relationships: Sinapses do grafo
+CREATE TABLE relationships (
+    id UUID PRIMARY KEY,
+    relationship_type VARCHAR(100) NOT NULL,
+
+    source_instance_id UUID REFERENCES instances(id),
+    target_instance_id UUID REFERENCES instances(id),
+
+    properties JSONB DEFAULT '{}'::jsonb,
+
+    valid_from TIMESTAMP,
+    valid_until TIMESTAMP,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Índices críticos
+CREATE INDEX idx_instances_object_def ON instances(object_definition_id) WHERE is_deleted = false;
+CREATE INDEX idx_instances_data_gin ON instances USING GIN (data jsonb_path_ops);
+CREATE INDEX idx_relationships_source ON relationships(source_instance_id);
+CREATE INDEX idx_relationships_target ON relationships(target_instance_id);
+```
+
+**API Endpoints**:
+```
+POST   /api/v1/object-definitions        # Criar definition
+GET    /api/v1/object-definitions        # Listar
+GET    /api/v1/object-definitions/:id    # Buscar por ID
+PUT    /api/v1/object-definitions/:id    # Atualizar
+DELETE /api/v1/object-definitions/:id    # Deletar
+
+POST   /api/v1/instances                 # Criar instance (com validação)
+GET    /api/v1/instances                 # Listar (com filtros JSONB)
+GET    /api/v1/instances/:id             # Buscar
+PUT    /api/v1/instances/:id             # Atualizar
+DELETE /api/v1/instances/:id             # Soft delete
+
+POST   /api/v1/relationships             # Criar relacionamento
+GET    /api/v1/relationships             # Listar
+GET    /api/v1/relationships?source=:id  # Buscar por origem
+DELETE /api/v1/relationships/:id         # Deletar
+```
+
+**Teste Crítico**:
 ```bash
-# Criar object_definition via API
-curl POST /api/v1/object-definitions -d '{
-  "name": "cliente_pf",
-  "schema": {"type": "object", "properties": {...}}
-}'
+# 1. Criar object_definition
+curl -X POST http://localhost:8080/api/v1/object-definitions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "cliente_pf",
+    "display_name": "Cliente Pessoa Física",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "cpf": {"type": "string", "pattern": "^\\d{11}$"},
+        "nome_completo": {"type": "string", "minLength": 3}
+      },
+      "required": ["cpf", "nome_completo"]
+    },
+    "states": {
+      "initial": "ATIVO",
+      "states": ["ATIVO", "BLOQUEADO"]
+    }
+  }'
 
-# Criar instance com validação automática
-curl POST /api/v1/instances -d '{
-  "object_definition_id": "uuid-123",
-  "data": {"cpf": "12345678901", "nome": "Maria Silva"}
-}'
+# 2. Criar instance válida
+curl -X POST http://localhost:8080/api/v1/instances \
+  -d '{
+    "object_definition_id": "uuid-do-cliente-pf",
+    "data": {
+      "cpf": "12345678901",
+      "nome_completo": "Maria Silva"
+    }
+  }'
 
-# Deve falhar: CPF inválido
-curl POST /api/v1/instances -d '{
-  "data": {"cpf": "123"}  # ❌ Regex validation fail
-}'
+# 3. Tentar criar instance INVÁLIDA (deve falhar)
+curl -X POST http://localhost:8080/api/v1/instances \
+  -d '{
+    "object_definition_id": "uuid-do-cliente-pf",
+    "data": {
+      "cpf": "123",  # ❌ Regex fail
+      "nome_completo": "Ma" # ❌ minLength fail
+    }
+  }'
+# Esperado: HTTP 400 com erros de validação
 ```
 
 **Agents Autônomos**:
-- `backend-architect`: Desenha API RESTful
-- `database-architect`: Otimiza índices GIN para JSONB
-- `golang-pro`: Implementa handlers genéricos
+- `backend-architect`: Desenha API RESTful genérica
+- `database-architect`: Otimiza índices GIN/JSONB
+- `golang-pro`: Implementa handlers sem lógica de negócio
 - `test-automator`: Gera testes de integração
 
 ---
@@ -96,56 +211,85 @@ curl POST /api/v1/instances -d '{
 ### Sprint 2 (Semanas 3-4): FSM Engine + State Transitions
 
 **Objetivos**:
-- ✅ FSM definition em object_definitions.states (JSON)
+- ✅ FSM definition em object_definitions.states
 - ✅ State transition API com validação
-- ✅ State history tracking
+- ✅ State history tracking (auditoria)
 - ✅ Condition evaluator (CEL expressions)
 
 **Entregas**:
 ```
 backend/internal/services/statemachine/
-├── fsm_engine.go          # Valida transições
-├── condition_evaluator.go # CEL expressions
-└── state_history.go       # Auditoria de mudanças
+├── fsm_engine.go          # Valida transições FSM
+├── condition_evaluator.go # Interpreta CEL expressions
+└── state_history.go       # Tracking de mudanças
+```
 
-# Exemplo de FSM
+**Exemplo FSM**:
+```json
 {
   "states": {
     "initial": "CADASTRO_PENDENTE",
-    "states": ["CADASTRO_PENDENTE", "ATIVO", "BLOQUEADO"],
+    "states": ["CADASTRO_PENDENTE", "ATIVO", "BLOQUEADO", "INATIVO"],
     "transitions": [
       {
         "from": "CADASTRO_PENDENTE",
         "to": "ATIVO",
-        "trigger": "aprovar_cadastro",
-        "condition": "data.kyc_status == 'APROVADO'"
+        "trigger": "aprovar",
+        "condition": "data.documentos_validados == true"
+      },
+      {
+        "from": "ATIVO",
+        "to": "BLOQUEADO",
+        "trigger": "bloquear",
+        "condition": "true"  # Sempre permitido
+      },
+      {
+        "from": "BLOQUEADO",
+        "to": "ATIVO",
+        "trigger": "desbloquear",
+        "condition": "data.motivo_bloqueio_resolvido == true"
       }
     ]
   }
 }
 ```
 
-**API**:
+**API Transition**:
 ```bash
-POST /api/v1/instances/{id}/transition
+POST /api/v1/instances/:id/transition
 {
   "to_state": "ATIVO",
-  "trigger": "aprovar_cadastro",
-  "metadata": {"aprovado_por": "user-123"}
+  "trigger": "aprovar",
+  "metadata": {"aprovado_por": "sistema", "timestamp": "2024-01-15T10:00:00Z"}
+}
+
+# Response:
+{
+  "id": "uuid-123",
+  "current_state": "ATIVO",
+  "state_history": [
+    {
+      "from_state": "CADASTRO_PENDENTE",
+      "to_state": "ATIVO",
+      "trigger": "aprovar",
+      "timestamp": "2024-01-15T10:00:00Z",
+      "metadata": {...}
+    }
+  ]
 }
 ```
 
 **Agents Autônomos**:
 - `backend-architect`: Design FSM engine
 - `golang-pro`: Implementa CEL evaluator
-- `security-auditor`: Valida que transições respeitam condições
+- `security-auditor`: Valida condições de segurança
 
 ---
 
 ### Sprint 3 (Semanas 5-6): Natural Language Assistant
 
 **Objetivos**:
-- ✅ Conversa estruturada (7 perguntas)
+- ✅ Interface de conversa (7 perguntas estruturadas)
 - ✅ LLM gera JSON Schema automaticamente
 - ✅ Preview antes de criar object_definition
 - ✅ UI hints gerados automaticamente
@@ -153,797 +297,548 @@ POST /api/v1/instances/{id}/transition
 **Entregas**:
 ```
 frontend/app/assistant/
-├── page.tsx                    # Fluxo conversacional
+├── page.tsx                    # Chat interface
 ├── components/
-│   ├── ConversationStep.tsx    # Cada pergunta
-│   ├── SchemaPreview.tsx       # Preview do schema gerado
-│   └── UIHintEditor.tsx        # Ajustar widgets
+│   ├── ConversationFlow.tsx   # 7 perguntas
+│   ├── SchemaPreview.tsx      # Preview do objeto
+│   └── ConfirmCreate.tsx      # Confirmação final
+└── lib/
+    └── schema-generator.ts    # LLM → JSON Schema
 
-backend/internal/services/assistant/
-├── nl_processor.go             # Processa respostas NL
-├── schema_generator.go         # LLM gera JSON Schema
-└── ui_hints_generator.go       # Infere widgets dos tipos
+backend/internal/services/
+└── assistant/
+    ├── nl_processor.go        # Processa linguagem natural
+    └── schema_generator.go    # Gera schema via LLM
 ```
 
-**Fluxo Completo**:
+**Fluxo de Conversa**:
 ```
-1. "Qual o nome do objeto?"
-   → "Cliente Pessoa Física"
+1. Qual o nome do objeto?
+   → "Conta Corrente"
 
-2. "Descreva o que é esse objeto"
-   → "Uma pessoa que vai abrir conta no banco"
+2. Descreva o que é esse objeto.
+   → "Uma conta bancária onde o cliente deposita dinheiro e faz transações"
 
-3. "Quais campos coletar?"
-   → "CPF, Nome, Email, Telefone, Endereço"
+3. Quais campos precisam ser coletados?
+   → "Número da conta, agência, saldo, tipo (corrente/poupança), limite, titular"
 
-4. "Validações especiais?"
-   → [X] CPF  [X] Email  [X] Telefone
+4. Algum campo tem validação especial?
+   → "Número da conta: 8 dígitos, Saldo: sempre positivo"
 
-5. "Estados possíveis?"
-   → "Pendente, Ativo, Bloqueado"
+5. Quais são os estados do ciclo de vida?
+   → "Aberta → Ativa → Bloqueada → Encerrada"
 
-6. "Relacionamentos?"
-   → "Cliente TITULAR_DE Conta"
+6. Se relaciona com outros objetos?
+   → "Cliente é TITULAR da Conta"
 
-7. Preview do JSON Schema gerado
-   → [Aprovar] [Editar] [Cancelar]
+7. Preview e confirmação
+   → Mostra JSON Schema gerado, FSM, validações
+```
+
+**LLM Prompt (Interno)**:
+```
+Você é um especialista em modelagem de dados.
+
+O usuário descreveu:
+- Nome: Conta Corrente
+- Descrição: Uma conta bancária...
+- Campos: Número da conta, agência, saldo...
+- Validações: Número 8 dígitos, saldo positivo
+- Estados: Aberta → Ativa → Bloqueada → Encerrada
+- Relacionamentos: Cliente TITULAR_DE Conta
+
+Gere um JSON Schema Draft 7 completo com:
+1. Tipos corretos (string, number, boolean)
+2. Required fields
+3. Patterns para validações
+4. Enums quando aplicável
+5. Descrições em português
+
+Retorne APENAS JSON válido.
 ```
 
 **Agents Autônomos**:
-- `frontend-developer`: Implementa wizard UI
-- `ai-engineer`: Integra LLM para schema generation
-- `prompt-engineer`: Otimiza prompts para precisão
+- `frontend-developer`: Implementa chat UI
+- `ai-engineer`: Otimiza prompts LLM
+- `typescript-pro`: Valida JSON Schema gerado
 
 ---
 
 ### Sprint 4 (Semanas 7-8): Dynamic UI Generation
 
 **Objetivos**:
-- ✅ Form renderer 100% genérico
-- ✅ 10 widgets principais
+- ✅ Componente DynamicInstanceForm (100% genérico)
+- ✅ Widget library (12 widgets)
 - ✅ Validação client-side (JSON Schema)
-- ✅ RelationshipPicker
+- ✅ Integração com API de instances
 
-**Entregas**:
+**Widgets Implementados**:
+1. `text` - Input básico
+2. `cpf` - Máscara 999.999.999-99
+3. `cnpj` - Máscara 99.999.999/9999-99
+4. `currency` - R$ 0,00
+5. `date` - DatePicker
+6. `select` - Dropdown
+7. `multiselect` - Checkboxes
+8. `relationship` - Picker de outra instance
+9. `address` - Composto (CEP, Rua, Número, etc)
+10. `phone_br` - (11) 98765-4321
+11. `email` - Validação RFC 5322
+12. `number` - Input numérico
+
+**Componente Principal**:
+```typescript
+// DynamicInstanceForm.tsx
+interface Props {
+  objectDefinitionId: string;
+  initialData?: Record<string, any>;
+  onSubmit: (data: Record<string, any>) => Promise<void>;
+}
+
+export function DynamicInstanceForm({ objectDefinitionId, initialData, onSubmit }: Props) {
+  const { data: objDef } = useObjectDefinition(objectDefinitionId);
+  const [formData, setFormData] = useState(initialData || {});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validator = useMemo(() => {
+    return new JSONSchemaValidator(objDef.schema);
+  }, [objDef]);
+
+  const fields = Object.entries(objDef.schema.properties || {});
+
+  return (
+    <form onSubmit={(e) => {
+      e.preventDefault();
+      const errors = validator.validate(formData);
+      if (errors.length > 0) {
+        setErrors(errors);
+        return;
+      }
+      onSubmit(formData);
+    }}>
+      {fields.map(([fieldName, fieldSchema]) => {
+        const widget = objDef.ui_hints?.widgets?.[fieldName] || inferWidget(fieldSchema);
+
+        return (
+          <FormField key={fieldName} label={fieldSchema.title} required={isRequired(fieldName)}>
+            <WidgetRenderer
+              widget={widget}
+              schema={fieldSchema}
+              value={formData[fieldName]}
+              onChange={(value) => setFormData({ ...formData, [fieldName]: value })}
+            />
+          </FormField>
+        );
+      })}
+      <Button type="submit">Salvar</Button>
+    </form>
+  );
+}
 ```
-frontend/components/dynamic-ui/
-├── DynamicInstanceForm.tsx     # Renderiza qualquer objeto
-├── FieldRenderer.tsx           # Switch por tipo de campo
-├── widgets/
-│   ├── TextInput.tsx
-│   ├── CPFInput.tsx            # Máscara + validação
-│   ├── CurrencyInput.tsx       # R$ formatting
-│   ├── DatePicker.tsx
-│   ├── SelectInput.tsx
-│   ├── RelationshipPicker.tsx  # Busca instances de outro tipo
-│   ├── AddressInput.tsx        # CEP → ViaCEP
-│   ├── PhoneInput.tsx          # (99) 99999-9999
-│   ├── EmailInput.tsx
-│   └── NumberInput.tsx
-└── validation/
-    └── JSONSchemaValidator.ts  # Client-side validation
-```
 
-**Exemplo de Uso**:
-```tsx
-// Frontend NUNCA sabe que é "Cliente"
-<DynamicInstanceForm
-  objectDefinitionId="uuid-cliente-pf"
-  onSubmit={async (data) => {
-    await api.post('/instances', {
-      object_definition_id: "uuid-cliente-pf",
-      data: data
-    });
-  }}
-/>
-
-// Renderiza automaticamente:
-// - CPF com máscara
-// - Nome (text)
-// - Email (validação RFC 5322)
-// - Endereço (CEP autocomplete)
+**Teste Crítico**:
+```typescript
+// Usuário acessa /objects/cliente_pf/new
+// Sistema busca object_definition
+// DynamicInstanceForm renderiza:
+//   - Campo CPF com máscara
+//   - Campo Nome (text input)
+//   - Campo Data Nascimento (DatePicker)
+//   - Botão "Salvar"
+// Ao salvar, valida JSON Schema e envia para API
 ```
 
 **Agents Autônomos**:
-- `frontend-developer`: Widgets reutilizáveis
-- `ui-ux-designer`: Design tokens, acessibilidade
-- `typescript-pro`: Type safety avançado
+- `frontend-developer`: Implementa DynamicInstanceForm
+- `ui-ux-designer`: Design dos 12 widgets
+- `typescript-pro`: Type safety total
 
 ---
 
 ### Sprint 5 (Semanas 9-10): RAG Trimodal
 
 **Objetivos**:
-- ✅ SQL search (instances)
-- ✅ Graph search (relationships via NebulaGraph)
-- ✅ Vector search (embeddings via pgvector)
-- ✅ Hybrid query engine
+- ✅ SQL layer (busca em instances via PostgreSQL)
+- ✅ Graph layer (busca em relationships via NebulaGraph)
+- ✅ Vector layer (busca semântica via pgvector)
+- ✅ Query builder dinâmico
+- ✅ Interface de chat
 
-**Entregas**:
+**Arquitetura**:
 ```
-backend/internal/services/rag/
-├── sql_layer.go        # Query builder dinâmico
-├── graph_layer.go      # NebulaGraph integration
-├── vector_layer.go     # pgvector similarity search
-└── hybrid_search.go    # Combina 3 fontes
+backend/internal/rag/
+├── orchestrator.go       # Coordena 3 camadas
+├── sql_layer.go          # Query PostgreSQL (instances)
+├── graph_layer.go        # Query NebulaGraph (relationships)
+├── vector_layer.go       # Busca semântica (embeddings)
+└── entity_extractor.go   # LLM extrai entidades da pergunta
 
-# Tabela de embeddings
-CREATE TABLE document_embeddings (
-  id UUID PRIMARY KEY,
-  source_instance_id UUID REFERENCES instances(id),
-  content TEXT,
-  metadata JSONB,
-  embedding vector(1536)  -- OpenAI text-embedding-3-small
-);
-
-CREATE INDEX ON document_embeddings
-USING hnsw (embedding vector_cosine_ops);
+frontend/app/chat/
+└── page.tsx              # Interface de chat
 ```
 
-**API de RAG**:
-```bash
-POST /api/v1/rag/query
-{
-  "question": "Quantos clientes ativos temos?",
-  "context": {
-    "object_types": ["cliente_pf"],
-    "filters": {"current_state": "ATIVO"}
-  }
-}
+**Pipeline RAG**:
+```
+1. USUÁRIO: "Quantos clientes ativos temos?"
 
-# Resposta:
-{
-  "answer": "Atualmente temos 1.247 clientes ativos no sistema.",
-  "sources": [
-    {"type": "sql", "query": "SELECT COUNT(*)...", "result": 1247},
-    {"type": "graph", "path": null},
-    {"type": "vector", "documents": []}
-  ]
-}
+2. ENTITY EXTRACTION (LLM):
+   {
+     "object_type": "cliente_pf",
+     "state": "ATIVO",
+     "aggregation": "count"
+   }
+
+3. SQL LAYER:
+   SELECT COUNT(*)
+   FROM instances
+   WHERE object_definition_id = 'uuid-cliente-pf'
+     AND current_state = 'ATIVO'
+     AND is_deleted = false
+
+4. RESULTADO: 1247
+
+5. LLM SÍNTESE:
+   "Atualmente temos 1.247 clientes ativos no sistema."
 ```
 
-**Agents Autônomos**:
-- `ai-engineer`: RAG pipeline
-- `python-pro`: Vector indexing scripts
-- `database-optimizer`: Query performance tuning
-
----
-
-### Sprint 6 (Semanas 11-12): Auth JWT + RBAC Nativo
-
-**CRÍTICO**: Reimplementar autenticação SEM Keycloak/Logto/Cerbos
-
-**Objetivos**:
-- ✅ JWT token generation/validation
-- ✅ RBAC como object_definitions
-- ✅ Session management (Redis)
-- ✅ 2FA (TOTP)
-
-**Entregas**:
+**Exemplo Complexo (Grafo)**:
 ```
-# 1. object_definition: user
+USUÁRIO: "Quais contas a Maria Silva possui?"
+
+ENTITY EXTRACTION:
 {
-  "name": "user",
-  "schema": {
-    "properties": {
-      "email": {"type": "string", "format": "email"},
-      "password_hash": {"type": "string"},
-      "totp_secret": {"type": "string"},
-      "roles": {"type": "array", "items": {"type": "string"}}
-    }
-  }
+  "object_type": "conta_corrente",
+  "relationship_type": "TITULAR_DE",
+  "source_name": "Maria Silva"
 }
 
-# 2. object_definition: role
-{
-  "name": "role",
-  "schema": {
-    "properties": {
-      "name": {"type": "string"},
-      "permissions": {"type": "array"}
-    }
-  }
-}
+GRAPH QUERY (NebulaGraph):
+MATCH (cli:Instance)-[rel:TITULAR_DE]->(conta:Instance)
+WHERE cli.data.nome_completo CONTAINS 'Maria Silva'
+RETURN cli, rel, conta
 
-# 3. object_definition: permission
-{
-  "name": "permission",
-  "schema": {
-    "properties": {
-      "resource": {"type": "string"},  # "instances", "object_definitions"
-      "actions": {"type": "array"}     # ["create", "read", "update"]
-    }
-  }
-}
+RESULTADO:
+- Conta 12345-6 (Corrente) - Saldo: R$ 5.000
+- Conta 98765-4 (Poupança) - Saldo: R$ 15.000
 
-backend/internal/auth/
-├── jwt.go              # Token issue/verify
-├── password.go         # bcrypt hashing
-├── totp.go             # Google Authenticator
-├── session.go          # Redis session store
-└── rbac.go             # Permission checker
-
-frontend/lib/
-├── auth-context.tsx    # JWT storage
-└── api/client.ts       # Auto-inject Authorization header
-```
-
-**API de Auth**:
-```bash
-# Login
-POST /api/v1/auth/login
-{
-  "email": "user@example.com",
-  "password": "senha123",
-  "totp_code": "123456"  # opcional
-}
-# Response:
-{
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refresh_token": "...",
-  "expires_in": 3600
-}
-
-# Verificar permissão
-GET /api/v1/auth/can?resource=instances&action=create
-# Response: {"allowed": true}
-
-# Refresh token
-POST /api/v1/auth/refresh
-{
-  "refresh_token": "..."
-}
+LLM SÍNTESE:
+"Maria Silva possui 2 contas:
+1. Conta Corrente 12345-6 - Saldo: R$ 5.000,00
+2. Conta Poupança 98765-4 - Saldo: R$ 15.000,00"
 ```
 
 **Agents Autônomos**:
-- `backend-security-coder`: JWT implementation
-- `security-auditor`: Pen test, OWASP checks
-- `frontend-security-coder`: XSS prevention
+- `ai-engineer`: Implementa RAG pipeline
+- `python-pro`: Otimiza embeddings
+- `database-architect`: Tuning PostgreSQL + NebulaGraph
 
 ---
 
-## 🧠 FASE 2: BRAIN - ARCHITECT AGENT (12 semanas)
+## 🧠 FASE 2: BRAIN (12 semanas)
 
 ### Objetivo
-Ler documentos PDF do BACEN e gerar object_definitions automaticamente.
+Architect Agent lê PDFs (Manuais BACEN, circulares, resoluções) e AUTOMATICAMENTE gera object_definitions completos.
 
 ### Squad Fase 2
 
-| Papel | Responsabilidade | Agent Principal |
-|-------|------------------|-----------------|
-| **ML Engineer** | Document Intelligence, schema generation | `ml-engineer`, `python-pro` |
-| **NLP Engineer** | spaCy, entity extraction | `data-scientist`, `python-pro` |
-| **Backend Integration** | Architect Agent API, webhooks | `backend-architect`, `fastapi-pro` |
-| **Frontend Reviewer** | UI para revisar schemas gerados | `frontend-developer`, `react-pro` |
-| **Knowledge Engineer** | BACEN knowledge base, vector DB | `ai-engineer`, `rag-implementation` |
-| **Crawler Engineer** | Monitor BACEN site para novos docs | `devops-troubleshooter`, `python-pro` |
+| Papel | Responsabilidade |
+|-------|------------------|
+| **ML Engineer** | spaCy NER, PyMuPDF, LLM fine-tuning |
+| **Backend Lead** | API integration, validation |
+| **Data Scientist** | Entity extraction optimization |
+| **QA** | Validação de schemas gerados |
 
-**Total**: 6 pessoas
-
----
-
-### Sprint 7 (Semanas 13-14): Document Intelligence Engine
-
-**Objetivo**: PDF → Texto Estruturado
+### Sprint 7-12: Architect Agent
 
 **Entregas**:
 ```
-architect-agent/src/document_parser/
-├── pdf_extractor.py        # PyMuPDF extraction
-├── text_cleaner.py         # Remove headers/footers
-├── section_detector.py     # Identifica seções
-└── table_parser.py         # Tabelas → JSON
-
-# Exemplo:
-input: "Manual PIX v8.3.pdf"
-output: {
-  "title": "Manual de Uso do PIX",
-  "sections": [
-    {
-      "number": "4.2",
-      "title": "Limites de Valor por Horário",
-      "content": "No período noturno..."
-    }
-  ]
-}
+architect-agent/
+├── src/
+│   ├── pdf_parser.py           # PyMuPDF extract
+│   ├── entity_extractor.py     # spaCy NER
+│   ├── schema_generator.py     # LLM → JSON Schema
+│   ├── validation_mapper.py    # Mapeia validações BACEN
+│   └── api/
+│       └── main.py             # FastAPI
+└── tests/
+    └── test_bacen_circular.py  # Teste com Circular 3.978
 ```
 
-**Agents Autônomos**:
-- `python-pro`: PyMuPDF integration
-- `ml-engineer`: Table detection models
-
----
-
-### Sprint 8 (Semanas 15-16): Entity Extraction com spaCy
-
-**Objetivo**: Extrair entidades regulatórias
-
-**Entregas**:
+**Pipeline**:
 ```
-architect-agent/src/entity_extraction/
-├── ner_model.py            # spaCy custom NER
-├── entities/
-│   ├── limite.py           # Detecta limites ("R$ 1.000")
-│   ├── horario.py          # Detecta horários ("20h-6h")
-│   ├── validacao.py        # Detecta validações ("CPF válido")
-│   └── campo.py            # Detecta campos ("nome completo")
+1. INPUT: PDF da Circular 3.978 (PLD/FT)
 
-# Exemplo:
-input: "O limite noturno é de R$ 1.000 entre 20h e 6h"
-output: [
-  {"type": "LIMITE", "valor": 1000, "moeda": "BRL"},
-  {"type": "HORARIO", "inicio": "20:00", "fim": "06:00"}
-]
-```
+2. PDF PARSING:
+   - Extrai texto completo
+   - Identifica seções
+   - Preserva estrutura
 
-**Agents Autônomos**:
-- `data-scientist`: Train custom NER model
-- `python-pro`: spaCy pipeline
+3. ENTITY EXTRACTION (spaCy):
+   - Entidades: Cliente, Transação, Limite
+   - Atributos: CPF, Valor, Data
+   - Validações: CPF válido, Valor > 0
 
----
+4. SCHEMA GENERATION (LLM):
+   {
+     "name": "transacao_pld",
+     "schema": {
+       "type": "object",
+       "properties": {
+         "cpf_origem": {"type": "string", "pattern": "^\\d{11}$"},
+         "valor": {"type": "number", "minimum": 0},
+         "data": {"type": "string", "format": "date-time"}
+       }
+     },
+     "rules": [
+       {"type": "regex", "field": "cpf_origem", "pattern": "^\\d{11}$"},
+       {"type": "function", "code": "valor > 10000 => reportar_coaf()"}
+     ]
+   }
 
-### Sprint 9 (Semanas 17-18): Schema Generation com LLM
+5. VALIDATION:
+   - JSON Schema válido?
+   - FSM coerente?
+   - Regras executáveis?
 
-**Objetivo**: Entidades → JSON Schema
-
-**Entregas**:
-```
-architect-agent/src/schema_generation/
-├── llm_generator.py        # Claude Opus prompt
-├── validator.py            # Valida JSON Schema
-└── ui_hints_mapper.py      # Gera UI hints
-
-# Prompt para LLM:
-"""
-Você é um expert em JSON Schema Draft 7.
-
-Entidades extraídas:
-- LIMITE: R$ 1.000 (noturno)
-- HORARIO: 20h-6h
-- CAMPO: valor (número), chave_destino (string)
-
-Gere um JSON Schema para object_definition "transacao_pix":
-"""
-
-# Output:
-{
-  "name": "transacao_pix",
-  "schema": {
-    "type": "object",
-    "properties": {
-      "valor": {"type": "number", "minimum": 0.01},
-      "chave_destino": {"type": "string"}
-    }
-  },
-  "rules": [
-    {
-      "name": "limite_noturno",
-      "condition": "valor <= 1000 && (hora >= 20 || hora < 6)"
-    }
-  ]
-}
+6. PERSISTÊNCIA:
+   - POST /api/v1/object-definitions
+   - Cria automaticamente
 ```
 
-**Agents Autônomos**:
-- `ai-engineer`: LLM integration
-- `prompt-engineer`: Optimize prompts for accuracy
+**Teste Real**:
+```python
+# test_bacen_circular.py
+def test_circular_3978_pld():
+    pdf_path = "docs/bacen/Circular_3978_PLD.pdf"
 
----
+    # Agent processa PDF
+    result = architect_agent.process_pdf(pdf_path)
 
-### Sprint 10 (Semanas 19-20): Knowledge Base + Vector DB
-
-**Objetivo**: Indexar 20+ documentos BACEN
-
-**Entregas**:
+    assert result.success == True
+    assert len(result.object_definitions) >= 3  # Cliente, Transação, Regra
+    assert result.object_definitions[0].name == "transacao_pld"
+    assert "cpf_origem" in result.object_definitions[0].schema["properties"]
 ```
-architect-agent/knowledge_base/
-├── documents/
-│   ├── manual_pix_v8_3.pdf
-│   ├── circular_3978_pld.pdf
-│   ├── resolucao_4753_kyc.pdf
-│   └── ... (20+ docs)
-├── embeddings_store.py     # pgvector
-└── search.py               # Semantic search
-
-# API:
-GET /api/v1/knowledge-base/search?q=limite%20pix%20noturno
-
-# Response:
-{
-  "results": [
-    {
-      "document": "Manual PIX v8.3",
-      "section": "4.2",
-      "content": "Limite de R$ 1.000 entre 20h-6h",
-      "similarity": 0.92
-    }
-  ]
-}
-```
-
-**Agents Autônomos**:
-- `ai-engineer`: Embedding pipeline
-- `database-optimizer`: pgvector indexing
-
----
-
-### Sprint 11 (Semanas 21-22): Review & Deployment UI
-
-**Objetivo**: Interface para aprovar schemas gerados
-
-**Entregas**:
-```
-frontend/app/architect/
-├── page.tsx                    # Lista de schemas pendentes
-├── components/
-│   ├── SchemaReviewer.tsx      # Diff view
-│   ├── FieldEditor.tsx         # Editar campos
-│   └── ApprovalFlow.tsx        # Aprovar/Rejeitar
-
-# Fluxo:
-1. Architect Agent processa "Manual PIX v8.3"
-2. Gera object_definition "transacao_pix"
-3. Status: PENDING_REVIEW
-4. Compliance/Produto revisa → Aprovar
-5. Status: APPROVED → Auto-deploy para production
-```
-
-**Agents Autônomos**:
-- `frontend-developer`: Review UI
-- `ui-ux-designer`: Diff visualization
-
----
-
-### Sprint 12 (Semanas 23-24): BACEN Crawler
-
-**Objetivo**: Monitor diário de novos normativos
-
-**Entregas**:
-```
-architect-agent/crawler/
-├── bacen_monitor.py        # Scraper (Playwright)
-├── change_detector.py      # Diff de versões
-└── notification.py         # Slack/Email alerts
-
-# Cron job diário:
-1. Acessa https://www.bcb.gov.br/estabilidadefinanceira/buscanormas
-2. Extrai lista de normativos
-3. Compara com versão anterior
-4. Se novo: Download PDF → Processa → Notifica
-```
-
-**Agents Autônomos**:
-- `devops-troubleshooter`: Crawler setup
-- `python-pro`: Playwright automation
 
 ---
 
 ## 🏢 FASE 3: BACKOFFICE PORTAL (10 semanas)
 
-### Objetivo
-11 módulos para equipes internas operarem a plataforma.
+### 11 Módulos Operacionais
 
-### Squad Fase 3
+1. **Dashboard Executivo**
+   - KPIs em tempo real
+   - Gráficos de tendências
+   - Alertas críticos
 
-| Papel | Responsabilidade | Agent Principal |
-|-------|------------------|-----------------|
-| **Frontend Architect** | Design system, routing, auth | `frontend-developer`, `react-pro` |
-| **Backend API** | Endpoints específicos de cada módulo | `backend-architect`, `golang-pro` |
-| **UX Designer** | Wireframes, protótipos | `ui-ux-designer`, `figma` |
-| **Data Viz** | Charts, dashboards, KPIs | `data-scientist`, `recharts` |
-| **Integration Engineer** | WebSockets, real-time | `backend-architect`, `socketio` |
-| **QA** | E2E tests por módulo | `test-automator`, `playwright` |
+2. **Gestão de Clientes**
+   - Busca avançada (JSONB queries)
+   - Visão 360° (relacionamentos)
+   - Bulk operations
 
-**Total**: 6 pessoas
+3. **Gestão de Contas**
+   - Saldos, limites, extratos
+   - Bloqueio/desbloqueio
+   - Histórico de transações
 
----
+4. **Gestão de Transações**
+   - Filtros avançados
+   - Estorno/reversão
+   - Auditoria completa
 
-### Sprint 13 (Semanas 25-26): Módulos 1-2
+5. **Compliance & KYC**
+   - Review de documentos
+   - Aprovação/rejeição
+   - Relatórios COAF
 
-**Módulo 1: Dashboard Executivo**
-```
-Funcionalidades:
-✓ KPIs principais (clientes, contas, transações, receita)
-✓ Gráficos de tendência (últimos 30 dias)
-✓ Alertas críticos (fraude, COAF, limites)
-✓ Shortcuts para ações rápidas
+6. **Risco & Fraude**
+   - Score de risco
+   - Regras configuráveis
+   - Alertas automáticos
 
-Tela:
-┌─────────────────────────────────────────┐
-│  Clientes  │  Contas  │  Tx Hoje  │ $  │
-│   1,247    │  2,891   │  15,342   │ 5M │
-├─────────────────────────────────────────┤
-│  Gráfico: Transações (últimos 30 dias) │
-│  [Line chart com volume diário]         │
-├─────────────────────────────────────────┤
-│  ⚠️ Alertas (3 pendentes)              │
-│  • COAF: 2 transações suspeitas        │
-│  • Limite: Cliente X excedeu saldo     │
-└─────────────────────────────────────────┘
-```
+7. **Produto & Configuração**
+   - Editor de Object Definitions
+   - Designer de FSMs
+   - Regras de validação
 
-**Módulo 2: Gestão de Clientes**
-```
-Funcionalidades:
-✓ Listagem com filtros avançados
-✓ Busca por CPF/Nome/Email
-✓ 360° view (contas, transações, docs)
-✓ Bulk operations (bloquear N clientes)
-✓ Export CSV/Excel
+8. **Suporte & Atendimento**
+   - Ticketing
+   - Chat interno
+   - Knowledge base
 
-Tela:
-┌─────────────────────────────────────────┐
-│  🔍 Buscar: [CPF/Nome/Email]           │
-│  Filtros: [Estado] [Segmento] [Desde] │
-├─────────────────────────────────────────┤
-│  CPF          │ Nome     │ Estado      │
-│  123.456.789  │ Maria    │ ATIVO  [▶] │
-│  987.654.321  │ João     │ BLOQ   [▶] │
-└─────────────────────────────────────────┘
+9. **Relatórios & Analytics**
+   - Report Builder
+   - Export CSV/Excel/PDF
+   - Dashboards customizáveis
 
-Detalhes (Maria Silva):
-├─ Dados Cadastrais
-├─ Contas (2)
-│  └─ 12345-6 (Corrente, R$ 5.000)
-├─ Transações (últimas 50)
-└─ Documentos KYC (3 aprovados)
-```
+10. **Administração & Segurança**
+    - Auditoria de ações
+    - Logs de sistema
+    - Configurações gerais
 
-**Agents Autônomos**:
-- `frontend-developer`: React Table, charts
-- `data-scientist`: KPI calculations
+11. **Notificações & Alertas**
+    - Email/SMS/Push
+    - Webhooks
+    - Regras de disparo
 
 ---
 
-### Sprint 14 (Semanas 27-28): Módulos 3-4
+## 📱 FASE 4: CLIENT PORTAL (12 semanas)
 
-**Módulo 3: Gestão de Contas**
-**Módulo 4: Gestão de Transações**
+### 11 Módulos Cliente + Mobile
 
-(Similar structure)
+1. **Onboarding & Cadastro**
+   - Selfie + OCR
+   - Upload de documentos
+   - Assinatura eletrônica
 
----
+2. **Dashboard Cliente**
+   - Saldos
+   - Últimas transações
+   - Quick actions
 
-### Sprint 15 (Semanas 29-30): Módulos 5-6
+3. **Gestão de Contas**
+   - Extratos (PDF/CSV)
+   - Histórico completo
+   - Detalhes da conta
 
-**Módulo 5: Compliance & KYC**
-**Módulo 6: Risco & Fraude**
+4. **Transações & Pagamentos**
+   - PIX (send/receive)
+   - TED/DOC
+   - Boletos
 
----
+5. **Cartões**
+   - Virtual/físico
+   - Ver CVV
+   - Bloquear/desbloquear
 
-### Sprint 16 (Semanas 31-32): Módulos 7-8
+6. **Perfil & Dados Cadastrais**
+   - Editar informações
+   - Trocar senha
+   - Upload de novos docs
 
-**Módulo 7: Produto & Configuração**
-```
-Funcionalidades:
-✓ Object Definition Editor visual
-✓ FSM Designer (React Flow)
-✓ Validation Rules Builder
-✓ UI Hints configurator
+7. **Investimentos** (opcional)
+   - Portfolio
+   - Aplicações CDB
+   - Simulações
 
-Tela:
-┌─────────────────────────────────────────┐
-│  Object Definitions                     │
-│  ├─ cliente_pf        [Editar] [FSM]   │
-│  ├─ conta_corrente    [Editar] [FSM]   │
-│  └─ transacao_pix     [Editar] [FSM]   │
-│                                         │
-│  [+ Novo Object Definition]             │
-└─────────────────────────────────────────┘
+8. **Suporte & Atendimento**
+   - Chat
+   - FAQ
+   - Abertura de tickets
 
-FSM Designer (transacao_pix):
-┌─────────────────────────────────────────┐
-│  [PENDENTE] ──aprovar──> [LIQUIDADA]   │
-│      │                        │         │
-│      └──rejeitar──> [REJEITADA]        │
-│                                         │
-│  Transition: aprovar                    │
-│  Condition: saldo >= valor              │
-│  Actions: [ notify_customer ]           │
-└─────────────────────────────────────────┘
-```
+9. **Notificações**
+   - In-app
+   - Push notifications
+   - Preferências
 
-**Módulo 8: Suporte & Atendimento**
+10. **Segurança**
+    - 2FA (TOTP)
+    - Dispositivos autorizados
+    - Histórico de acessos
 
----
-
-### Sprint 17 (Semanas 33-34): Módulos 9-10-11
-
-**Módulo 9: Relatórios & Analytics**
-**Módulo 10: Administração & Segurança**
-**Módulo 11: Notificações & Alertas**
-
----
-
-## 👤 FASE 4: CLIENT PORTAL + MOBILE (12 semanas)
-
-### Objetivo
-Portal completo para clientes finais (web + mobile).
-
-### Squad Fase 4
-
-| Papel | Responsabilidade | Agent Principal |
-|-------|------------------|-----------------|
-| **Mobile Lead (iOS)** | React Native iOS | `ios-developer`, `swift` |
-| **Mobile Lead (Android)** | React Native Android | `mobile-developer`, `kotlin` |
-| **Frontend Web** | Next.js client portal | `frontend-developer`, `react-pro` |
-| **Backend API** | Endpoints cliente | `backend-architect`, `fastapi-pro` |
-| **Security Engineer** | Biometria, 2FA, device fingerprint | `security-auditor`, `mobile-security-coder` |
-| **QA Mobile** | Testes iOS + Android | `test-automator`, `detox` |
-
-**Total**: 6 pessoas
+11. **Mobile Apps**
+    - iOS (React Native)
+    - Android (React Native)
+    - Biometria (Face/Touch ID)
 
 ---
 
-### Sprint 18 (Semanas 35-36): Módulo 1-2 Cliente
+## 🤖 FASE 5: AUTONOMY (12 semanas)
 
-**Módulo 1: Onboarding & Cadastro**
-```
-Funcionalidades (Web + Mobile):
-✓ Multi-step form (5 etapas)
-✓ Selfie + OCR (RG/CNH)
-✓ Validação biométrica (liveness)
-✓ Verificação de email/SMS
-✓ Aceite de termos
+### Self-Healing & Agent Discovery
 
-Fluxo:
-1️⃣ Dados Pessoais (CPF, Nome, Nascimento)
-2️⃣ Contato (Email, Telefone)
-3️⃣ Endereço (CEP autocomplete)
-4️⃣ Documentos (Selfie + RG/CNH)
-5️⃣ Revisão + Confirmação
-```
+**Objetivos**:
+- Sistema descobre necessidade de novos agentes
+- Auto-deploy de agentes em Kubernetes
+- Self-healing automático
+- Zero downtime
 
-**Módulo 2: Login & Autenticação**
-```
-Funcionalidades:
-✓ Login email/senha
-✓ Biometria (FaceID/TouchID no mobile)
-✓ 2FA (TOTP ou SMS)
-✓ Recuperação de senha
-✓ Logout em todos os dispositivos
-```
+**Entregas**:
+- Agent Registry (PostgreSQL)
+- Agent Discovery (NebulaGraph)
+- Auto-Deploy Engine (ArgoCD + Kubernetes)
+- Health Monitor (Prometheus + Grafana)
 
 ---
 
-### Sprint 19-22 (Semanas 37-44): Módulos 3-11 Cliente
+## 🚀 FASE 6: PRODUCTION (12 semanas)
 
-(Similar structure para 9 módulos restantes)
+### BACEN Real + 10k Clientes
 
----
+**Objetivos**:
+- Integração BACEN SPI (PIX real)
+- TigerBeetle Ledger (contabilidade)
+- 10.000 clientes beta
+- 100.000 transações/dia
 
-## 🤖 FASE 5: AUTONOMY - SELF-HEALING (12 semanas)
-
-### Objetivo
-Sistema descobre problemas e auto-gera soluções.
-
-### Squad Fase 5
-
-| Papel | Responsabilidade | Agent Principal |
-|-------|------------------|-----------------|
-| **AI Architect** | Agent discovery engine | `ai-engineer`, `ml-engineer` |
-| **Code Generator** | Template-based code gen | `backend-architect`, `golang-pro` |
-| **K8s Engineer** | Auto-deploy, GitOps | `kubernetes-architect`, `argocd` |
-| **Monitoring Engineer** | Prometheus, alerting | `observability-engineer`, `grafana` |
-| **ML Ops** | Model deployment, A/B testing | `mlops-engineer`, `kubeflow` |
-| **Security** | Agent sandbox, policy enforcement | `security-auditor`, `k8s-security-policies` |
-
-**Total**: 6 pessoas
+**Entregas**:
+- Integração PIX completa
+- Compliance 100% BACEN
+- Monitoring produção
+- SLA 99.9%
 
 ---
 
-### Sprint 23-28 (Semanas 45-56): Autonomy Components
+## 📊 Métricas de Sucesso
 
-**Sprint 23**: Problem Detection Engine
-**Sprint 24**: Agent Suggester (LLM-based)
-**Sprint 25**: Code Generator (Go templates)
-**Sprint 26**: Test Generator
-**Sprint 27**: Deployment Orchestrator
-**Sprint 28**: Self-Healing Monitor
+### Fase 1 (Foundation)
+- ✅ Time de Produto cria objeto em < 15min (sem devs)
+- ✅ 100 instâncias criadas sem erros
+- ✅ RAG responde 10 perguntas com 90% precisão
+- ✅ UI renderiza 12 tipos de widget corretamente
 
----
+### Fase 2 (Brain)
+- ✅ Agent gera object_definition de PDF em < 5min
+- ✅ 90% de precisão na extração de entidades
+- ✅ Schema gerado passa validação JSON Schema
 
-## 🚀 FASE 6: PRODUCTION - BACEN REAL (12 semanas)
+### Fase 3 (BackOffice)
+- ✅ 11 módulos funcionais
+- ✅ 50 usuários internos usando diariamente
+- ✅ < 2s de resposta em 95% das requests
 
-### Objetivo
-10.000 clientes reais processando PIX via BACEN.
+### Fase 4 (Client Portal)
+- ✅ 11 módulos cliente + 2 apps mobile
+- ✅ 1.000 clientes cadastrados via app
+- ✅ 10.000 transações processadas
 
-### Squad Fase 6
+### Fase 5 (Autonomy)
+- ✅ Sistema descobre 5+ novos agentes necessários
+- ✅ Auto-deploy < 10min
+- ✅ Self-healing em < 30s
 
-| Papel | Responsabilidade | Agent Principal |
-|-------|------------------|-----------------|
-| **Integration Lead** | BACEN SPI, mTLS | `backend-architect`, `network-engineer` |
-| **Ledger Engineer** | TigerBeetle integration | `backend-architect`, `golang-pro` |
-| **Security Engineer** | Penetration testing, LGPD | `security-auditor`, `pci-compliance` |
-| **SRE** | Multi-region, DR | `incident-responder`, `kubernetes-architect` |
-| **Performance Engineer** | Load testing, optimization | `performance-engineer`, `database-optimizer` |
-| **Compliance** | BACEN certification, audit | `security-auditor`, `legal-advisor` |
-
-**Total**: 6 pessoas
-
----
-
-### Sprint 29-34 (Semanas 57-70): Production Launch
-
-**Sprint 29**: BACEN SPI Integration (mTLS, certificados)
-**Sprint 30**: TigerBeetle Ledger (accounting de produção)
-**Sprint 31**: Anti-Fraude (Data Rudder, machine learning)
-**Sprint 32**: Disaster Recovery (multi-region, RTO <1h)
-**Sprint 33**: Load Testing (50k tx/dia)
-**Sprint 34**: 100 Beta Customers → 10k Customers
+### Fase 6 (Production)
+- ✅ 10.000 clientes ativos
+- ✅ 100.000 transações/dia
+- ✅ SLA 99.9% uptime
+- ✅ Zero incidentes críticos
 
 ---
 
-## 📊 RESUMO DE RECURSOS
+## 💰 Orçamento Total
 
-| Fase | Squad Size | Sprints | Semanas | Custo Estimado (6 pessoas × $10k/mês) |
-|------|------------|---------|---------|---------------------------------------|
-| Fase 1 | 6 | 6 | 12 | $180k |
-| Fase 2 | 6 | 6 | 12 | $180k |
-| Fase 3 | 6 | 5 | 10 | $150k |
-| Fase 4 | 6 | 6 | 12 | $180k |
-| Fase 5 | 6 | 6 | 12 | $180k |
-| Fase 6 | 6 | 6 | 12 | $180k |
-| **TOTAL** | **6** | **35** | **70** | **$1.05M** |
+| Fase | Duração | Custo Estimado |
+|------|---------|----------------|
+| Fase 1 | 10 semanas | $150k |
+| Fase 2 | 12 semanas | $180k |
+| Fase 3 | 10 semanas | $150k |
+| Fase 4 | 12 semanas | $180k |
+| Fase 5 | 12 semanas | $180k |
+| Fase 6 | 12 semanas | $180k |
 
----
-
-## 🎯 MÉTRICAS DE SUCESSO POR FASE
-
-| Fase | Métrica Chave | Meta |
-|------|---------------|------|
-| **Fase 1** | Object definitions criados via NL | >95% precisão |
-| **Fase 2** | BACEN docs → schemas | <30 min/documento |
-| **Fase 3** | Redução em tickets de suporte | >90% |
-| **Fase 4** | Transações self-service | >90% |
-| **Fase 5** | Agents auto-deployed | >10 agents |
-| **Fase 6** | Uptime SLA | 99.95% |
+**Total**: $1.02M (~68 semanas / 17 meses)
 
 ---
 
-## 🚀 PRÓXIMOS PASSOS IMEDIATOS
+## 🎯 Próximos Passos Imediatos
 
-### Limpeza do Código Atual
-
-```bash
-# 1. Remover Keycloak/Logto/Cerbos
-rm -rf frontend/lib/keycloak/
-rm -rf frontend/app/api/logto/
-rm -rf frontend/app/api/auth/token/
-rm -rf frontend/app/api/auth/user/
-
-# 2. Atualizar dependências
-cd frontend
-npm uninstall keycloak-js @logto/next
-
-# 3. Limpar backend (se houver referências)
-cd ../backend
-grep -r "keycloak\|logto\|cerbos" . # Verificar referências
-```
-
-### Reimplementação Fase 1 (Sprint 6)
-
-```bash
-# 1. Criar nova branch
-git checkout -b fase1-refactor-auth
-
-# 2. Implementar JWT nativo
-mkdir -p backend/internal/auth
-touch backend/internal/auth/jwt.go
-touch backend/internal/auth/rbac.go
-
-# 3. Criar object_definitions de auth
-curl POST /api/v1/object-definitions -d @user_object.json
-curl POST /api/v1/object-definitions -d @role_object.json
-
-# 4. Frontend: Atualizar auth-context.tsx
-# Remover Keycloak, usar apenas JWT
-
-# 5. Commit
-git add .
-git commit -m "refactor(auth): Replace Keycloak with native JWT + RBAC"
-```
+1. ✅ Cleanup concluído (branch `fase1-refactor-auth`)
+2. 📝 Revisar este documento (SPRINTS_E_SQUADS_COMPLETO.md)
+3. 🚀 Iniciar Fase 1, Sprint 1: Database + API Core
+4. 🔄 Daily standups (15min)
+5. 📊 Weekly demos (sexta-feira)
 
 ---
 
-**Este documento substitui TODOS os roadmaps e sprint plans anteriores. É a fonte única da verdade para implementação do SuperCore.**
+**Este documento é o contrato de implementação. Zero POCs. Zero protótipos. Apenas produção.**

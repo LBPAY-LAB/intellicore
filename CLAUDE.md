@@ -13,6 +13,11 @@ Este documento é o **guia central de implementação**. Documentos relacionados
 - **[docs/fase1/ORACULO_CONSCIENCIA_DA_PLATAFORMA.md](docs/fase1/ORACULO_CONSCIENCIA_DA_PLATAFORMA.md)** - O conceito revolucionário do Oráculo
 - **[docs/fase1/ORACLE_IMPLEMENTATION_COMPLETE.md](docs/fase1/ORACLE_IMPLEMENTATION_COMPLETE.md)** - Documentação da implementação do Oracle
 - **[docs/fase1/ROADMAP_IMPLEMENTACAO_4_FASES.md](docs/fase1/ROADMAP_IMPLEMENTACAO_4_FASES.md)** - Roadmap completo de 4 fases (11 meses)
+- **[DYNAMIC_UI_IMPLEMENTATION_COMPLETE.md](DYNAMIC_UI_IMPLEMENTATION_COMPLETE.md)** - Implementação completa do Dynamic UI (11 widgets)
+
+### Fase 2 - Extensibilidade via MCP (Model Context Protocol)
+- **[SUPERCORE_MCP_SERVER.md](SUPERCORE_MCP_SERVER.md)** - ⭐ **CRÍTICO**: Especificação completa do MCP Server + Action Agents
+- **[MCP_IMPLEMENTATION_GUIDE.md](MCP_IMPLEMENTATION_GUIDE.md)** - ⭐ **CRÍTICO**: Guia prático de implementação do MCP Server
 
 ### Exemplos e Guias
 - **[README.md](README.md)** - Guia do usuário, quick start, arquitetura
@@ -22,15 +27,51 @@ Este documento é o **guia central de implementação**. Documentos relacionados
 
 ## 🎯 MISSÃO CRÍTICA
 
-**Implementar uma PLATAFORMA CRIADORA que permita ao time de Produto e Compliance criar um Core Banking completo em DIAS através de linguagem natural, sem necessidade de desenvolvedores.**
+**Implementar uma PLATAFORMA UNIVERSAL que permita ao time de Produto e Compliance criar soluções completas (Core Banking, CRM, ERP, etc) em DIAS através de linguagem natural, sem necessidade de desenvolvedores.**
+
+### Arquitetura Estratégica
+
+O SuperCore é uma **plataforma abstrata** que não conhece domínios específicos:
+
+```
+┌─────────────────────────────────────────────────────┐
+│         SUPERCORE (Engine Universal)                │
+│         - Gestão de object_definitions              │
+│         - Engine de instances                       │
+│         - Engine de relacionamentos (grafo)         │
+│         - FSM engine genérico                       │
+│         - RAG trimodal                              │
+│         - Assistente NL para criar objetos          │
+└─────────────────────────────────────────────────────┘
+                      ↓ é consumido por
+┌─────────────────────────────────────────────────────┐
+│    APLICAÇÕES ESPECÍFICAS (Portais/Soluções)       │
+│    ├── LBPAY Core Banking (object_definitions      │
+│    │   bancárias + portais especializados)         │
+│    ├── CRM de Seguros (futuro)                     │
+│    ├── Sistema Hospitalar (futuro)                 │
+│    └── Qualquer outro domínio                      │
+└─────────────────────────────────────────────────────┘
+```
+
+**Separação Crítica:**
+- **SuperCore**: Zero lógica bancária, 100% genérico
+- **LBPAY Platform**: Cria object_definitions bancárias e portais especializados
+- **Outras Aplicações**: Podem usar a mesma engine para domínios diferentes
 
 ---
 
-## 🧠 O ORÁCULO - A Consciência da Plataforma
+## 🧠 O ORÁCULO - Funcionalidade de Consciência Configurável
 
 ### Conceito Revolucionário
 
-Antes de tudo, a plataforma precisa **saber quem ela é**. O **Oráculo** é a consciência autoconsciente que contém:
+**O Oráculo é uma FUNCIONALIDADE do SuperCore** - uma API/estrutura genérica que permite qualquer aplicação definir sua "consciência" (identidade, contexto, integrações, políticas).
+
+**Como funciona:**
+- **SuperCore provê**: A funcionalidade/API do Oráculo (endpoints, estrutura de dados, RAG integration)
+- **Aplicação configura**: O conteúdo específico (quem é, o que faz, integrações, políticas)
+
+**Exemplo**: Quando implementamos **LBPAY Core Banking** usando SuperCore, configuramos o Oráculo para definir a consciência da aplicação:
 
 ```
 Eu sou a LBPAY
@@ -53,6 +94,154 @@ Eu sou a LBPAY
 
 **Ver documentação completa**: [docs/fase1/ORACULO_CONSCIENCIA_DA_PLATAFORMA.md](docs/fase1/ORACULO_CONSCIENCIA_DA_PLATAFORMA.md)
 
+### Outros Exemplos de Configuração do Oráculo
+
+**Sistema Hospitalar usando SuperCore:**
+```
+Eu sou o Hospital São Lucas
+├── CNPJ: 98.765.432/0001-10
+├── Licenciado pela ANS e Vigilância Sanitária
+├── CNES: 1234567
+├── Operando sob regulamentações:
+│   ├── RDC ANVISA 63/2011
+│   ├── Lei 13.787/2018 (Prontuário Eletrônico)
+│   └── LGPD (dados sensíveis de saúde)
+├── Integrado com:
+│   ├── Sistema de Laboratórios
+│   ├── Planos de Saúde (TISS)
+│   └── Farmácia Central
+└── Governado por políticas:
+    ├── Protocolos Clínicos
+    ├── Controle de Infecção Hospitalar
+    └── Gestão de Leitos
+```
+
+**CRM de Seguros usando SuperCore:**
+```
+Eu sou a Seguradora XYZ
+├── CNPJ: 11.222.333/0001-44
+├── Regulada pela SUSEP
+├── Código SUSEP: 12345
+├── Operando sob regulamentações:
+│   ├── Lei Complementar 126/2007
+│   ├── Resolução CNSP 321/2015
+│   └── Circular SUSEP 517/2015
+├── Integrado com:
+│   ├── Corretoras parceiras
+│   ├── Rede de assistências 24h
+│   └── Sistema de cálculo de prêmios
+└── Governado por políticas:
+    ├── Subscrição e análise de risco
+    ├── Gestão de sinistros
+    └── Compliance SUSEP
+```
+
+**A MESMA funcionalidade Oráculo, configurações DIFERENTES para cada domínio.**
+
+### Como o Oráculo é Implementado Tecnicamente
+
+**No SuperCore (funcionalidade genérica):**
+
+```go
+// backend/internal/handlers/oracle.go
+// API GENÉRICA do Oráculo
+
+type OracleHandler struct {
+    db *sql.DB
+}
+
+// Endpoints genéricos
+// GET /api/v1/oracle/identity     - Retorna identidade configurada
+// GET /api/v1/oracle/licenses      - Retorna licenças/regulamentações
+// GET /api/v1/oracle/integrations  - Retorna integrações configuradas
+// GET /api/v1/oracle/policies      - Retorna políticas/regras
+// GET /api/v1/oracle/whoami        - Síntese completa (para RAG)
+
+func (h *OracleHandler) GetIdentity(c *gin.Context) {
+    // Busca configuração do banco (tabela oracle_config)
+    var identity OracleIdentity
+    h.db.QueryRow("SELECT * FROM oracle_config WHERE key = 'identity'").Scan(&identity)
+    c.JSON(200, identity)
+}
+```
+
+**Schema do Banco (SuperCore):**
+
+```sql
+-- Tabela genérica para configuração do Oráculo
+CREATE TABLE oracle_config (
+    id UUID PRIMARY KEY,
+    key VARCHAR(100) UNIQUE NOT NULL,  -- 'identity', 'licenses', 'integrations', 'policies'
+    config JSONB NOT NULL,              -- Configuração flexível (JSON)
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Índice para queries rápidas
+CREATE INDEX idx_oracle_config_key ON oracle_config(key);
+```
+
+**Na aplicação LBPAY (configuração específica):**
+
+```typescript
+// lbpay-platform/setup/configure-oracle.ts
+// Script executado no setup da aplicação LBPAY
+
+import { SuperCoreClient } from './lib/supercore-sdk';
+
+const supercore = new SuperCoreClient('http://supercore-api:8080');
+
+async function configureLBPayOracle() {
+    // Configura IDENTIDADE
+    await supercore.oracle.configure('identity', {
+        cnpj: '12.345.678/0001-90',
+        razao_social: 'LBPAY INSTITUIÇÃO DE PAGAMENTO S.A.',
+        nome_fantasia: 'LBPay',
+        ispb: '12345678',
+        tipo_instituicao: 'INSTITUICAO_PAGAMENTO'
+    });
+
+    // Configura LICENÇAS/REGULAMENTAÇÕES
+    await supercore.oracle.configure('licenses', [
+        {
+            orgao_regulador: 'BANCO_CENTRAL',
+            tipo: 'INSTITUICAO_PAGAMENTO',
+            numero_autorizacao: 'IP-2024-001',
+            data_vigencia: '2024-01-01',
+            normativas: ['Circular 3.978', 'Resolução 80', 'Regulamento PIX']
+        }
+    ]);
+
+    // Configura INTEGRAÇÕES
+    await supercore.oracle.configure('integrations', [
+        {
+            nome: 'TigerBeetle Ledger',
+            tipo: 'LEDGER',
+            endpoint: 'tcp://tigerbeetle:3000',
+            status: 'ATIVO'
+        },
+        {
+            nome: 'BACEN SPI',
+            tipo: 'BANCO_CENTRAL',
+            endpoint: 'https://api.spi.bcb.gov.br/v1',
+            status: 'ATIVO'
+        }
+    ]);
+
+    // Configura POLÍTICAS
+    await supercore.oracle.configure('policies', [
+        { tipo: 'PLD_FT', descricao: 'Políticas de prevenção à lavagem de dinheiro' },
+        { tipo: 'RISCO_CREDITO', descricao: 'Análise de risco de crédito' }
+    ]);
+
+    console.log('✅ Oráculo LBPAY configurado!');
+}
+
+configureLBPayOracle();
+```
+
+**Resultado:** SuperCore agora "sabe" que está rodando a aplicação LBPAY e responde consultas ao RAG com esse contexto.
+
 ### Por Que o Oráculo é Fundamental?
 
 1. **Identidade**: Todo sistema precisa saber quem é
@@ -61,6 +250,7 @@ Eu sou a LBPAY
 4. **Integração**: Configurações de integrações externas
 5. **Compliance**: Políticas regulatórias centralizadas
 6. **Consciência**: O RAG consulta o Oráculo para responder "quem somos"
+7. **Multi-domínio**: Mesma API, diferentes contextos (Banking, Hospital, Seguros, etc)
 
 ---
 
@@ -68,13 +258,41 @@ Eu sou a LBPAY
 
 ### Não Estamos Construindo um Core Banking
 
-Estamos construindo uma **Máquina Universal de Gestão de Entidades** que:
+Estamos construindo uma **Máquina Universal de Gestão de Objetos** que permite implementar qualquer tipo de solução (como Core Banking e suas integrações necessárias) através de:
 
 1. **Recebe**: Descrições em linguagem natural de objetos de negócio
 2. **Gera**: Definições abstratas (`object_definitions`) com schemas, validações e FSMs
 3. **Cria**: Instâncias vivas que respeitam suas definições
 4. **Relaciona**: Conecta entidades através de um grafo semântico
 5. **Raciocina**: RAG trimodal (SQL + Graph + Vector) que entende objetos, instâncias e correlações
+
+**O SuperCore é uma plataforma universal abstrata** - Core Banking é apenas uma das aplicações possíveis. Outros domínios (CRM, ERP, Hospitais, Imobiliário) podem ser implementados usando a mesma engine.
+
+### Exemplos de Domínios Possíveis
+
+O SuperCore pode ser usado para implementar:
+
+**1. Core Banking (LBPAY)**
+- Object_definitions: `cliente_pf`, `conta_corrente`, `transacao_pix`, `regra_bacen`
+- Integrações: TigerBeetle, BACEN SPI, Anti-Fraude
+- Portais: BackOffice (operações), Customer (clientes)
+
+**2. CRM de Seguros**
+- Object_definitions: `segurado`, `apolice`, `sinistro`, `corretora`
+- Integrações: SUSEP, Calculadoras de Prêmio, Email Marketing
+- Portais: BackOffice (corretores), Customer (segurados)
+
+**3. Sistema Hospitalar**
+- Object_definitions: `paciente`, `prontuario`, `consulta`, `prescricao`
+- Integrações: Laboratórios, Planos de Saúde, ANS
+- Portais: BackOffice (médicos/enfermeiros), Customer (pacientes)
+
+**4. Gestão Imobiliária**
+- Object_definitions: `imovel`, `proprietario`, `contrato_locacao`, `vistoria`
+- Integrações: Cartórios, Bancos (financiamento), Prefeituras
+- Portais: BackOffice (imobiliária), Customer (locatários/proprietários)
+
+**Todos usam a MESMA engine SuperCore** - apenas criam object_definitions diferentes e integrações específicas do domínio.
 
 ### A Analogia do Corpo (ESSENCIAL)
 
@@ -128,22 +346,163 @@ Relacionamento: Maria TITULAR_DE Conta-12345
 
 ---
 
+## 🌐 SUPERCORE COMO META-PLATAFORMA
+
+### A Verdade Essencial
+
+**SuperCore NÃO é um Core Banking. SuperCore é uma META-PLATAFORMA que GERA as abstrações necessárias para CRIAR um Core Banking.**
+
+Esta distinção é FUNDAMENTAL para todo o projeto:
+
+```
+❌ ERRADO: "SuperCore é um Core Banking"
+✅ CORRETO: "SuperCore é uma plataforma que permite criar Core Bankings"
+
+❌ ERRADO: "Vamos implementar PIX no SuperCore"
+✅ CORRETO: "Vamos criar object_definitions que permitem implementar PIX"
+
+❌ ERRADO: "SuperCore tem validação de CPF"
+✅ CORRETO: "SuperCore tem validation_rules que interpretam validações de CPF"
+```
+
+### Implicações Práticas
+
+1. **Zero Código de Negócio Hardcoded**: Toda lógica de negócio é uma `instance` de algum `object_definition`
+2. **Tudo é Dado**: Regras, integrações, algoritmos, workflows → tudo vive em `instances`
+3. **UI Genérica**: Frontend nunca sabe o que é "Cliente" ou "Conta", apenas renderiza schemas
+4. **Reutilização Total**: Cada abstração serve para N casos de uso
+5. **Evolução Sem Deploy**: Mudanças de negócio = criar/editar instances, não código
+
+### Módulos Externos
+
+SuperCore é o **núcleo de gestão de objetos**, mas não implementa diretamente:
+
+- **LB Connect**: Integração com BACEN SPI (Sistema de Pagamentos Instantâneos - PIX)
+- **LB Dict**: Integração com DICT API (Diretório de Identificadores de Contas Transacionais)
+- **Orchestration-GO**: Sistema de Sagas e orquestração de transações distribuídas
+- **Money-Moving**: Core de movimentação financeira e processamento de pagamentos
+
+Estes módulos CONSOMEM as abstrações criadas no SuperCore (`object_definitions`, `instances`, `relationships`) através de APIs bem definidas.
+
+### O Padrão de Abstração
+
+**Toda implementação segue este padrão:**
+
+```
+1. Criar object_definition (abstrato, genérico, reutilizável)
+   ↓
+2. Criar instances específicas (BACEN, CVM, Receita, etc.)
+   ↓
+3. Sistema executa instances usando engine genérico
+   ↓
+4. Zero código específico no core
+```
+
+**Exemplos:**
+
+```
+object_definition: "crawler_source"
+  ↓ instances:
+  - "BACEN Website"
+  - "CVM Instruções"
+  - "Receita Federal API"
+  - "ViaCEP"
+
+object_definition: "regra_bacen"
+  ↓ instances:
+  - "Circular 3.978 - PLD/FT"
+  - "Resolução 80 - Instituições de Pagamento"
+  - "Manual PIX - Limites Noturnos"
+
+object_definition: "integracao_externa"
+  ↓ instances:
+  - "TigerBeetle Ledger"
+  - "BACEN SPI (PIX)"
+  - "Data Rudder (Anti-Fraude)"
+```
+
+---
+
 ## 🏗️ ARQUITETURA DA PLATAFORMA
 
-### Camada 0: Meta-Objetos (Regras, Políticas, Integrações)
+### Camada 0: Meta-Objetos (Regras, Políticas, Integrações, Manuais)
 
-**REVELAÇÃO CRÍTICA**: Objetos não são apenas DADOS. São também REGRAS, POLÍTICAS e INTEGRAÇÕES.
+**REVELAÇÃO CRÍTICA**: Objetos não são apenas DADOS. São também REGRAS, POLÍTICAS, INTEGRAÇÕES e CONHECIMENTO REGULATÓRIO.
+
+#### Princípio Fundamental de Validação
+
+**SuperCore valida ESTRUTURA. Aplicações validam NEGÓCIO.**
+
+```
+┌────────────────────────────────────────────────────────────┐
+│  SuperCore (Validação Estrutural)                          │
+├────────────────────────────────────────────────────────────┤
+│  ✅ Schema JSON válido (tipos, required fields)            │
+│  ✅ Formato de dados (CPF tem 11 dígitos, email válido)    │
+│  ✅ Transições FSM permitidas                              │
+│  ✅ Relationships válidos conforme object_definition        │
+│  ❌ NÃO valida: saldo suficiente, limites BACEN, risco     │
+└────────────────────────────────────────────────────────────┘
+                          ↓ fornece dados para
+┌────────────────────────────────────────────────────────────┐
+│  Aplicação (ex: LBPAY - Validação de Negócio)             │
+├────────────────────────────────────────────────────────────┤
+│  ✅ Busca regras BACEN (instances de regra_bacen)          │
+│  ✅ Interpreta condições e aplica lógica                   │
+│  ✅ Valida saldo, limites, estado da conta                 │
+│  ✅ Chama integrações externas quando necessário           │
+│  ✅ Decide orquestração de operações                       │
+└────────────────────────────────────────────────────────────┘
+```
+
+**SuperCore armazena conhecimento regulatório como objetos relacionáveis, mas NÃO interpreta regras de negócio. As aplicações buscam essas regras e decidem quando/como aplicá-las.**
+
+#### Objetos de Conhecimento e Governança
 
 ```
 ┌──────────────────────────────────────────────────────────┐
 │         CAMADA META: Objetos que Governam                │
 ├──────────────────────────────────────────────────────────┤
 │                                                          │
-│  object_definition: "regra_bacen"                        │
-│  ├─ instance: "Circular 3.978 - Limites PIX Noturno"    │
-│  ├─ instance: "Resolução 4.753 - KYC"                   │
-│  └─ instance: "Circular 4.015 - Tarifas"                │
-│                                                          │
+│  object_definition: "manual_bacen"                       │
+│  ├─ instance: "Manual PIX v8.3"                          │
+│  ├─ instance: "Circular 3.978 - PLD/FT (texto completo)"│
+│  ├─ instance: "Resolução 4.753 - KYC (texto completo)"  │
+│  └─ instance: "Manual Tarifas BACEN v2024"              │
+│  │                                                       │
+│  │  Relacionamentos: regras podem referenciar manuais   │
+│  │  RAG consulta: assistente responde com base nos docs│
+│  │  Versionamento: manuais antigos ficam no histórico  │
+│  │                                                       │
+│  └─────────────────────────────────────────────────────┐│
+│                                                          ││
+│  object_definition: "regra_bacen"                        ││
+│  ├─ instance: "Limite PIX Noturno"                      ││
+│  │   ├─ relationship BASEADA_EM → "Manual PIX v8.3"     ││
+│  │   └─ campo: fonte_legal_id, secao_referencia        ││
+│  ├─ instance: "Validação Documento KYC"                 ││
+│  │   └─ relationship BASEADA_EM → "Resolução 4.753"    ││
+│  └─ instance: "Formato Chave PIX"                       ││
+│      └─ relationship BASEADA_EM → "Manual PIX v8.3"     ││
+│                                                          ││
+│  Aplicações (LBPAY) BUSCAM e INTERPRETAM estas regras   ││
+│  SuperCore apenas ARMAZENA e RELACIONA                   ││
+└──────────────────────────────────────────────────────────┘│
+                        ↓ podem ser usados por              │
+┌──────────────────────────────────────────────────────────┐│
+│  Objetos de Negócio (LBPAY ou qualquer app)             ││
+│                                                          ││
+│  instance: transacao_pix_123                             ││
+│  ├─ LBPAY busca: regras vigentes com dominio='PIX'      ││
+│  ├─ LBPAY interpreta: condicoes e parametros            ││
+│  ├─ LBPAY valida: se transação respeita limites         ││
+│  └─ Se violar: busca manual fonte para explicar         ││
+│                                                          ││
+│  SuperCore NÃO executa validação de negócio             ││
+│  SuperCore fornece: regras, manuais, relacionamentos    ││
+└──────────────────────────────────────────────────────────┘│
+                                                            │
+┌──────────────────────────────────────────────────────────┤
 │  object_definition: "politica_risco_interna"            │
 │  ├─ instance: "Aprovação Automática Premium"            │
 │  ├─ instance: "Score Anti-Fraude V3"                    │
@@ -173,52 +532,278 @@ Relacionamento: Maria TITULAR_DE Conta-12345
 └──────────────────────────────────────────────────────────┘
 ```
 
-#### Tipo 1: Regras BACEN (Normativas como Objetos)
+#### Tipo 0: Manuais BACEN (Conhecimento Regulatório como Objetos + RAG)
+
+**ARQUITETURA HÍBRIDA**: SuperCore armazena manuais como instances + indexa embeddings para RAG.
+
+**Por que híbrido é melhor:**
+1. **Estruturado**: Rastreabilidade, versionamento (states), relationships
+2. **RAG**: Busca semântica via embeddings, LLM pode explicar
+3. **Compliance**: Auditoria sabe EXATAMENTE qual versão foi usada
+4. **Flexível**: Uso direto (regras) OU busca semântica (assistente)
+
+**Duplo propósito:**
+- **Instances (PostgreSQL)**: Estrutura formal com states, versioning, relationships
+- **Embeddings (pgvector)**: Busca semântica rápida para RAG
 
 ```json
-// object_definition
+// object_definition: manual_bacen
 {
-  "name": "regra_bacen",
-  "display_name": "Regra Normativa BACEN",
-  "description": "Regras extraídas de manuais, circulares e resoluções do Banco Central",
+  "name": "manual_bacen",
+  "display_name": "Manual/Circular BACEN",
+  "description": "Documentação oficial do Banco Central (manuais, circulares, resoluções)",
   "schema": {
     "type": "object",
     "properties": {
-      "codigo_normativo": {
+      "tipo_documento": {
         "type": "string",
-        "description": "Ex: Circular 3.978, Resolução 4.753"
+        "enum": ["CIRCULAR", "RESOLUCAO", "MANUAL", "COMUNICADO", "INSTRUCAO_NORMATIVA"]
+      },
+      "codigo": {
+        "type": "string",
+        "description": "Ex: Circular 3.978, Manual PIX v8.3"
       },
       "titulo": {"type": "string"},
-      "dominio": {
+      "data_publicacao": {"type": "string", "format": "date"},
+      "data_vigencia_inicio": {"type": "string", "format": "date"},
+      "data_vigencia_fim": {"type": "string", "format": "date"},
+      "conteudo_completo": {
         "type": "string",
-        "enum": ["PIX", "TED", "KYC", "AML", "LIMITES", "TARIFAS", "CAPITAL"]
+        "description": "Texto completo do documento (para RAG)"
       },
-      "texto_normativo": {
-        "type": "string",
-        "description": "Texto original da norma BACEN"
-      },
-      "regras_executaveis": {
+      "secoes": {
         "type": "array",
-        "description": "Regras interpretáveis pelo sistema",
+        "description": "Seções do documento indexadas",
         "items": {
           "type": "object",
           "properties": {
-            "tipo": {"type": "string", "enum": ["validacao", "limite", "tarifa", "workflow", "alerta"]},
-            "condicao": {"type": "string", "description": "Expressão: valor > 1000 AND horario BETWEEN '20:00' AND '06:00'"},
-            "acao": {"type": "string", "enum": ["BLOQUEAR", "ALERTAR", "EXIGIR_TOKEN", "APLICAR_TARIFA", "REGISTRAR_LOG"]},
-            "parametros": {"type": "object"}
+            "numero": {"type": "string"},
+            "titulo": {"type": "string"},
+            "conteudo": {"type": "string"},
+            "embeddings": {"type": "array", "items": {"type": "number"}}
           }
         }
       },
-      "vigencia_inicio": {"type": "string", "format": "date"},
-      "vigencia_fim": {"type": "string", "format": "date"},
-      "link_oficial": {"type": "string", "format": "uri"}
+      "link_oficial": {"type": "string", "format": "uri"},
+      "versao": {"type": "string"}
+    }
+  },
+  "states": {
+    "initial": "RASCUNHO",
+    "states": ["RASCUNHO", "VIGENTE", "REVOGADO", "SUBSTITUIDO"],
+    "transitions": [
+      {"from": "RASCUNHO", "to": "VIGENTE", "trigger": "publicar"},
+      {"from": "VIGENTE", "to": "REVOGADO", "trigger": "revogar"},
+      {"from": "VIGENTE", "to": "SUBSTITUIDO", "trigger": "substituir"}
+    ]
+  }
+}
+```
+
+**Exemplo de Instance:**
+
+```json
+{
+  "object_definition_id": "uuid-manual-bacen",
+  "data": {
+    "tipo_documento": "MANUAL",
+    "codigo": "Manual PIX v8.3",
+    "titulo": "Manual de Uso do PIX - Versão 8.3",
+    "data_publicacao": "2024-01-15",
+    "data_vigencia_inicio": "2024-02-01",
+    "conteudo_completo": "...texto completo de 300 páginas...",
+    "secoes": [
+      {
+        "numero": "4.2",
+        "titulo": "Limites de Valor por Horário",
+        "conteudo": "No período noturno (20h-6h), o limite máximo para transferências PIX é de R$ 1.000,00 por transação...",
+        "embeddings": [0.123, 0.456, 0.789, ...] // Para busca semântica
+      },
+      {
+        "numero": "4.3",
+        "titulo": "Validação de Chaves PIX",
+        "conteudo": "Chaves PIX devem seguir os formatos: CPF, CNPJ, email, telefone ou chave aleatória...",
+        "embeddings": [0.321, 0.654, 0.987, ...]
+      }
+    ],
+    "link_oficial": "https://www.bcb.gov.br/estabilidadefinanceira/pix",
+    "versao": "v8.3"
+  },
+  "current_state": "VIGENTE"
+}
+```
+
+**Como Usar:**
+
+```typescript
+// 1. LBPAY busca manual quando precisa de contexto
+const manual = await supercore.instances.list({
+  object_definition_id: 'manual_bacen',
+  filters: {
+    'data.codigo': 'Manual PIX v8.3',
+    current_state: 'VIGENTE'
+  }
+});
+
+// 2. RAG consulta manuais para responder perguntas
+const resposta = await supercore.rag.query({
+  question: "Qual o limite de PIX no horário noturno?",
+  context: { object_types: ['manual_bacen'], filters: { current_state: 'VIGENTE' } }
+});
+// Resposta: "De acordo com o Manual PIX v8.3 (Seção 4.2), o limite é R$ 1.000,00"
+
+// 3. Auditoria mostra fonte legal de uma rejeição
+const fundamentacao = {
+  documento: manual.data.codigo,
+  secao: "4.2",
+  texto: manual.data.secoes.find(s => s.numero === "4.2").conteudo,
+  link: manual.data.link_oficial
+};
+```
+
+#### Tipo 1: Regras BACEN (Regras Executáveis Baseadas em Manuais)
+
+**CRÍTICO**: Regras são **interpretadas por LBPAY**, não pelo SuperCore. SuperCore apenas armazena e relaciona.
+
+```json
+// object_definition: regra_bacen
+{
+  "name": "regra_bacen",
+  "display_name": "Regra Operacional BACEN",
+  "description": "Regras interpretáveis extraídas de manuais BACEN",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "nome_regra": {"type": "string"},
+      "dominio": {
+        "type": "string",
+        "enum": ["PIX", "TED", "KYC", "AML", "LIMITES", "TARIFAS"]
+      },
+      "tipo_regra": {
+        "type": "string",
+        "enum": ["VALIDACAO", "LIMITE", "CALCULO", "CONDICAO", "ALERTA"]
+      },
+      "condicao": {
+        "type": "string",
+        "description": "Expressão executável: valor > 1000 AND horario BETWEEN '20:00' AND '06:00'"
+      },
+      "acao": {
+        "type": "string",
+        "enum": ["BLOQUEAR", "ALERTAR", "EXIGIR_APROVACAO", "APLICAR_TARIFA", "REGISTRAR_LOG"]
+      },
+      "parametros": {
+        "type": "object",
+        "description": "Valores configuráveis",
+        "properties": {
+          "limite_noturno": {"type": "number"},
+          "limite_diurno": {"type": "number"}
+        }
+      },
+      "mensagem_erro": {"type": "string"},
+
+      // ⚡ RELACIONAMENTO COM MANUAL (rastreabilidade)
+      "fonte_legal_id": {
+        "type": "string",
+        "description": "ID da instance de manual_bacen que originou esta regra"
+      },
+      "secao_referencia": {
+        "type": "string",
+        "description": "Ex: Seção 4.2.1, Artigo 5º"
+      }
+    }
+  },
+  "relationships": [
+    {
+      "type": "BASEADA_EM",
+      "target_object": "manual_bacen",
+      "cardinality": "MANY_TO_ONE",
+      "description": "Regra é baseada em manual BACEN"
+    }
+  ]
+}
+```
+
+**Exemplo de Instance + Relacionamento:**
+
+```typescript
+// 1. Criar regra executável
+const regraLimitePix = await supercore.instances.create({
+  object_definition_id: 'regra_bacen',
+  data: {
+    nome_regra: 'Limite PIX Período Noturno',
+    dominio: 'PIX',
+    tipo_regra: 'LIMITE',
+    condicao: 'valor > parametros.limite_noturno AND (hora >= 20 OR hora < 6)',
+    acao: 'BLOQUEAR',
+    parametros: {
+      limite_noturno: 1000, // R$ 1.000
+      limite_diurno: 5000    // R$ 5.000
+    },
+    mensagem_erro: 'Valor excede limite BACEN para período noturno',
+    fonte_legal_id: manualPix.id, // Referência ao manual
+    secao_referencia: 'Seção 4.2'
+  },
+  current_state: 'VIGENTE'
+});
+
+// 2. Criar relacionamento (grafo)
+await supercore.relationships.create({
+  relationship_type: 'BASEADA_EM',
+  source_instance_id: regraLimitePix.id,
+  target_instance_id: manualPix.id,
+  properties: {
+    secao: '4.2',
+    pagina: 42,
+    criada_em: new Date().toISOString()
+  }
+});
+```
+
+**Como LBPAY Usa (Interpreta e Aplica):**
+
+```typescript
+// LBPAY valida transação PIX buscando e interpretando regras
+async function validarTransacaoPix(transacao: Instance) {
+  // 1. LBPAY busca regras vigentes
+  const regrasPix = await supercore.instances.list({
+    object_definition_id: 'regra_bacen',
+    filters: {
+      'data.dominio': 'PIX',
+      current_state: 'VIGENTE'
+    }
+  });
+
+  // 2. LBPAY interpreta cada regra
+  for (const regra of regrasPix.items) {
+    const contexto = {
+      valor: transacao.data.valor,
+      hora: new Date().getHours(),
+      parametros: regra.data.parametros
+    };
+
+    // 3. LBPAY executa condição (usando biblioteca expr-eval)
+    const violou = await executarCondicao(regra.data.condicao, contexto);
+
+    if (violou) {
+      // 4. LBPAY busca manual fonte para fundamentação legal
+      const manual = await supercore.instances.get(regra.data.fonte_legal_id);
+
+      throw new Error({
+        tipo: 'VIOLACAO_REGRA_BACEN',
+        regra: regra.data.nome_regra,
+        mensagem: regra.data.mensagem_erro,
+        fundamentacao: {
+          documento: manual.data.codigo,
+          secao: regra.data.secao_referencia,
+          link: manual.data.link_oficial
+        }
+      });
     }
   }
 }
 ```
 
-**Uso Real**: Quando uma transação PIX é criada, o sistema busca TODAS as instances de `regra_bacen` com `dominio = "PIX"` e `current_state = "VIGENTE"`, e executa as `regras_executaveis`.
+**SuperCore NÃO executa validação de negócio. LBPAY busca regras, interpreta condições e decide ações.**
 
 #### Tipo 2: Políticas Internas (Governança)
 
@@ -553,7 +1138,368 @@ if riskScore > 75 {
 }
 ```
 
-#### Tipo 4: Lógicas de Negócio Customizadas (Algoritmos como Objetos)
+#### Tipo 4: Fontes de Dados Externas (Crawlers e Monitores como Objetos)
+
+**CRÍTICO**: Crawlers, monitores e integrações com sites externos são OBJETOS!
+
+Esta é a implementação do **Sprint 15-16**: criar abstrações genéricas para monitorar qualquer fonte externa.
+
+```json
+// object_definition
+{
+  "name": "crawler_source",
+  "display_name": "Fonte de Dados Externa (Crawler/API)",
+  "description": "Define uma fonte externa de dados que pode ser monitorada periodicamente",
+  "category": "MONITORING",
+  "schema": {
+    "type": "object",
+    "required": ["nome", "tipo", "url_base", "frequencia_verificacao"],
+    "properties": {
+      "nome": {"type": "string"},
+      "tipo": {
+        "type": "string",
+        "enum": ["WEBSITE_HTML", "RSS_FEED", "REST_API", "GRAPHQL_API", "SOAP_API"]
+      },
+      "url_base": {"type": "string", "format": "uri"},
+      "frequencia_verificacao": {
+        "type": "object",
+        "properties": {
+          "tipo": {"type": "string", "enum": ["CRON", "INTERVAL"]},
+          "expressao": {"type": "string", "description": "'0 8 * * *' ou intervalo em segundos"}
+        }
+      },
+      "regras_extracao": {
+        "type": "array",
+        "description": "Regras para extrair dados estruturados",
+        "items": {
+          "type": "object",
+          "properties": {
+            "campo": {"type": "string"},
+            "seletor": {"type": "string", "description": "CSS, XPath, JSONPath, ou Regex"},
+            "tipo_seletor": {"type": "string", "enum": ["CSS", "XPATH", "JSONPATH", "REGEX"]}
+          }
+        }
+      },
+      "condicoes_mudanca": {
+        "type": "array",
+        "description": "Condições que indicam mudança relevante",
+        "items": {
+          "type": "object",
+          "properties": {
+            "campo": {"type": "string"},
+            "tipo_comparacao": {
+              "type": "string",
+              "enum": ["VALOR_DIFERENTE", "NOVO_ITEM", "ITEM_REMOVIDO", "TEXTO_CONTEM"]
+            }
+          }
+        }
+      },
+      "acoes_apos_mudanca": {
+        "type": "array",
+        "description": "Ações quando mudança detectada",
+        "items": {
+          "type": "object",
+          "properties": {
+            "tipo_acao": {
+              "type": "string",
+              "enum": ["NOTIFICAR_SLACK", "ENVIAR_EMAIL", "CRIAR_TASK", "CHAMAR_WEBHOOK", "DOWNLOAD_ARQUIVO"]
+            },
+            "config": {"type": "object"}
+          }
+        }
+      },
+      "config_avancada": {
+        "type": "object",
+        "properties": {
+          "timeout_segundos": {"type": "integer", "default": 30},
+          "max_retries": {"type": "integer", "default": 3},
+          "javascript_enabled": {
+            "type": "boolean",
+            "default": false,
+            "description": "Usa navegador headless (Playwright) se true"
+          }
+        }
+      }
+    }
+  },
+  "states": {
+    "initial": "CONFIGURADO",
+    "states": ["CONFIGURADO", "ATIVO", "PAUSADO", "ERRO", "DESATIVADO"],
+    "transitions": [
+      {"from": "CONFIGURADO", "to": "ATIVO", "event": "ativar"},
+      {"from": "ATIVO", "to": "PAUSADO", "event": "pausar"},
+      {"from": "PAUSADO", "to": "ATIVO", "event": "retomar"},
+      {"from": "ATIVO", "to": "ERRO", "event": "erro_critico"},
+      {"from": "ERRO", "to": "ATIVO", "event": "resolver_erro"}
+    ]
+  }
+}
+```
+
+**Exemplo de Instance - BACEN Website Crawler:**
+
+```json
+{
+  "object_definition_id": "uuid-crawler-source",
+  "data": {
+    "nome": "BACEN - Normas e Regulamentações Publicadas",
+    "tipo": "WEBSITE_HTML",
+    "url_base": "https://www.bcb.gov.br/estabilidadefinanceira/buscanormas",
+    "frequencia_verificacao": {
+      "tipo": "CRON",
+      "expressao": "0 8 * * *"
+    },
+    "regras_extracao": [
+      {
+        "campo": "numero_normativo",
+        "seletor": ".resultado-busca .numero-norma",
+        "tipo_seletor": "CSS"
+      },
+      {
+        "campo": "titulo",
+        "seletor": ".resultado-busca .titulo-norma",
+        "tipo_seletor": "CSS"
+      },
+      {
+        "campo": "data_publicacao",
+        "seletor": ".resultado-busca .data",
+        "tipo_seletor": "CSS"
+      },
+      {
+        "campo": "link_pdf",
+        "seletor": ".resultado-busca a.download-pdf",
+        "tipo_seletor": "CSS"
+      }
+    ],
+    "condicoes_mudanca": [
+      {
+        "campo": "numero_normativo",
+        "tipo_comparacao": "NOVO_ITEM"
+      }
+    ],
+    "acoes_apos_mudanca": [
+      {
+        "tipo_acao": "NOTIFICAR_SLACK",
+        "config": {
+          "canal": "#compliance-alertas",
+          "mensagem_template": "🚨 Nova norma BACEN: {{numero_normativo}} - {{titulo}}\n📄 Link: {{link_pdf}}"
+        }
+      },
+      {
+        "tipo_acao": "CRIAR_TASK",
+        "config": {
+          "tipo_task": "parse_document_task",
+          "parametros": {
+            "url": "{{link_pdf}}",
+            "document_type": "circular"
+          }
+        }
+      },
+      {
+        "tipo_acao": "DOWNLOAD_ARQUIVO",
+        "config": {
+          "url_campo": "link_pdf",
+          "destino_pasta": "/data/bacen_docs"
+        }
+      }
+    ],
+    "config_avancada": {
+      "user_agent": "SuperCore-Monitor/1.0",
+      "timeout_segundos": 30,
+      "max_retries": 3,
+      "javascript_enabled": false
+    }
+  },
+  "current_state": "ATIVO",
+  "metadata": {
+    "ultima_verificacao": "2024-01-15T08:00:00Z",
+    "proxima_verificacao": "2024-01-16T08:00:00Z",
+    "mudancas_detectadas": 3,
+    "total_verificacoes": 487
+  }
+}
+```
+
+**Exemplo de Instance - CVM Instruções Monitor:**
+
+```json
+{
+  "object_definition_id": "uuid-crawler-source",
+  "data": {
+    "nome": "CVM - Instruções e Pareceres",
+    "tipo": "WEBSITE_HTML",
+    "url_base": "https://www.cvm.gov.br/legislacao/instrucoes",
+    "frequencia_verificacao": {
+      "tipo": "CRON",
+      "expressao": "0 */6 * * *"
+    },
+    "regras_extracao": [
+      {
+        "campo": "numero_instrucao",
+        "seletor": "//table[@class='instrucoes']//td[1]",
+        "tipo_seletor": "XPATH"
+      },
+      {
+        "campo": "assunto",
+        "seletor": "//table[@class='instrucoes']//td[2]",
+        "tipo_seletor": "XPATH"
+      }
+    ],
+    "acoes_apos_mudanca": [
+      {
+        "tipo_acao": "ENVIAR_EMAIL",
+        "config": {
+          "destinatarios": ["compliance@lbpay.com"],
+          "assunto": "Nova Instrução CVM: {{numero_instrucao}}",
+          "corpo_template": "Foi publicada nova instrução CVM:\n\nNúmero: {{numero_instrucao}}\nAssunto: {{assunto}}"
+        }
+      }
+    ]
+  },
+  "current_state": "ATIVO"
+}
+```
+
+**Exemplo de Instance - ViaCEP API Monitor:**
+
+```json
+{
+  "object_definition_id": "uuid-crawler-source",
+  "data": {
+    "nome": "ViaCEP - API de Consulta de CEPs",
+    "tipo": "REST_API",
+    "url_base": "https://viacep.com.br/ws",
+    "frequencia_verificacao": {
+      "tipo": "INTERVAL",
+      "expressao": "300"
+    },
+    "regras_extracao": [
+      {
+        "campo": "status",
+        "seletor": "$.status",
+        "tipo_seletor": "JSONPATH"
+      },
+      {
+        "campo": "latency_ms",
+        "seletor": "$.response_time",
+        "tipo_seletor": "JSONPATH"
+      }
+    ],
+    "condicoes_mudanca": [
+      {
+        "campo": "status",
+        "tipo_comparacao": "VALOR_DIFERENTE",
+        "valor_referencia": "online"
+      }
+    ],
+    "acoes_apos_mudanca": [
+      {
+        "tipo_acao": "NOTIFICAR_SLACK",
+        "config": {
+          "canal": "#infraestrutura-alertas",
+          "mensagem_template": "⚠️ ViaCEP API está indisponível!\nStatus: {{status}}"
+        }
+      }
+    ]
+  },
+  "current_state": "ATIVO"
+}
+```
+
+**Como o Sistema Usa Crawlers:**
+
+```go
+// CrawlerExecutor.go
+// Sistema genérico que executa QUALQUER crawler
+
+type CrawlerExecutor struct {
+    instanceRepo  *InstanceRepository
+    httpClient    *http.Client
+    playwrightCtx *playwright.BrowserContext
+}
+
+func (e *CrawlerExecutor) ExecuteCrawler(ctx context.Context, instanceID uuid.UUID) (*CrawlerResult, error) {
+    // 1. BUSCA A INSTANCE DO CRAWLER
+    instance, err := e.instanceRepo.GetByID(ctx, instanceID)
+    if err != nil {
+        return nil, err
+    }
+
+    data := instance.Data
+
+    // 2. FETCH CONTENT (baseado no tipo)
+    var content string
+    switch data["tipo"].(string) {
+    case "WEBSITE_HTML":
+        if data["config_avancada"]["javascript_enabled"].(bool) {
+            // Usa Playwright para páginas com JavaScript
+            content, err = e.fetchWithPlaywright(ctx, data["url_base"].(string))
+        } else {
+            // HTTP simples para páginas estáticas
+            content, err = e.fetchWithHTTP(ctx, data["url_base"].(string))
+        }
+    case "REST_API":
+        content, err = e.fetchAPI(ctx, data)
+    case "RSS_FEED":
+        content, err = e.fetchRSS(ctx, data["url_base"].(string))
+    }
+
+    if err != nil {
+        return nil, err
+    }
+
+    // 3. EXTRAI DADOS USANDO REGRAS
+    extractedData, err := e.extractData(content, data["regras_extracao"])
+
+    // 4. DETECTA MUDANÇAS
+    changes, err := e.detectChanges(ctx, instanceID, extractedData, data["condicoes_mudanca"])
+
+    // 5. EXECUTA AÇÕES SE HOUVER MUDANÇAS
+    if len(changes) > 0 {
+        err = e.executeActions(ctx, data["acoes_apos_mudanca"], extractedData, changes)
+    }
+
+    // 6. ATUALIZA METADATA DA INSTANCE
+    instance.Metadata["ultima_verificacao"] = time.Now()
+    instance.Metadata["mudancas_detectadas"] = len(changes)
+    e.instanceRepo.Update(ctx, instance)
+
+    return &CrawlerResult{
+        InstanceID:       instanceID,
+        ChangesDetected:  len(changes),
+        ExtractedData:    extractedData,
+    }, nil
+}
+
+func (e *CrawlerExecutor) extractData(content string, rules []interface{}) (map[string]interface{}, error) {
+    extracted := make(map[string]interface{})
+
+    for _, rule := range rules {
+        r := rule.(map[string]interface{})
+        campo := r["campo"].(string)
+        seletor := r["seletor"].(string)
+        tipoSeletor := r["tipo_seletor"].(string)
+
+        var value string
+        switch tipoSeletor {
+        case "CSS":
+            value = e.extractCSS(content, seletor)
+        case "XPATH":
+            value = e.extractXPath(content, seletor)
+        case "JSONPATH":
+            value = e.extractJSONPath(content, seletor)
+        case "REGEX":
+            value = e.extractRegex(content, seletor)
+        }
+
+        extracted[campo] = value
+    }
+
+    return extracted, nil
+}
+```
+
+#### Tipo 5: Lógicas de Negócio Customizadas (Algoritmos como Objetos)
 
 ```json
 // object_definition
@@ -673,9 +1619,1013 @@ if riskScore > 75 {
 
 3. **Novas integrações sem deploy**: Precisa conectar com um novo serviço? Cria uma instance de `integracao_externa`.
 
-4. **Algoritmos versionados como dados**: Score de crédito V3? Nova instance de `logica_negocio_customizada`. V2 continua disponível.
+4. **Monitores de N fontes externas**: Precisa monitorar CVM, Receita Federal, BACEN? Cria instances de `crawler_source` para cada fonte. Um único `object_definition` serve para TODOS os casos.
 
-5. **Auditoria completa**: Toda mudança de regra/política fica em `state_history`. Rastreabilidade total.
+5. **Algoritmos versionados como dados**: Score de crédito V3? Nova instance de `logica_negocio_customizada`. V2 continua disponível.
+
+6. **Auditoria completa**: Toda mudança de regra/política fica em `state_history`. Rastreabilidade total.
+
+### Sprint 15-16: Abstract Crawler & Monitor System
+
+**Objetivo**: Criar abstrações que permitam monitorar QUALQUER fonte externa (websites, APIs, RSS feeds) e reagir a mudanças.
+
+**Entregas**:
+1. ✅ `object_definition: crawler_source` - Abstração genérica para fontes externas
+2. ✅ `object_definition: monitor_target` - Alvos de monitoramento com SLAs
+3. ✅ `object_definition: data_extraction_rule` - Regras de extração reutilizáveis
+4. ✅ CrawlerExecutor engine (Go) - Engine genérico que executa qualquer crawler
+5. ✅ CrawlerScheduler (Go) - Agendador com suporte a CRON e interval
+6. ✅ Frontend Dashboard (TypeScript/React) - Interface para gerenciar crawlers
+7. ✅ Suporte a múltiplos formatos: HTML (goquery), JavaScript (Playwright), REST API, RSS, GraphQL
+8. ✅ Change Detection: Diff-based com múltiplos tipos de comparação
+9. ✅ Action System: Slack, Email, Task creation, Webhook, File download
+
+**Instances Exemplo**:
+- BACEN Website Crawler (normas e circulares)
+- CVM Monitor (instruções e pareceres)
+- Receita Federal API (consulta CNPJ)
+- ViaCEP API Health Monitor
+
+**Ver documentação completa**: [SPRINT_15_16_ABSTRACT_CRAWLER_MONITOR_REVISION.md](SPRINT_15_16_ABSTRACT_CRAWLER_MONITOR_REVISION.md)
+
+---
+
+## 🔄 ARQUITETURA HÍBRIDA: Instances + Embeddings
+
+### Por Que Híbrido?
+
+A arquitetura híbrida combina o melhor de dois mundos:
+
+**1. Structured Data (PostgreSQL Instances)**
+- Rastreabilidade formal (quem criou, quando, versão)
+- Versionamento via FSM (RASCUNHO → VIGENTE → REVOGADO)
+- Relationships explícitos (regra → BASEADA_EM → manual)
+- Auditoria completa via `state_history`
+
+**2. Unstructured Search (pgvector Embeddings)**
+- Busca semântica ("Como funciona o limite PIX noturno?")
+- RAG pode explicar regras com contexto do manual original
+- LLM sintetiza respostas naturais
+- Funciona mesmo quando estrutura não está perfeita
+
+### Tabela de Embeddings
+
+```sql
+-- TABELA: document_embeddings (para RAG)
+CREATE TABLE document_embeddings (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    -- Referência à instance original (manual_bacen, regra_bacen, etc)
+    source_instance_id UUID REFERENCES instances(id) ON DELETE CASCADE,
+    source_object_type VARCHAR(100),  -- "manual_bacen", "regra_bacen"
+
+    -- Chunk de texto (seção do manual, parte da regra)
+    content TEXT NOT NULL,
+    chunk_index INT,  -- Ordem dentro do documento original
+
+    -- Metadados estruturados
+    metadata JSONB DEFAULT '{}'::jsonb,
+    -- Ex: {"codigo": "Circular 3.978", "secao": "4.2", "vigencia": "2024-01-01"}
+
+    -- Vector embedding (1536 dimensões para OpenAI text-embedding-3-small)
+    embedding vector(1536) NOT NULL,
+
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Índice para busca vetorial (HNSW - mais rápido)
+CREATE INDEX idx_document_embeddings_vector
+ON document_embeddings
+USING hnsw (embedding vector_cosine_ops);
+
+-- Índice para filtrar por tipo de objeto
+CREATE INDEX idx_document_embeddings_object_type
+ON document_embeddings(source_object_type);
+
+-- Índice GIN para busca em metadados
+CREATE INDEX idx_document_embeddings_metadata
+ON document_embeddings USING GIN (metadata jsonb_path_ops);
+```
+
+### Fluxo de Ingestão de Manuais BACEN
+
+```typescript
+// DocumentIngestionService.ts
+// Processa manuais BACEN e cria instances + embeddings
+
+import { OpenAI } from 'openai';
+import { v4 as uuidv4 } from 'uuid';
+
+interface ManualSection {
+  numero: string;
+  titulo: string;
+  conteudo: string;
+}
+
+interface ManualBACEN {
+  codigo: string;
+  titulo: string;
+  data_publicacao: string;
+  link_oficial: string;
+  conteudo_completo: string;
+  secoes: ManualSection[];
+}
+
+class DocumentIngestionService {
+  constructor(
+    private supercoreAPI: SupercoreClient,
+    private openai: OpenAI,
+    private db: PostgresClient
+  ) {}
+
+  /**
+   * Pipeline completo: PDF → Instance + Embeddings
+   */
+  async ingestManualBACEN(pdfUrl: string): Promise<string> {
+    // 1. EXTRAIR TEXTO DO PDF
+    const pdfText = await this.extractPDFText(pdfUrl);
+
+    // 2. PARSEAR ESTRUTURA (LLM identifica seções)
+    const manual = await this.parseManualStructure(pdfText);
+
+    // 3. CRIAR INSTANCE NO SUPERCORE
+    const instanceId = await this.createManualInstance(manual);
+
+    // 4. GERAR EMBEDDINGS PARA CADA SEÇÃO
+    await this.createEmbeddings(instanceId, manual);
+
+    // 5. TRANSIÇÃO DE ESTADO (RASCUNHO → VIGENTE)
+    await this.supercoreAPI.instances.transition(instanceId, {
+      to_state: 'VIGENTE',
+      comment: 'Manual processado e indexado'
+    });
+
+    return instanceId;
+  }
+
+  /**
+   * Cria instance de manual_bacen no SuperCore
+   */
+  private async createManualInstance(manual: ManualBACEN): Promise<string> {
+    const response = await this.supercoreAPI.instances.create({
+      object_definition_id: await this.getObjectDefId('manual_bacen'),
+      data: {
+        codigo: manual.codigo,
+        titulo: manual.titulo,
+        data_publicacao: manual.data_publicacao,
+        link_oficial: manual.link_oficial,
+        conteudo_completo: manual.conteudo_completo,
+        secoes: manual.secoes.map(s => ({
+          numero: s.numero,
+          titulo: s.titulo,
+          conteudo: s.conteudo,
+          // NÃO armazena embeddings aqui (muito grande)
+        }))
+      },
+      current_state: 'RASCUNHO'
+    });
+
+    return response.id;
+  }
+
+  /**
+   * Gera embeddings para cada seção e salva em document_embeddings
+   */
+  private async createEmbeddings(
+    instanceId: string,
+    manual: ManualBACEN
+  ): Promise<void> {
+    for (let i = 0; i < manual.secoes.length; i++) {
+      const secao = manual.secoes[i];
+
+      // Chunk de texto (limitar a ~1000 tokens)
+      const chunks = this.splitIntoChunks(secao.conteudo, 1000);
+
+      for (let j = 0; j < chunks.length; j++) {
+        const chunk = chunks[j];
+
+        // Gera embedding via OpenAI
+        const embeddingResponse = await this.openai.embeddings.create({
+          model: 'text-embedding-3-small',
+          input: `${manual.titulo} - ${secao.titulo}\n\n${chunk}`,
+          encoding_format: 'float'
+        });
+
+        const embedding = embeddingResponse.data[0].embedding;
+
+        // Salva no PostgreSQL
+        await this.db.query(`
+          INSERT INTO document_embeddings (
+            source_instance_id,
+            source_object_type,
+            content,
+            chunk_index,
+            metadata,
+            embedding
+          ) VALUES ($1, $2, $3, $4, $5, $6)
+        `, [
+          instanceId,
+          'manual_bacen',
+          chunk,
+          i * 100 + j,  // Índice global único
+          JSON.stringify({
+            codigo: manual.codigo,
+            titulo: manual.titulo,
+            secao_numero: secao.numero,
+            secao_titulo: secao.titulo,
+            data_publicacao: manual.data_publicacao,
+            link: manual.link_oficial
+          }),
+          JSON.stringify(embedding)  // pgvector aceita array JSON
+        ]);
+      }
+    }
+  }
+
+  /**
+   * Divide texto em chunks de N tokens
+   */
+  private splitIntoChunks(text: string, maxTokens: number): string[] {
+    // Implementação simplificada (produção usaria tiktoken)
+    const words = text.split(/\s+/);
+    const chunks: string[] = [];
+
+    for (let i = 0; i < words.length; i += maxTokens) {
+      chunks.push(words.slice(i, i + maxTokens).join(' '));
+    }
+
+    return chunks;
+  }
+
+  /**
+   * Usa LLM para identificar estrutura do manual
+   */
+  private async parseManualStructure(text: string): Promise<ManualBACEN> {
+    const prompt = `Você é um especialista em documentos regulatórios do BACEN.
+
+Extraia as seguintes informações do texto abaixo:
+1. Código do normativo (ex: "Circular 3.978")
+2. Título completo
+3. Data de publicação
+4. Seções principais (título e conteúdo de cada)
+
+Retorne JSON no formato:
+{
+  "codigo": "...",
+  "titulo": "...",
+  "data_publicacao": "YYYY-MM-DD",
+  "secoes": [
+    {"numero": "1", "titulo": "...", "conteudo": "..."},
+    ...
+  ]
+}
+
+TEXTO:
+${text}
+`;
+
+    const response = await this.openai.chat.completions.create({
+      model: 'gpt-4-turbo-preview',
+      messages: [{ role: 'user', content: prompt }],
+      response_format: { type: 'json_object' }
+    });
+
+    return JSON.parse(response.choices[0].message.content!);
+  }
+}
+```
+
+### RAG com Busca Híbrida
+
+```python
+# rag_hybrid_search.py
+# Busca semântica + filtros estruturados
+
+import openai
+from pgvector.psycopg import register_vector
+import psycopg
+
+class HybridRAG:
+    def __init__(self, db_conn_string: str):
+        self.conn = psycopg.connect(db_conn_string)
+        register_vector(self.conn)
+        self.openai = openai.OpenAI()
+
+    async def search(
+        self,
+        question: str,
+        filters: dict = None,
+        limit: int = 5
+    ) -> list[dict]:
+        """
+        Busca híbrida:
+        1. Gera embedding da pergunta
+        2. Busca vetorial (similaridade)
+        3. Aplica filtros estruturados (metadata)
+        """
+
+        # 1. GERAR EMBEDDING DA PERGUNTA
+        embedding_response = await self.openai.embeddings.create(
+            model='text-embedding-3-small',
+            input=question
+        )
+        question_embedding = embedding_response.data[0].embedding
+
+        # 2. MONTAR QUERY COM FILTROS
+        where_clauses = []
+        params = [question_embedding, limit]
+        param_index = 3
+
+        if filters:
+            if filters.get('codigo'):
+                where_clauses.append(f"metadata->>'codigo' = ${param_index}")
+                params.append(filters['codigo'])
+                param_index += 1
+
+            if filters.get('secao'):
+                where_clauses.append(f"metadata->>'secao_numero' = ${param_index}")
+                params.append(filters['secao'])
+                param_index += 1
+
+            if filters.get('vigente_apos'):
+                where_clauses.append(f"(metadata->>'data_publicacao')::date >= ${param_index}")
+                params.append(filters['vigente_apos'])
+                param_index += 1
+
+        where_clause = " AND " + " AND ".join(where_clauses) if where_clauses else ""
+
+        # 3. EXECUTAR BUSCA VETORIAL
+        query = f"""
+            SELECT
+                de.id,
+                de.content,
+                de.metadata,
+                i.data as instance_data,
+                1 - (de.embedding <=> $1::vector) as similarity
+            FROM document_embeddings de
+            JOIN instances i ON de.source_instance_id = i.id
+            WHERE de.source_object_type = 'manual_bacen'
+                {where_clause}
+            ORDER BY de.embedding <=> $1::vector
+            LIMIT $2
+        """
+
+        cursor = self.conn.cursor()
+        cursor.execute(query, params)
+        results = cursor.fetchall()
+
+        return [
+            {
+                'content': row[1],
+                'metadata': row[2],
+                'instance_data': row[3],
+                'similarity': row[4]
+            }
+            for row in results
+        ]
+
+    async def answer_question(self, question: str) -> str:
+        """
+        Pipeline completo: Busca → Contexto → LLM
+        """
+
+        # 1. BUSCA HÍBRIDA
+        results = await self.search(question, limit=5)
+
+        if not results:
+            return "Não encontrei informações relevantes nos manuais BACEN."
+
+        # 2. MONTAR CONTEXTO
+        context_parts = []
+        for i, result in enumerate(results, 1):
+            meta = result['metadata']
+            context_parts.append(f"""
+[Fonte {i}]
+Manual: {meta['titulo']} ({meta['codigo']})
+Seção: {meta['secao_numero']} - {meta['secao_titulo']}
+Vigência: {meta['data_publicacao']}
+
+{result['content']}
+
+---
+""")
+
+        context = "\n".join(context_parts)
+
+        # 3. LLM SINTETIZA RESPOSTA
+        prompt = f"""Você é um especialista em regulamentação bancária do BACEN.
+
+PERGUNTA DO USUÁRIO:
+{question}
+
+CONTEXTO DOS MANUAIS BACEN:
+{context}
+
+INSTRUÇÕES:
+- Responda com base APENAS no contexto fornecido
+- Cite o código do normativo e seção quando relevante
+- Se o contexto não for suficiente, seja honesto
+- Use linguagem clara e objetiva
+
+RESPOSTA:"""
+
+        response = await self.openai.chat.completions.create(
+            model='gpt-4-turbo-preview',
+            messages=[{'role': 'user', 'content': prompt}],
+            temperature=0.2
+        )
+
+        answer = response.choices[0].message.content
+
+        # 4. INCLUIR FONTES
+        sources = "\n\nFontes:\n" + "\n".join([
+            f"- {r['metadata']['codigo']} - {r['metadata']['titulo']} (Seção {r['metadata']['secao_numero']})"
+            for r in results
+        ])
+
+        return answer + sources
+
+# Exemplo de uso
+rag = HybridRAG("postgresql://user:pass@localhost/supercore")
+
+# Busca simples
+answer = await rag.answer_question(
+    "Qual o limite para transferências PIX no período noturno?"
+)
+print(answer)
+# Output: "De acordo com a Circular 3.978, Seção 4.2, o limite para
+#          transferências PIX entre 20h e 6h é de R$ 1.000,00 por
+#          transação para clientes pessoa física..."
+
+# Busca com filtros estruturados
+results = await rag.search(
+    question="limites de transferência",
+    filters={
+        'codigo': 'Circular 3.978',
+        'vigente_apos': '2024-01-01'
+    }
+)
+```
+
+### Uso Dual: Estruturado + RAG
+
+```typescript
+// Exemplo: LBPAY valida transação PIX
+
+// CASO 1: Busca estruturada (regras executáveis)
+async function validarTransacaoPix(transacao: Transacao) {
+  // Busca regras vigentes para PIX
+  const regras = await supercore.instances.list({
+    object_definition: 'regra_bacen',
+    filters: {
+      'data.dominio': 'PIX',
+      'current_state': 'VIGENTE'
+    }
+  });
+
+  for (const regra of regras) {
+    // Interpreta condição executável
+    const condicao = regra.data.condicao;
+    const resultado = avaliarCondicao(condicao, {
+      valor: transacao.valor,
+      hora: new Date().getHours(),
+      parametros: regra.data.parametros
+    });
+
+    if (!resultado.valido) {
+      // Busca fundamentação no manual (RAG)
+      const explicacao = await rag.answer_question(
+        `Por que existe ${regra.data.nome_regra}?`
+      );
+
+      throw new Error(`
+        ${resultado.mensagem}
+
+        Fundamentação Legal:
+        ${explicacao}
+      `);
+    }
+  }
+}
+
+// CASO 2: Assistente explica regra (RAG)
+async function explicarRegraPix(pergunta: string) {
+  // RAG busca semanticamente nos manuais
+  const resposta = await rag.answer_question(pergunta);
+  return resposta;
+}
+
+// Usuário pergunta: "Por que não posso transferir R$ 5.000 às 22h?"
+const explicacao = await explicarRegraPix(
+  "Por que existe limite de R$ 1.000 para PIX noturno?"
+);
+// Output: "A Circular 3.978 estabelece limites reduzidos no período
+//          noturno (20h-6h) como medida de segurança para prevenir
+//          fraudes. O limite de R$ 1.000 busca equilibrar conveniência
+//          e proteção..."
+```
+
+### Vantagens da Arquitetura Híbrida
+
+| Aspecto | Structured (Instances) | Unstructured (Embeddings) | Híbrido |
+|---------|------------------------|---------------------------|---------|
+| **Rastreabilidade** | ✅ Total | ❌ Nenhuma | ✅ Total |
+| **Versionamento** | ✅ FSM + states | ❌ Nenhum | ✅ FSM + states |
+| **Busca Semântica** | ❌ Fraca | ✅ Excelente | ✅ Excelente |
+| **Compliance/Auditoria** | ✅ Perfeito | ❌ Ruim | ✅ Perfeito |
+| **LLM Explica Regras** | ❌ Limitado | ✅ Ótimo | ✅ Ótimo |
+| **Execução de Regras** | ✅ Direto (condicao) | ❌ Impossível | ✅ Direto |
+| **Relationships** | ✅ Grafo | ❌ Nenhum | ✅ Grafo |
+| **Custo de Sync** | Baixo | Baixo | Médio (2 writes) |
+
+**Conclusão**: Híbrido é superior para Core Banking regulado.
+
+---
+
+## 🔄 SINCRONIZAÇÃO AUTOMÁTICA: Instances ↔ Embeddings
+
+### Princípio Fundamental
+
+**Quando uma instance de `manual_bacen` ou `regra_bacen` é criada/atualizada/deletada, os embeddings DEVEM ser sincronizados automaticamente.**
+
+### Estratégias de Sincronização
+
+#### Opção 1: Event-Driven (RECOMENDADO para produção)
+
+```go
+// backend/internal/events/instance_events.go
+// Sistema de eventos para sincronização automática
+
+package events
+
+import (
+    "context"
+    "encoding/json"
+)
+
+type InstanceEvent struct {
+    Type       string      // "CREATED", "UPDATED", "DELETED", "STATE_CHANGED"
+    InstanceID string
+    ObjectType string      // "manual_bacen", "regra_bacen"
+    Data       interface{}
+    PreviousData interface{} // Para UPDATED
+    Timestamp  time.Time
+}
+
+// EventBus publica eventos para consumers
+type EventBus interface {
+    Publish(ctx context.Context, event InstanceEvent) error
+    Subscribe(objectType string, handler func(InstanceEvent) error) error
+}
+
+// PostgreSQL LISTEN/NOTIFY (baixa latência, sem infraestrutura extra)
+type PostgresEventBus struct {
+    db *sql.DB
+}
+
+func (bus *PostgresEventBus) Publish(ctx context.Context, event InstanceEvent) error {
+    payload, _ := json.Marshal(event)
+
+    _, err := bus.db.ExecContext(ctx, `
+        NOTIFY instance_events, $1
+    `, string(payload))
+
+    return err
+}
+
+func (bus *PostgresEventBus) Subscribe(objectType string, handler func(InstanceEvent) error) error {
+    listener := pq.NewListener(bus.connString, 10*time.Second, time.Minute, nil)
+
+    err := listener.Listen("instance_events")
+    if err != nil {
+        return err
+    }
+
+    go func() {
+        for notification := range listener.Notify {
+            var event InstanceEvent
+            json.Unmarshal([]byte(notification.Extra), &event)
+
+            // Filtra por tipo de objeto
+            if event.ObjectType == objectType || objectType == "*" {
+                handler(event)
+            }
+        }
+    }()
+
+    return nil
+}
+```
+
+```go
+// backend/internal/services/embedding_sync_service.go
+// Serviço que escuta eventos e sincroniza embeddings
+
+package services
+
+type EmbeddingSyncService struct {
+    eventBus          EventBus
+    embeddingClient   *OpenAIClient
+    db                *sql.DB
+}
+
+func NewEmbeddingSyncService(bus EventBus, openai *OpenAIClient, db *sql.DB) *EmbeddingSyncService {
+    svc := &EmbeddingSyncService{
+        eventBus: bus,
+        embeddingClient: openai,
+        db: db,
+    }
+
+    // Subscreve eventos de manual_bacen
+    bus.Subscribe("manual_bacen", svc.handleManualEvent)
+
+    // Subscreve eventos de regra_bacen
+    bus.Subscribe("regra_bacen", svc.handleRegraEvent)
+
+    return svc
+}
+
+func (svc *EmbeddingSyncService) handleManualEvent(event InstanceEvent) error {
+    ctx := context.Background()
+
+    switch event.Type {
+    case "CREATED":
+        return svc.createEmbeddings(ctx, event.InstanceID, event.Data)
+
+    case "UPDATED":
+        // Estratégia: Delete + Recreate (mais simples e seguro)
+        if err := svc.deleteEmbeddings(ctx, event.InstanceID); err != nil {
+            return err
+        }
+        return svc.createEmbeddings(ctx, event.InstanceID, event.Data)
+
+    case "DELETED":
+        return svc.deleteEmbeddings(ctx, event.InstanceID)
+
+    case "STATE_CHANGED":
+        // Se mudou para REVOGADO, marca embeddings como inativos
+        if event.Data.(map[string]interface{})["new_state"] == "REVOGADO" {
+            return svc.deactivateEmbeddings(ctx, event.InstanceID)
+        }
+    }
+
+    return nil
+}
+
+func (svc *EmbeddingSyncService) createEmbeddings(ctx context.Context, instanceID string, data interface{}) error {
+    manual := data.(map[string]interface{})
+    secoes := manual["secoes"].([]interface{})
+
+    for i, secao := range secoes {
+        s := secao.(map[string]interface{})
+        conteudo := s["conteudo"].(string)
+
+        // Chunk do texto
+        chunks := chunkText(conteudo, 1000)
+
+        for j, chunk := range chunks {
+            // Gera embedding
+            embedding, err := svc.embeddingClient.CreateEmbedding(ctx, chunk)
+            if err != nil {
+                return fmt.Errorf("failed to create embedding: %w", err)
+            }
+
+            // Salva no banco
+            _, err = svc.db.ExecContext(ctx, `
+                INSERT INTO document_embeddings (
+                    source_instance_id,
+                    source_object_type,
+                    content,
+                    chunk_index,
+                    metadata,
+                    embedding
+                ) VALUES ($1, $2, $3, $4, $5, $6)
+            `, instanceID, "manual_bacen", chunk, i*100+j,
+               buildMetadata(manual, s),
+               pgvector.NewVector(embedding))
+        }
+    }
+
+    return nil
+}
+
+func (svc *EmbeddingSyncService) deleteEmbeddings(ctx context.Context, instanceID string) error {
+    _, err := svc.db.ExecContext(ctx, `
+        DELETE FROM document_embeddings
+        WHERE source_instance_id = $1
+    `, instanceID)
+
+    return err
+}
+
+func (svc *EmbeddingSyncService) deactivateEmbeddings(ctx context.Context, instanceID string) error {
+    // Adiciona flag no metadata indicando que está revogado
+    _, err := svc.db.ExecContext(ctx, `
+        UPDATE document_embeddings
+        SET metadata = jsonb_set(metadata, '{revogado}', 'true'::jsonb)
+        WHERE source_instance_id = $1
+    `, instanceID)
+
+    return err
+}
+```
+
+```go
+// backend/internal/handlers/instance.go
+// Handler que publica eventos ao criar/atualizar instances
+
+func (h *InstanceHandler) CreateInstance(c *gin.Context) {
+    // ... validação e criação da instance ...
+
+    instance, err := h.service.CreateInstance(ctx, req)
+    if err != nil {
+        c.JSON(500, gin.H{"error": err.Error()})
+        return
+    }
+
+    // PUBLICA EVENTO para sincronização
+    h.eventBus.Publish(ctx, events.InstanceEvent{
+        Type:       "CREATED",
+        InstanceID: instance.ID,
+        ObjectType: instance.ObjectDefinition.Name,
+        Data:       instance.Data,
+        Timestamp:  time.Now(),
+    })
+
+    c.JSON(201, instance)
+}
+
+func (h *InstanceHandler) UpdateInstance(c *gin.Context) {
+    instanceID := c.Param("id")
+
+    // Busca estado anterior
+    previousInstance, _ := h.service.GetInstance(ctx, instanceID)
+
+    // ... validação e atualização ...
+
+    updatedInstance, err := h.service.UpdateInstance(ctx, instanceID, req)
+    if err != nil {
+        c.JSON(500, gin.H{"error": err.Error()})
+        return
+    }
+
+    // PUBLICA EVENTO
+    h.eventBus.Publish(ctx, events.InstanceEvent{
+        Type:         "UPDATED",
+        InstanceID:   instanceID,
+        ObjectType:   updatedInstance.ObjectDefinition.Name,
+        Data:         updatedInstance.Data,
+        PreviousData: previousInstance.Data,
+        Timestamp:    time.Now(),
+    })
+
+    c.JSON(200, updatedInstance)
+}
+
+func (h *InstanceHandler) TransitionState(c *gin.Context) {
+    instanceID := c.Param("id")
+
+    // ... transição de estado ...
+
+    // PUBLICA EVENTO de mudança de estado
+    h.eventBus.Publish(ctx, events.InstanceEvent{
+        Type:       "STATE_CHANGED",
+        InstanceID: instanceID,
+        ObjectType: instance.ObjectDefinition.Name,
+        Data: map[string]interface{}{
+            "previous_state": req.FromState,
+            "new_state":      req.ToState,
+            "comment":        req.Comment,
+        },
+        Timestamp: time.Now(),
+    })
+
+    c.JSON(200, instance)
+}
+```
+
+#### Opção 2: Background Job (Alternativa mais simples)
+
+```go
+// backend/internal/workers/embedding_sync_worker.go
+// Worker que roda periodicamente e sincroniza embeddings desatualizados
+
+package workers
+
+type EmbeddingSyncWorker struct {
+    db              *sql.DB
+    embeddingClient *OpenAIClient
+    interval        time.Duration
+}
+
+func (w *EmbeddingSyncWorker) Start(ctx context.Context) {
+    ticker := time.NewTicker(w.interval) // Ex: 5 minutos
+    defer ticker.Stop()
+
+    for {
+        select {
+        case <-ticker.C:
+            w.syncOutdatedEmbeddings(ctx)
+        case <-ctx.Done():
+            return
+        }
+    }
+}
+
+func (w *EmbeddingSyncWorker) syncOutdatedEmbeddings(ctx context.Context) error {
+    // Busca instances de manual_bacen atualizadas recentemente
+    // que NÃO têm embeddings ou estão desatualizados
+
+    rows, err := w.db.QueryContext(ctx, `
+        SELECT i.id, i.data, i.updated_at
+        FROM instances i
+        LEFT JOIN document_embeddings de ON de.source_instance_id = i.id
+        WHERE i.object_definition_id IN (
+            SELECT id FROM object_definitions
+            WHERE name IN ('manual_bacen', 'regra_bacen')
+        )
+        AND i.is_deleted = false
+        AND (
+            de.id IS NULL  -- Sem embeddings
+            OR de.updated_at < i.updated_at  -- Embeddings desatualizados
+        )
+        GROUP BY i.id
+    `)
+
+    if err != nil {
+        return err
+    }
+    defer rows.Close()
+
+    for rows.Next() {
+        var instanceID string
+        var data map[string]interface{}
+        var updatedAt time.Time
+
+        rows.Scan(&instanceID, &data, &updatedAt)
+
+        // Delete embeddings antigos
+        w.db.ExecContext(ctx, `
+            DELETE FROM document_embeddings
+            WHERE source_instance_id = $1
+        `, instanceID)
+
+        // Recria embeddings
+        w.createEmbeddings(ctx, instanceID, data)
+    }
+
+    return nil
+}
+```
+
+### Comparação de Estratégias
+
+| Aspecto | Event-Driven (LISTEN/NOTIFY) | Background Job |
+|---------|------------------------------|----------------|
+| **Latência** | ~10-50ms (quase instantâneo) | 30s - 5min (depende do intervalo) |
+| **Complexidade** | Média (event bus + subscribers) | Baixa (cron job simples) |
+| **Confiabilidade** | Alta (at-least-once delivery) | Média (pode perder eventos se worker cair) |
+| **Escalabilidade** | Boa (múltiplos workers consomem eventos) | Limitada (1 worker por vez) |
+| **Infraestrutura** | PostgreSQL nativo (LISTEN/NOTIFY) | Apenas timer |
+| **Debug** | Mais difícil (eventos assíncronos) | Fácil (logs diretos) |
+
+**Recomendação**:
+- **Fase 1-2**: Background Job (mais simples)
+- **Fase 3-4 (Produção)**: Event-Driven (latência menor, mais robusto)
+
+### Fluxo Completo de Ciclo de Vida
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  1. USER: Cria manual BACEN via Natural Language Assistant     │
+└────────────────────────┬────────────────────────────────────────┘
+                         ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  2. SUPERCORE API: POST /api/instances                          │
+│     {                                                            │
+│       "object_definition_id": "uuid-manual-bacen",              │
+│       "data": {                                                  │
+│         "codigo": "Circular 3.978",                             │
+│         "secoes": [...]                                          │
+│       }                                                          │
+│     }                                                            │
+└────────────────────────┬────────────────────────────────────────┘
+                         ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  3. INSTANCE HANDLER: Valida JSON Schema + FSM                  │
+│     ✅ Schema válido                                            │
+│     ✅ State = RASCUNHO (FSM initial state)                     │
+│     ✅ Insere em table `instances`                              │
+└────────────────────────┬────────────────────────────────────────┘
+                         ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  4. EVENT BUS: Publica evento                                   │
+│     NOTIFY instance_events, '{                                  │
+│       "type": "CREATED",                                        │
+│       "instance_id": "uuid-123",                                │
+│       "object_type": "manual_bacen",                            │
+│       "data": {...}                                              │
+│     }'                                                           │
+└────────────────────────┬────────────────────────────────────────┘
+                         ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  5. EMBEDDING SYNC SERVICE: Escuta evento (subscriber)          │
+│     • Detecta object_type = "manual_bacen"                      │
+│     • Aciona handleManualEvent()                                │
+└────────────────────────┬────────────────────────────────────────┘
+                         ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  6. CREATE EMBEDDINGS:                                          │
+│     Para cada seção do manual:                                  │
+│       • Divide em chunks (~1000 tokens)                         │
+│       • Gera embedding via OpenAI API                           │
+│       • INSERT INTO document_embeddings                         │
+│         - source_instance_id = uuid-123                         │
+│         - content = chunk de texto                              │
+│         - embedding = [1536 floats]                             │
+│         - metadata = {codigo, secao, data_publicacao}           │
+└────────────────────────┬────────────────────────────────────────┘
+                         ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  7. TRANSIÇÃO DE ESTADO: RASCUNHO → VIGENTE                    │
+│     POST /api/instances/uuid-123/transition                     │
+│     {"to_state": "VIGENTE"}                                     │
+└────────────────────────┬────────────────────────────────────────┘
+                         ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  8. EVENT BUS: Publica STATE_CHANGED                            │
+│     • Embedding Sync Service recebe                             │
+│     • Atualiza metadata dos embeddings:                         │
+│       UPDATE document_embeddings                                │
+│       SET metadata = jsonb_set(metadata, '{estado}', 'VIGENTE') │
+│       WHERE source_instance_id = 'uuid-123'                     │
+└────────────────────────┬────────────────────────────────────────┘
+                         ↓
+┌─────────────────────────────────────────────────────────────────┐
+│  ✅ COMPLETO: Manual está em instances + embeddings            │
+│     Disponível para:                                            │
+│     • Busca estruturada (regras referenciam manual)             │
+│     • RAG (usuários fazem perguntas semânticas)                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Tratamento de Atualizações
+
+```typescript
+// Cenário: Circular 3.978 foi atualizada (nova versão)
+
+// 1. COMPLIANCE cria NOVA instance (versão 2)
+const novaVersao = await supercore.instances.create({
+  object_definition_id: manualBacenDefId,
+  data: {
+    codigo: 'Circular 3.978 v2',
+    titulo: 'Circular 3.978 - Atualizada em 2024',
+    versao: 2,
+    substitui_manual_id: manualAntigoId,  // Referência ao anterior
+    secoes: [/* nova estrutura */]
+  }
+});
+
+// 2. EVENT BUS publica CREATED
+// 3. EMBEDDING SYNC cria embeddings para nova versão
+
+// 4. TRANSIÇÃO da versão ANTIGA: VIGENTE → SUBSTITUIDO
+await supercore.instances.transition(manualAntigoId, {
+  to_state: 'SUBSTITUIDO',
+  comment: `Substituído pela versão 2: ${novaVersao.id}`
+});
+
+// 5. EVENT BUS publica STATE_CHANGED
+// 6. EMBEDDING SYNC atualiza metadata dos embeddings antigos
+//    metadata.revogado = true
+//    metadata.substituido_por = novaVersao.id
+
+// 7. RAG agora retorna APENAS embeddings da nova versão
+//    (filtro WHERE metadata->>'revogado' IS NULL)
+```
+
+### Limpeza de Embeddings Órfãos
+
+```sql
+-- Job de manutenção (roda 1x por dia)
+-- Remove embeddings de instances deletadas
+
+DELETE FROM document_embeddings
+WHERE source_instance_id NOT IN (
+    SELECT id FROM instances WHERE is_deleted = false
+);
+
+-- Arquiva embeddings de manuais revogados antigos (>2 anos)
+UPDATE document_embeddings
+SET archived = true
+WHERE source_instance_id IN (
+    SELECT i.id
+    FROM instances i
+    WHERE i.current_state IN ('REVOGADO', 'SUBSTITUIDO')
+    AND i.updated_at < NOW() - INTERVAL '2 years'
+);
+```
 
 ---
 
@@ -1786,6 +3736,164 @@ func (e *RuleExecutor) Execute(rule ValidationRule, data map[string]interface{})
 - ✅ 100 instâncias criadas sem erros
 - ✅ RAG responde 10 perguntas diferentes com precisão > 90%
 - ✅ Grafo renderiza até 500 nós sem lag
+
+---
+
+## 📊 RESUMO: SEPARAÇÃO DE RESPONSABILIDADES
+
+### O Que Cada Camada Faz
+
+| Responsabilidade | SuperCore | Aplicação (LBPAY) |
+|------------------|-----------|-------------------|
+| **Armazenar manuais BACEN** | ✅ Instances de `manual_bacen` | - |
+| **Armazenar regras BACEN** | ✅ Instances de `regra_bacen` | - |
+| **Relacionar regras ↔ manuais** | ✅ Relationships `BASEADA_EM` | - |
+| **Validar estrutura de dados** | ✅ JSON Schema, tipos, required | - |
+| **Validar FSM (transições)** | ✅ Estados e transições permitidas | - |
+| **Interpretar regras de negócio** | ❌ Não | ✅ Busca e executa condições |
+| **Validar saldo suficiente** | ❌ Não | ✅ Lógica bancária |
+| **Validar limites BACEN** | ❌ Não | ✅ Interpreta regras |
+| **Validar risco de fraude** | ❌ Não | ✅ Chama anti-fraude |
+| **Decidir quando aplicar regras** | ❌ Não | ✅ Orquestração |
+| **Executar integrações externas** | ✅ HTTP genérico (template) | ❌ Define qual/quando chamar |
+| **RAG consulta manuais** | ✅ Busca semântica (embeddings) | - |
+| **Auditoria (state_history)** | ✅ Automático para transitions | - |
+
+### Fluxo Completo: Validação de Transação PIX
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  1. LBPAY Frontend (Usuário inicia PIX)                     │
+│     - Coleta dados: valor, chave destino, etc               │
+│     - Cria instance de transacao_pix                        │
+└─────────────────────────────────────────────────────────────┘
+                          ↓
+┌─────────────────────────────────────────────────────────────┐
+│  2. SuperCore API: POST /api/v1/instances                   │
+│     - ✅ Valida JSON Schema (tipos, required)               │
+│     - ✅ Valida formato (CPF 11 dígitos)                    │
+│     - ✅ Cria instance com estado inicial: PENDENTE         │
+│     - ❌ NÃO valida: saldo, limites, risco                  │
+└─────────────────────────────────────────────────────────────┘
+                          ↓
+┌─────────────────────────────────────────────────────────────┐
+│  3. LBPAY Backend (Orquestração de Validação)               │
+│     a) Busca conta origem (SuperCore GET /instances/:id)   │
+│     b) Valida saldo: conta.data.saldo >= transacao.valor   │
+│     c) Busca regras BACEN vigentes:                         │
+│        GET /instances?object_definition=regra_bacen&        │
+│            filters[data.dominio]=PIX&                       │
+│            filters[current_state]=VIGENTE                   │
+│     d) Interpreta cada regra (executa condições)            │
+│     e) Se violar: busca manual fonte (fundamentação legal)  │
+│     f) Chama anti-fraude via SuperCore integration executor │
+└─────────────────────────────────────────────────────────────┘
+                          ↓
+┌─────────────────────────────────────────────────────────────┐
+│  4. SuperCore API: POST /api/v1/integrations/execute        │
+│     - ✅ Busca instance "Data Rudder - Anti-Fraude"         │
+│     - ✅ Renderiza body template com params                 │
+│     - ✅ Faz HTTP POST                                       │
+│     - ✅ Mapeia response                                     │
+│     - ❌ NÃO sabe que é anti-fraude (genérico)              │
+└─────────────────────────────────────────────────────────────┘
+                          ↓
+┌─────────────────────────────────────────────────────────────┐
+│  5. LBPAY Backend (Decisão)                                 │
+│     - Se risk_score > 75: rejeitar                          │
+│     - Se tudo OK: processar                                 │
+│       → Chama TigerBeetle (via integration executor)        │
+│       → Chama BACEN SPI (via integration executor)          │
+│       → Atualiza transação: POST /instances/:id/transition  │
+└─────────────────────────────────────────────────────────────┘
+                          ↓
+┌─────────────────────────────────────────────────────────────┐
+│  6. SuperCore API: POST /api/v1/instances/:id/transition    │
+│     - ✅ Valida FSM: PENDENTE → LIQUIDADA é válido?         │
+│     - ✅ Atualiza current_state                             │
+│     - ✅ Registra em state_history (auditoria)              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Exemplo Prático: Rejeição por Limite BACEN
+
+**Cliente tenta PIX de R$ 2.000 às 22h (horário noturno):**
+
+```typescript
+// LBPAY busca regras
+const regras = await supercore.instances.list({
+  object_definition_id: 'regra_bacen',
+  filters: { 'data.dominio': 'PIX', current_state: 'VIGENTE' }
+});
+
+// Regra encontrada:
+regras.items[0].data = {
+  nome_regra: 'Limite PIX Período Noturno',
+  condicao: 'valor > parametros.limite_noturno AND (hora >= 20 OR hora < 6)',
+  parametros: { limite_noturno: 1000 },
+  mensagem_erro: 'Valor excede limite BACEN para período noturno',
+  fonte_legal_id: 'uuid-manual-pix-v83',
+  secao_referencia: 'Seção 4.2'
+}
+
+// LBPAY interpreta:
+const contexto = {
+  valor: 2000,
+  hora: 22,
+  parametros: { limite_noturno: 1000 }
+};
+
+// Executa: 2000 > 1000 AND (22 >= 20 OR 22 < 6) = true
+// Resultado: VIOLOU A REGRA
+
+// LBPAY busca manual fonte
+const manual = await supercore.instances.get('uuid-manual-pix-v83');
+
+// LBPAY rejeita transação
+await supercore.instances.transition({
+  instance_id: transacaoId,
+  to_state: 'REJEITADA',
+  metadata: {
+    motivo: 'Limite BACEN excedido',
+    regra_violada: regras.items[0].id,
+    fundamentacao: {
+      documento: manual.data.codigo, // "Manual PIX v8.3"
+      secao: '4.2',
+      link: manual.data.link_oficial
+    }
+  }
+});
+
+// Cliente vê:
+{
+  status: 'REJEITADA',
+  motivo: 'Valor excede limite BACEN para período noturno',
+  detalhes: {
+    valor_solicitado: 'R$ 2.000,00',
+    limite_noturno: 'R$ 1.000,00',
+    horario: '22:00',
+    fundamentacao_legal: {
+      documento: 'Manual PIX v8.3',
+      secao: '4.2 - Limites de Valor por Horário',
+      link: 'https://www.bcb.gov.br/estabilidadefinanceira/pix'
+    }
+  }
+}
+```
+
+**SuperCore apenas:**
+- Armazenou o manual como instance
+- Armazenou a regra como instance
+- Relacionou regra → manual via relationship
+- Validou estrutura da transação (JSON Schema)
+- Registrou a transição PENDENTE → REJEITADA
+
+**LBPAY fez:**
+- Buscou regras vigentes
+- Interpretou condição
+- Decidiu rejeitar
+- Buscou fundamentação legal
+- Formatou mensagem para cliente
 
 ---
 
