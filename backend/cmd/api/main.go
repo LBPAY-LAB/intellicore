@@ -44,9 +44,11 @@ func main() {
 
 	// Initialize repositories
 	objDefRepo := database.NewObjectDefinitionRepository(db)
+	instanceRepo := database.NewInstanceRepository(db, objDefRepo)
 
 	// Initialize handlers
 	objDefHandler := handlers.NewObjectDefinitionHandler(objDefRepo)
+	instanceHandler := handlers.NewInstanceHandler(instanceRepo, objDefRepo)
 
 	// API v1 routes
 	v1 := router.Group("/api/v1")
@@ -59,24 +61,12 @@ func main() {
 		v1.DELETE("/object-definitions/:id", objDefHandler.Delete)
 
 		// Instances
-		v1.POST("/instances", func(c *gin.Context) {
-			c.JSON(501, gin.H{"error": "Not implemented yet"})
-		})
-		v1.GET("/instances", func(c *gin.Context) {
-			c.JSON(501, gin.H{"error": "Not implemented yet"})
-		})
-		v1.GET("/instances/:id", func(c *gin.Context) {
-			c.JSON(501, gin.H{"error": "Not implemented yet"})
-		})
-		v1.PUT("/instances/:id", func(c *gin.Context) {
-			c.JSON(501, gin.H{"error": "Not implemented yet"})
-		})
-		v1.DELETE("/instances/:id", func(c *gin.Context) {
-			c.JSON(501, gin.H{"error": "Not implemented yet"})
-		})
-		v1.POST("/instances/:id/transition", func(c *gin.Context) {
-			c.JSON(501, gin.H{"error": "Not implemented yet"})
-		})
+		v1.POST("/instances", instanceHandler.Create)
+		v1.GET("/instances", instanceHandler.List)
+		v1.GET("/instances/:id", instanceHandler.GetByID)
+		v1.PUT("/instances/:id", instanceHandler.Update)
+		v1.DELETE("/instances/:id", instanceHandler.Delete)
+		v1.POST("/instances/:id/transition", instanceHandler.TransitionState)
 
 		// Relationships
 		v1.POST("/relationships", func(c *gin.Context) {
