@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lbpay/supercore/internal/database"
+	"github.com/lbpay/supercore/internal/handlers"
 )
 
 func main() {
@@ -41,25 +42,21 @@ func main() {
 		})
 	})
 
+	// Initialize repositories
+	objDefRepo := database.NewObjectDefinitionRepository(db)
+
+	// Initialize handlers
+	objDefHandler := handlers.NewObjectDefinitionHandler(objDefRepo)
+
 	// API v1 routes
 	v1 := router.Group("/api/v1")
 	{
 		// Object Definitions
-		v1.POST("/object-definitions", func(c *gin.Context) {
-			c.JSON(501, gin.H{"error": "Not implemented yet"})
-		})
-		v1.GET("/object-definitions", func(c *gin.Context) {
-			c.JSON(501, gin.H{"error": "Not implemented yet"})
-		})
-		v1.GET("/object-definitions/:id", func(c *gin.Context) {
-			c.JSON(501, gin.H{"error": "Not implemented yet"})
-		})
-		v1.PUT("/object-definitions/:id", func(c *gin.Context) {
-			c.JSON(501, gin.H{"error": "Not implemented yet"})
-		})
-		v1.DELETE("/object-definitions/:id", func(c *gin.Context) {
-			c.JSON(501, gin.H{"error": "Not implemented yet"})
-		})
+		v1.POST("/object-definitions", objDefHandler.Create)
+		v1.GET("/object-definitions", objDefHandler.List)
+		v1.GET("/object-definitions/:id", objDefHandler.GetByID)
+		v1.PUT("/object-definitions/:id", objDefHandler.Update)
+		v1.DELETE("/object-definitions/:id", objDefHandler.Delete)
 
 		// Instances
 		v1.POST("/instances", func(c *gin.Context) {
