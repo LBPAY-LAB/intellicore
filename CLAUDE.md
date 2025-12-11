@@ -4,24 +4,64 @@
 
 ## 📚 Estrutura de Documentação
 
-Este documento é o **guia central de implementação**. Documentos relacionados:
+Este documento é o **guia central de implementação**. A estrutura completa de documentação está organizada em:
 
-### Fase 1 - Fundação
-- **[docs/fase1/FASE_1_ESCOPO_TECNICO_COMPLETO.md](docs/fase1/FASE_1_ESCOPO_TECNICO_COMPLETO.md)** - Escopo técnico completo da Fase 1
-- **[docs/fase1/SQUAD_E_SPRINTS_FASE_1.md](docs/fase1/SQUAD_E_SPRINTS_FASE_1.md)** - Composição da squad e planejamento de sprints (12 semanas)
-- **[docs/fase1/IMPLEMENTATION_STATUS.md](docs/fase1/IMPLEMENTATION_STATUS.md)** - Status atual da implementação
-- **[docs/fase1/ORACULO_CONSCIENCIA_DA_PLATAFORMA.md](docs/fase1/ORACULO_CONSCIENCIA_DA_PLATAFORMA.md)** - O conceito revolucionário do Oráculo
-- **[docs/fase1/ORACLE_IMPLEMENTATION_COMPLETE.md](docs/fase1/ORACLE_IMPLEMENTATION_COMPLETE.md)** - Documentação da implementação do Oracle
-- **[docs/fase1/ROADMAP_IMPLEMENTACAO_4_FASES.md](docs/fase1/ROADMAP_IMPLEMENTACAO_4_FASES.md)** - Roadmap completo de 4 fases (11 meses)
-- **[DYNAMIC_UI_IMPLEMENTATION_COMPLETE.md](DYNAMIC_UI_IMPLEMENTATION_COMPLETE.md)** - Implementação completa do Dynamic UI (11 widgets)
+### 🏗️ Arquitetura e Fundamentos (docs/architecture/)
+**IMPORTANTE**: Leia SEMPRE antes de iniciar trabalho em qualquer fase
+- **[docs/architecture/visao_arquitetura.md](docs/architecture/visao_arquitetura.md)** - ⭐ **CRÍTICO**: Visão completa da arquitetura SuperCore, princípios fundamentais, separação de responsabilidades
+- **[docs/architecture/stack_tecnologico_fases.md](docs/architecture/stack_tecnologico_fases.md)** - ⭐ **CRÍTICO**: Stack tecnológico por fase (versões exatas, justificativas, evolução)
 
-### Fase 2 - Extensibilidade via MCP (Model Context Protocol)
+### 📋 Backlog e Execução (docs/backlog/)
+**IMPORTANTE**: Consulte para entender status e prioridades do projeto
+- **[docs/backlog/backlog_geral.md](docs/backlog/backlog_geral.md)** - Status geral de execução, pendências, progresso de cada fase
+
+### 📍 Fase 1 - Foundation (docs/fases/fase1/)
+**METODOLOGIA**: Especificações → Dúvidas → Aprovação → Planejamento → Implementação
+- **[docs/fases/fase1/01_especificacoes.md](docs/fases/fase1/01_especificacoes.md)** - ⭐ **CRÍTICO**: Especificações técnicas completas (DEVE ser aprovado antes de qualquer código)
+- **[docs/fases/fase1/06_squad_agents.md](docs/fases/fase1/06_squad_agents.md)** - ⭐ **CRÍTICO**: Composição da squad de agents e responsabilidades
+- **[docs/fases/fase1/ORACULO_CONSCIENCIA_DA_PLATAFORMA.md](docs/fases/fase1/ORACULO_CONSCIENCIA_DA_PLATAFORMA.md)** - O conceito revolucionário do Oráculo
+- **[docs/fases/fase1/ROADMAP_IMPLEMENTACAO_4_FASES.md](docs/fases/fase1/ROADMAP_IMPLEMENTACAO_4_FASES.md)** - Roadmap completo de 4 fases (11 meses)
+
+### 📍 Fase 2 - Brain (docs/fases/fase2/)
+**METODOLOGIA**: Especificações → Dúvidas → Aprovação → Planejamento → Implementação
 - **[SUPERCORE_MCP_SERVER.md](SUPERCORE_MCP_SERVER.md)** - ⭐ **CRÍTICO**: Especificação completa do MCP Server + Action Agents
 - **[MCP_IMPLEMENTATION_GUIDE.md](MCP_IMPLEMENTATION_GUIDE.md)** - ⭐ **CRÍTICO**: Guia prático de implementação do MCP Server
 
-### Exemplos e Guias
+### 📍 Fases 3 e 4 (docs/fases/fase3/, docs/fases/fase4/)
+Serão populadas seguindo a mesma metodologia após conclusão das fases anteriores.
+
+### 📖 Guias e Exemplos
 - **[README.md](README.md)** - Guia do usuário, quick start, arquitetura
 - **[docs/api/examples/README.md](docs/api/examples/README.md)** - Exemplos práticos de uso da API
+- **[DYNAMIC_UI_IMPLEMENTATION_COMPLETE.md](DYNAMIC_UI_IMPLEMENTATION_COMPLETE.md)** - Implementação completa do Dynamic UI (11 widgets)
+
+---
+
+## ⚠️ REGRA FUNDAMENTAL PARA AGENTS
+
+**ANTES de iniciar trabalho em QUALQUER fase:**
+
+1. ✅ Leia `docs/architecture/visao_arquitetura.md` (entenda a arquitetura universal)
+2. ✅ Leia `docs/architecture/stack_tecnologico_fases.md` (stack da fase específica)
+3. ✅ Leia `docs/backlog/backlog_geral.md` (status atual do projeto)
+4. ✅ Leia `docs/fases/faseN/01_especificacoes.md` (especificações APROVADAS)
+5. ✅ Leia `docs/fases/faseN/06_squad_agents.md` (sua responsabilidade na squad)
+6. ❌ **NUNCA implemente código sem especificações aprovadas**
+
+**Estrutura de pastas de cada fase:**
+```
+docs/fases/faseN/
+├── 01_especificacoes.md        # Specs técnicas (DEVE ser aprovado)
+├── 02_duvidas_especificacoes.md # Dúvidas/questões sobre specs
+├── 03_aprovacao.md             # Registro de aprovação formal
+├── 04_planejamento_sprints.md  # Detalhamento de sprints
+├── 05_composicao_squads.md     # Detalhamento da squad
+├── 06_squad_agents.md          # Agents responsáveis
+└── sprints/                    # Documentação de cada sprint
+    ├── sprint_01/
+    ├── sprint_02/
+    └── ...
+```
 
 ---
 
