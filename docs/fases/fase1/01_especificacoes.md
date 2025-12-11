@@ -348,12 +348,35 @@ CREATE INDEX idx_relationships_type ON relationships(relationship_type);
 
 ## 8. Próximos Passos
 
+### 8.1 Fase de Aprovação (Antes de Implementação)
+
+**CRÍTICO**: Nenhuma linha de código de UI será escrita antes de aprovar:
+
 1. **Revisão destas especificações** (você + time técnico)
 2. **Documento de dúvidas** (02_duvidas_especificacoes.md)
-3. **Aprovação formal** (03_aprovacao.md)
-4. **Planejamento de sprints** (04_planejamento_sprints.md)
-5. **Definição de squads** (05_composicao_squads.md)
-6. **Início da implementação**
+3. **Aprovação formal das especificações** (03_aprovacao.md)
+4. **📐 Criação de Mocks de UI** (07_mocks_ui_navegacao.md) ⭐ **NOVO**
+   - Wireframes de todas as telas
+   - Fluxo de navegação entre telas
+   - Componentes UI e widgets
+   - Layout e estrutura de páginas
+5. **✅ Aprovação dos Mocks de UI** ⭐ **OBRIGATÓRIO**
+   - Time de Produto aprova layouts
+   - Time Técnico valida viabilidade
+   - Ajustes necessários são feitos ANTES de código
+6. **Planejamento de sprints** (04_planejamento_sprints.md)
+7. **Definição de squads** (05_composicao_squads.md)
+8. **Início da implementação** (com mocks aprovados)
+
+### 8.2 Regra de Implementação de UI
+
+❌ **PROIBIDO**: Implementar componentes/páginas sem mocks aprovados
+
+✅ **PERMITIDO**: Implementar apenas após:
+- [ ] Mocks criados e documentados
+- [ ] Time de Produto aprovou
+- [ ] Time Técnico validou viabilidade
+- [ ] Documento 07_mocks_ui_navegacao.md completo
 
 ---
 

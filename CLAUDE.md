@@ -57,6 +57,28 @@ Serão populadas seguindo a mesma metodologia após conclusão das fases anterio
 - ❌ Deploy em produção (requer aprovação)
 - ❌ Modificar .env com secrets reais
 - ❌ Deletar branches principais (main, master)
+- ❌ **CRÍTICO**: Implementar UI sem mocks aprovados (docs/fases/faseN/07_mocks_ui_navegacao.md)
+
+### ⛔ REGRA INVIOLÁVEL: UI SEM MOCKS APROVADOS
+
+**NENHUMA linha de código de UI/frontend será escrita antes de:**
+
+1. ✅ Documento `docs/fases/faseN/07_mocks_ui_navegacao.md` completo com wireframes
+2. ✅ Time de Produto aprovar todos os layouts e navegação
+3. ✅ Time Técnico validar viabilidade técnica
+4. ✅ Status do documento mudar para "🟢 Aprovado"
+
+**Razão**: Evitar retrabalho massivo. Mudanças de layout/navegação DEPOIS de implementar custam 10x mais tempo.
+
+**Processo correto**:
+```
+Especificações → Mocks de UI → Aprovação → Implementação
+```
+
+**Se um agent de frontend receber tarefa SEM mocks aprovados**:
+- ❌ RECUSAR implementação
+- ✅ INFORMAR: "Documento 07_mocks_ui_navegacao.md não está aprovado"
+- ✅ SUGERIR: "Primeiro aprovar mocks, depois implementar"
 
 ### Checklist Obrigatório Antes de Implementar
 
