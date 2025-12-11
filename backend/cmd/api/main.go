@@ -45,10 +45,12 @@ func main() {
 	// Initialize repositories
 	objDefRepo := database.NewObjectDefinitionRepository(db)
 	instanceRepo := database.NewInstanceRepository(db, objDefRepo)
+	relationshipRepo := database.NewRelationshipRepository(db)
 
 	// Initialize handlers
 	objDefHandler := handlers.NewObjectDefinitionHandler(objDefRepo)
 	instanceHandler := handlers.NewInstanceHandler(instanceRepo, objDefRepo)
+	relationshipHandler := handlers.NewRelationshipHandler(relationshipRepo, instanceRepo)
 
 	// API v1 routes
 	v1 := router.Group("/api/v1")
@@ -69,15 +71,10 @@ func main() {
 		v1.POST("/instances/:id/transition", instanceHandler.TransitionState)
 
 		// Relationships
-		v1.POST("/relationships", func(c *gin.Context) {
-			c.JSON(501, gin.H{"error": "Not implemented yet"})
-		})
-		v1.GET("/relationships", func(c *gin.Context) {
-			c.JSON(501, gin.H{"error": "Not implemented yet"})
-		})
-		v1.DELETE("/relationships/:id", func(c *gin.Context) {
-			c.JSON(501, gin.H{"error": "Not implemented yet"})
-		})
+		v1.POST("/relationships", relationshipHandler.Create)
+		v1.GET("/relationships", relationshipHandler.List)
+		v1.GET("/relationships/:id", relationshipHandler.GetByID)
+		v1.DELETE("/relationships/:id", relationshipHandler.Delete)
 	}
 
 	// Inicia o servidor
