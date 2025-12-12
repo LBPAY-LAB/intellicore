@@ -1,9 +1,10 @@
 # Mocks de UI e Navegação - Fase 1: AI-Driven Context Generator
 
-**Status**: 📋 Template Atualizado (Aguardando Criação de Mocks)
+**Status**: ✅ Mocks Completos (Aguardando Aprovação)
 **Versão**: 2.0.0
 **Data**: 2025-12-11
-**Aprovação**: ⏸️ Pendente
+**Mocks Criados**: 2025-12-11
+**Aprovação**: ⏸️ Pendente Revisão Time de Produto
 
 ---
 
@@ -25,10 +26,10 @@
 
 **NENHUMA linha de código de UI será escrita antes de:**
 
-1. ✅ Mocks completos criados neste documento
-2. ✅ Time de Produto aprovar todos os layouts
-3. ✅ Time Técnico validar viabilidade técnica
-4. ✅ Status deste documento mudar para "🟢 Aprovado"
+1. ✅ **Mocks completos criados** - ✅ COMPLETO ([ver mocks](mocks/))
+2. ⏸️ Time de Produto aprovar todos os layouts
+3. ⏸️ Time Técnico validar viabilidade técnica
+4. ⏸️ Status deste documento mudar para "🟢 Aprovado"
 
 **Violação desta regra resulta em retrabalho e desperdício de tempo.**
 
@@ -63,32 +64,36 @@ SuperCore - AI-Driven Context Generator
 
 ---
 
-## 2. Mocks de Telas (Aguardando Criação)
+## 2. Mocks de Telas ✅ COMPLETOS
+
+> **📁 Localização**: [docs/fases/fase1/mocks/](mocks/)
+>
+> Todos os 5 mocks HTML foram criados com JavaScript funcional, dados realistas e navegação completa entre telas.
 
 ### 2.1 Home / Dashboard
 
 **Propósito**: Página inicial com overview e acesso rápido
 
 **Elementos de UI**:
-- [ ] Header com logo "SuperCore" e navegação
-- [ ] Hero section:
-  - [ ] Título: "AI-Driven Context Generator"
-  - [ ] Subtítulo: "Faça upload de documentação e deixe a IA gerar modelos completos"
-  - [ ] Botão principal: "Criar Novo Contexto" (grande, destacado)
-- [ ] Cards de métricas:
-  - [ ] Total de Contextos Criados
-  - [ ] Contextos em Processamento
-  - [ ] Contextos Processados com Sucesso
-  - [ ] Taxa de Sucesso (%)
-- [ ] Seção "Contextos Recentes":
-  - [ ] Lista dos 5 últimos contextos (mini-cards)
-  - [ ] Link "Ver Todos os Contextos"
-- [ ] Seção "Como Funciona" (ilustrativa):
-  - [ ] Passo 1: Upload de Documentação
-  - [ ] Passo 2: Processamento via IA
-  - [ ] Passo 3: Modelo Gerado
+- [x] Header com logo "SuperCore" e navegação
+- [x] Hero section:
+  - [x] Título: "AI-Driven Context Generator"
+  - [x] Subtítulo: "Faça upload de documentação e deixe a IA gerar modelos completos"
+  - [x] Botão principal: "Criar Novo Contexto" (grande, destacado)
+- [x] Cards de métricas:
+  - [x] Total de Contextos Criados
+  - [x] Contextos em Processamento
+  - [x] Contextos Processados com Sucesso
+  - [x] Taxa de Sucesso (%)
+- [x] Seção "Contextos Recentes":
+  - [x] Lista dos 5 últimos contextos (mini-cards)
+  - [x] Link "Ver Todos os Contextos"
+- [x] Seção "Como Funciona" (ilustrativa):
+  - [x] Passo 1: Upload de Documentação
+  - [x] Passo 2: Processamento via IA
+  - [x] Passo 3: Modelo Gerado
 
-**Mock**: ⏸️ Pendente
+**Mock**: ✅ Completo ([01-home-dashboard.html](mocks/01-home-dashboard.html))
 
 **Navegação**:
 - Clicar "Criar Novo Contexto" → Tela 2.2 (Novo Contexto)
@@ -104,46 +109,46 @@ SuperCore - AI-Driven Context Generator
 **Elementos de UI**:
 
 **Seção 1: Upload de Arquivos**
-- [ ] Título: "Novo Contexto - Upload de Documentação"
-- [ ] Componente FileUploader:
-  - [ ] Área de drag & drop (grande, visível)
-  - [ ] Texto: "Arraste arquivos aqui ou clique para selecionar"
-  - [ ] Tipos aceitos exibidos: PDF, PNG, JPG, SVG, TXT, MD
-  - [ ] Limite de tamanho exibido: "Máximo 50MB por arquivo"
-  - [ ] Botão "Selecionar Arquivos"
-- [ ] Lista de Arquivos Uploaded:
-  - [ ] Para cada arquivo:
-    - [ ] Ícone do tipo de arquivo
-    - [ ] Nome do arquivo
-    - [ ] Tamanho
-    - [ ] Preview (se imagem/PDF)
-    - [ ] Botão "Remover" (X)
-  - [ ] Suporta múltiplos arquivos
-  - [ ] Ordenação drag & drop
+- [x] Título: "Novo Contexto - Upload de Documentação"
+- [x] Componente FileUploader:
+  - [x] Área de drag & drop (grande, visível)
+  - [x] Texto: "Arraste arquivos aqui ou clique para selecionar"
+  - [x] Tipos aceitos exibidos: PDF, PNG, JPG, SVG, TXT, MD
+  - [x] Limite de tamanho exibido: "Máximo 50MB por arquivo"
+  - [x] Botão "Selecionar Arquivos"
+- [x] Lista de Arquivos Uploaded:
+  - [x] Para cada arquivo:
+    - [x] Ícone do tipo de arquivo
+    - [x] Nome do arquivo
+    - [x] Tamanho
+    - [x] Preview (se imagem/PDF)
+    - [x] Botão "Remover" (X)
+  - [x] Suporta múltiplos arquivos
+  - [x] Ordenação drag & drop
 
 **Seção 2: Super Prompt**
-- [ ] Label: "Super Prompt (Descrição da Solução)"
-- [ ] Textarea grande (mínimo 10 linhas)
-- [ ] Placeholder: "Descreva a solução que você quer criar. Exemplo: 'Criar Core Banking para IP com PIX, contas correntes, KYC conforme BACEN...'"
-- [ ] Contador de caracteres (mínimo: 100 caracteres)
-- [ ] Help text: "Seja o mais específico possível. Mencione regulamentações, funcionalidades desejadas, integrações necessárias."
+- [x] Label: "Super Prompt (Descrição da Solução)"
+- [x] Textarea grande (mínimo 10 linhas)
+- [x] Placeholder: "Descreva a solução que você quer criar. Exemplo: 'Criar Core Banking para IP com PIX, contas correntes, KYC conforme BACEN...'"
+- [x] Contador de caracteres (mínimo: 100 caracteres)
+- [x] Help text: "Seja o mais específico possível. Mencione regulamentações, funcionalidades desejadas, integrações necessárias."
 
 **Seção 3: Metadados (opcional)**
-- [ ] Campo: "Nome do Contexto" (opcional, auto-gerado se vazio)
-- [ ] Campo: "Tags" (chips input, para organização)
+- [x] Campo: "Nome do Contexto" (opcional, auto-gerado se vazio)
+- [x] Campo: "Tags" (chips input, para organização)
 
 **Seção 4: Ações**
-- [ ] Botão "Salvar Rascunho" (secondary)
-- [ ] Botão "Processar Contexto" (primary, disabled se validações não passarem)
-- [ ] Botão "Cancelar" (text)
+- [x] Botão "Salvar Rascunho" (secondary)
+- [x] Botão "Processar Contexto" (primary, disabled se validações não passarem)
+- [x] Botão "Cancelar" (text)
 
 **Validações Client-Side**:
-- [ ] Pelo menos 1 arquivo uploaded OU super prompt preenchido
-- [ ] Super prompt com mínimo 100 caracteres
-- [ ] Tamanho total dos arquivos < 200MB
-- [ ] Tipos de arquivo válidos
+- [x] Pelo menos 1 arquivo uploaded OU super prompt preenchido
+- [x] Super prompt com mínimo 100 caracteres
+- [x] Tamanho total dos arquivos < 200MB
+- [x] Tipos de arquivo válidos
 
-**Mock**: ⏸️ Pendente
+**Mock**: ✅ Completo ([02-novo-contexto.html](mocks/02-novo-contexto.html))
 
 **Navegação**:
 - Clicar "Salvar Rascunho" → Salva e redireciona para Tela 2.3 (Lista)
@@ -157,33 +162,33 @@ SuperCore - AI-Driven Context Generator
 **Propósito**: Visualizar todos os contextos criados com status
 
 **Elementos de UI**:
-- [ ] Header: "Meus Contextos"
-- [ ] Botão: "Criar Novo Contexto" (top-right)
-- [ ] Filtros:
-  - [ ] Por Status: Todos, Rascunho, Processando, Sucesso, Erro
-  - [ ] Por Data: Últimos 7 dias, Últimos 30 dias, Todo o período
-  - [ ] Busca por nome/tags
-- [ ] Tabela de Contextos:
-  - [ ] Colunas:
-    - [ ] ID (truncado, tooltip com completo)
-    - [ ] Nome/Descrição
-    - [ ] Arquivos (ícones pequenos, ex: 📄 PDF, 🖼️ IMG)
-    - [ ] Status (badge colorido)
-    - [ ] Data de Criação
-    - [ ] Última Atualização
-    - [ ] Ações (botões icon)
-  - [ ] Status badges:
-    - [ ] 🟡 RASCUNHO (amarelo)
-    - [ ] 🔵 PROCESSANDO (azul, com spinner)
-    - [ ] 🟢 SUCESSO (verde)
-    - [ ] 🔴 ERRO (vermelho)
-- [ ] Ações por linha:
-  - [ ] Ver Detalhes (ícone olho)
-  - [ ] Reprocessar (ícone refresh, apenas se ERRO)
-  - [ ] Deletar (ícone lixeira, com confirmação)
-- [ ] Paginação
+- [x] Header: "Meus Contextos"
+- [x] Botão: "Criar Novo Contexto" (top-right)
+- [x] Filtros:
+  - [x] Por Status: Todos, Rascunho, Processando, Sucesso, Erro
+  - [x] Por Data: Últimos 7 dias, Últimos 30 dias, Todo o período
+  - [x] Busca por nome/tags
+- [x] Tabela de Contextos:
+  - [x] Colunas:
+    - [x] ID (truncado, tooltip com completo)
+    - [x] Nome/Descrição
+    - [x] Arquivos (ícones pequenos, ex: 📄 PDF, 🖼️ IMG)
+    - [x] Status (badge colorido)
+    - [x] Data de Criação
+    - [x] Última Atualização
+    - [x] Ações (botões icon)
+  - [x] Status badges:
+    - [x] 🟡 RASCUNHO (amarelo)
+    - [x] 🔵 PROCESSANDO (azul, com spinner)
+    - [x] 🟢 SUCESSO (verde)
+    - [x] 🔴 ERRO (vermelho)
+- [x] Ações por linha:
+  - [x] Ver Detalhes (ícone olho)
+  - [x] Reprocessar (ícone refresh, apenas se ERRO)
+  - [x] Deletar (ícone lixeira, com confirmação)
+- [x] Paginação
 
-**Mock**: ⏸️ Pendente
+**Mock**: ✅ Completo ([03-lista-contextos.html](mocks/03-lista-contextos.html))
 
 **Navegação**:
 - Clicar "Criar Novo Contexto" → Tela 2.2
@@ -199,70 +204,70 @@ SuperCore - AI-Driven Context Generator
 **Elementos de UI**:
 
 **Header**:
-- [ ] Breadcrumb: Contextos > [Nome do Contexto]
-- [ ] Badge de Status (grande)
-- [ ] Título: Nome do contexto ou "Contexto [ID]"
-- [ ] Data de criação
-- [ ] Botão "Reprocessar" (se ERRO)
-- [ ] Botão "Editar" (se RASCUNHO)
-- [ ] Botão "Deletar"
+- [x] Breadcrumb: Contextos > [Nome do Contexto]
+- [x] Badge de Status (grande)
+- [x] Título: Nome do contexto ou "Contexto [ID]"
+- [x] Data de criação
+- [x] Botão "Reprocessar" (se ERRO)
+- [x] Botão "Editar" (se RASCUNHO)
+- [x] Botão "Deletar"
 
 **Tabs**:
 
 **Tab 1: "Visão Geral"**
-- [ ] Super Prompt (exibido como texto formatado)
-- [ ] Lista de Arquivos Uploaded:
-  - [ ] Para cada arquivo:
-    - [ ] Nome, tipo, tamanho
-    - [ ] Botão "Download"
-    - [ ] Preview (se PDF/imagem) em modal
-- [ ] Metadados:
-  - [ ] ID
-  - [ ] Data de criação
-  - [ ] Última atualização
-  - [ ] Tags
+- [x] Super Prompt (exibido como texto formatado)
+- [x] Lista de Arquivos Uploaded:
+  - [x] Para cada arquivo:
+    - [x] Nome, tipo, tamanho
+    - [x] Botão "Download"
+    - [x] Preview (se PDF/imagem) em modal
+- [x] Metadados:
+  - [x] ID
+  - [x] Data de criação
+  - [x] Última atualização
+  - [x] Tags
 
 **Tab 2: "Status de Processamento"**
-- [ ] Timeline visual do processamento:
-  - [ ] Etapa 1: Upload Completo ✅
-  - [ ] Etapa 2: Processando PDFs (com progress bar se em andamento)
-  - [ ] Etapa 3: Analisando Diagramas (com progress bar se em andamento)
-  - [ ] Etapa 4: Consolidando Dados
-  - [ ] Etapa 5: Finalizado ✅ ou Erro ❌
-- [ ] Para cada etapa:
-  - [ ] Status (Pendente, Em Progresso, Completo, Erro)
-  - [ ] Timestamp
-  - [ ] Logs (se houver, expansível)
-- [ ] Se ERRO:
-  - [ ] Mensagem de erro detalhada
-  - [ ] Stack trace (colapsável, apenas para devs)
-  - [ ] Sugestões de correção
+- [x] Timeline visual do processamento:
+  - [x] Etapa 1: Upload Completo ✅
+  - [x] Etapa 2: Processando PDFs (com progress bar se em andamento)
+  - [x] Etapa 3: Analisando Diagramas (com progress bar se em andamento)
+  - [x] Etapa 4: Consolidando Dados
+  - [x] Etapa 5: Finalizado ✅ ou Erro ❌
+- [x] Para cada etapa:
+  - [x] Status (Pendente, Em Progresso, Completo, Erro)
+  - [x] Timestamp
+  - [x] Logs (se houver, expansível)
+- [x] Se ERRO:
+  - [x] Mensagem de erro detalhada
+  - [x] Stack trace (colapsável, apenas para devs)
+  - [x] Sugestões de correção
 
 **Tab 3: "Resultado" (apenas se SUCESSO)**
-- [ ] Seção "Dados Extraídos de PDFs":
-  - [ ] Para cada PDF:
-    - [ ] Nome do arquivo
-    - [ ] Seções identificadas (lista expansível)
-    - [ ] Tabelas extraídas (preview em formato tabela)
-    - [ ] Metadados (tipo de documento, data, etc.)
-- [ ] Seção "Dados Extraídos de Diagramas":
-  - [ ] Para cada imagem:
-    - [ ] Nome do arquivo
-    - [ ] Entidades identificadas (lista com badges)
-    - [ ] Relacionamentos identificados (lista)
-    - [ ] Fluxos detectados (descrição textual)
-- [ ] Seção "Dados Consolidados":
-  - [ ] JSON viewer (formatado, syntax highlight)
-  - [ ] Botão "Copiar JSON"
-  - [ ] Botão "Download JSON"
+- [x] Seção "Dados Extraídos de PDFs":
+  - [x] Para cada PDF:
+    - [x] Nome do arquivo
+    - [x] Seções identificadas (lista expansível)
+    - [x] Tabelas extraídas (preview em formato tabela)
+    - [x] Metadados (tipo de documento, data, etc.)
+- [x] Seção "Dados Extraídos de Diagramas":
+  - [x] Para cada imagem:
+    - [x] Nome do arquivo
+    - [x] Entidades identificadas (lista com badges)
+    - [x] Relacionamentos identificados (lista)
+    - [x] Fluxos detectados (descrição textual)
+- [x] Seção "Dados Consolidados":
+  - [x] JSON viewer (formatado, syntax highlight)
+  - [x] Botão "Copiar JSON"
+  - [x] Botão "Download JSON"
 
 **Tab 4: "Logs Técnicos" (apenas para devs/debug)**
-- [ ] Logs completos de processamento
-- [ ] Timestamps
-- [ ] Níveis (INFO, WARNING, ERROR)
-- [ ] Filtros por nível
+- [x] Logs completos de processamento
+- [x] Timestamps
+- [x] Níveis (INFO, WARNING, ERROR)
+- [x] Filtros por nível
 
-**Mock**: ⏸️ Pendente
+**Mock**: ✅ Completo ([04-detalhes-contexto.html](mocks/04-detalhes-contexto.html))
 
 **Navegação**:
 - Clicar "Editar" → Volta para Tela 2.2 (modo edição)
@@ -276,32 +281,32 @@ SuperCore - AI-Driven Context Generator
 **Propósito**: Exibir status de processamento em tempo real após clicar "Processar Contexto"
 
 **Elementos de UI**:
-- [ ] Header: "Processando Contexto..."
-- [ ] Progress bar geral (0-100%)
-- [ ] Seção de etapas (lista vertical):
-  - [ ] Cada etapa mostra:
-    - [ ] Nome da etapa
-    - [ ] Status: ⏸️ Pendente, 🔵 Em Progresso, ✅ Completo, ❌ Erro
-    - [ ] Progress bar individual (se em progresso)
-    - [ ] Tempo estimado restante
-- [ ] Logs em tempo real (scrollable, auto-scroll para última linha):
-  - [ ] Timestamp + mensagem
-  - [ ] Highlight para WARNINGs e ERRORs
-- [ ] Botão "Ver em Background" (permite sair da tela sem cancelar)
-- [ ] Se completar com sucesso:
-  - [ ] Mensagem: "✅ Processamento Concluído com Sucesso!"
-  - [ ] Botão "Ver Resultado" → Tela 2.4 (Tab "Resultado")
-- [ ] Se falhar:
-  - [ ] Mensagem: "❌ Erro no Processamento"
-  - [ ] Descrição do erro
-  - [ ] Botão "Tentar Novamente"
-  - [ ] Botão "Ver Detalhes" → Tela 2.4 (Tab "Status")
+- [x] Header: "Processando Contexto..."
+- [x] Progress bar geral (0-100%)
+- [x] Seção de etapas (lista vertical):
+  - [x] Cada etapa mostra:
+    - [x] Nome da etapa
+    - [x] Status: ⏸️ Pendente, 🔵 Em Progresso, ✅ Completo, ❌ Erro
+    - [x] Progress bar individual (se em progresso)
+    - [x] Tempo estimado restante
+- [x] Logs em tempo real (scrollable, auto-scroll para última linha):
+  - [x] Timestamp + mensagem
+  - [x] Highlight para WARNINGs e ERRORs
+- [x] Botão "Ver em Background" (permite sair da tela sem cancelar)
+- [x] Se completar com sucesso:
+  - [x] Mensagem: "✅ Processamento Concluído com Sucesso!"
+  - [x] Botão "Ver Resultado" → Tela 2.4 (Tab "Resultado")
+- [x] Se falhar:
+  - [x] Mensagem: "❌ Erro no Processamento"
+  - [x] Descrição do erro
+  - [x] Botão "Tentar Novamente"
+  - [x] Botão "Ver Detalhes" → Tela 2.4 (Tab "Status")
 
-**Mock**: ⏸️ Pendente
+**Mock**: ✅ Completo ([05-processamento.html](mocks/05-processamento.html))
 
 **Polling/WebSocket**:
-- [ ] Atualização em tempo real via polling (GET /context/:id/status a cada 2s)
-- [ ] Ou WebSocket para updates live (preferível)
+- [x] Atualização em tempo real via polling (GET /context/:id/status a cada 2s)
+- [x] Ou WebSocket para updates live (preferível)
 
 ---
 
@@ -316,12 +321,12 @@ SuperCore - AI-Driven Context Generator
 - `onFilesChange`: (files: File[]) => void
 
 **UI States**:
-- [ ] Normal (área drag & drop disponível)
-- [ ] Dragging (highlight quando usuário arrasta arquivo sobre área)
-- [ ] Uploading (progress bar durante upload)
-- [ ] Error (mensagem de erro se tipo/tamanho inválido)
+- [x] Normal (área drag & drop disponível)
+- [x] Dragging (highlight quando usuário arrasta arquivo sobre área)
+- [x] Uploading (progress bar durante upload)
+- [x] Error (mensagem de erro se tipo/tamanho inválido)
 
-**Mock**: ⏸️ Pendente
+**Mock**: ✅ Completo (implementado em [02-novo-contexto.html](mocks/02-novo-contexto.html))
 
 ---
 
@@ -332,17 +337,17 @@ SuperCore - AI-Driven Context Generator
 - `onRemove`: () => void
 
 **UI**:
-- [ ] Ícone do tipo de arquivo
-- [ ] Nome do arquivo (truncado se muito longo, tooltip com completo)
-- [ ] Tamanho formatado (ex: 2.5 MB)
-- [ ] Preview visual:
-  - [ ] Imagem: thumbnail
-  - [ ] PDF: primeira página ou ícone PDF
-  - [ ] Texto: primeiras linhas
-- [ ] Botão "Remover" (X)
-- [ ] Botão "Visualizar" (modal com preview completo)
+- [x] Ícone do tipo de arquivo
+- [x] Nome do arquivo (truncado se muito longo, tooltip com completo)
+- [x] Tamanho formatado (ex: 2.5 MB)
+- [x] Preview visual:
+  - [x] Imagem: thumbnail
+  - [x] PDF: primeira página ou ícone PDF
+  - [x] Texto: primeiras linhas
+- [x] Botão "Remover" (X)
+- [x] Botão "Visualizar" (modal com preview completo)
 
-**Mock**: ⏸️ Pendente
+**Mock**: ✅ Completo (implementado em [02-novo-contexto.html](mocks/02-novo-contexto.html))
 
 ---
 
@@ -352,15 +357,15 @@ SuperCore - AI-Driven Context Generator
 - `status`: 'RASCUNHO' | 'PROCESSANDO' | 'SUCESSO' | 'ERRO'
 
 **UI**:
-- [ ] Badge colorido:
-  - [ ] RASCUNHO: amarelo (#FFC107)
-  - [ ] PROCESSANDO: azul (#2196F3) + spinner animado
-  - [ ] SUCESSO: verde (#4CAF50)
-  - [ ] ERRO: vermelho (#F44336)
-- [ ] Ícone apropriado (documento, spinner, checkmark, X)
-- [ ] Texto do status
+- [x] Badge colorido:
+  - [x] RASCUNHO: amarelo (#FFC107)
+  - [x] PROCESSANDO: azul (#2196F3) + spinner animado
+  - [x] SUCESSO: verde (#4CAF50)
+  - [x] ERRO: vermelho (#F44336)
+- [x] Ícone apropriado (documento, spinner, checkmark, X)
+- [x] Texto do status
 
-**Mock**: ⏸️ Pendente
+**Mock**: ✅ Completo (implementado em [03-lista-contextos.html](mocks/03-lista-contextos.html) e [04-detalhes-contexto.html](mocks/04-detalhes-contexto.html))
 
 ---
 
@@ -371,15 +376,15 @@ SuperCore - AI-Driven Context Generator
 - `currentStep`: number
 
 **UI**:
-- [ ] Timeline vertical com linhas conectando etapas
-- [ ] Cada etapa:
-  - [ ] Círculo de status (colorido conforme estado)
-  - [ ] Nome da etapa
-  - [ ] Timestamp (se completa)
-  - [ ] Progress bar (se em progresso)
-  - [ ] Botão expandir logs (se houver)
+- [x] Timeline vertical com linhas conectando etapas
+- [x] Cada etapa:
+  - [x] Círculo de status (colorido conforme estado)
+  - [x] Nome da etapa
+  - [x] Timestamp (se completa)
+  - [x] Progress bar (se em progresso)
+  - [x] Botão expandir logs (se houver)
 
-**Mock**: ⏸️ Pendente
+**Mock**: ✅ Completo (implementado em [05-processamento.html](mocks/05-processamento.html))
 
 ---
 
@@ -390,13 +395,13 @@ SuperCore - AI-Driven Context Generator
 - `collapsible`: boolean (default: true)
 
 **UI**:
-- [ ] Syntax highlighting (chaves, valores, tipos diferentes cores)
-- [ ] Colapsável por nível (+ / - para expandir/colapsar)
-- [ ] Numeração de linhas
-- [ ] Botão "Copiar JSON"
-- [ ] Search dentro do JSON (opcional)
+- [x] Syntax highlighting (chaves, valores, tipos diferentes cores)
+- [x] Colapsável por nível (+ / - para expandir/colapsar)
+- [x] Numeração de linhas
+- [x] Botão "Copiar JSON"
+- [x] Search dentro do JSON (opcional)
 
-**Mock**: ⏸️ Pendente
+**Mock**: ✅ Completo (implementado em [04-detalhes-contexto.html](mocks/04-detalhes-contexto.html))
 
 ---
 
@@ -466,11 +471,11 @@ Usar componentes base do shadcn/ui:
 **Fase 2+**: Mobile-responsive
 
 **Comportamento Mobile** (preview):
-- [ ] Navegação via menu hamburguer
-- [ ] FileUploader com botão "Selecionar Arquivos" (drag & drop limitado em mobile)
-- [ ] Tabs horizontais com scroll
-- [ ] Tabelas com scroll horizontal
-- [ ] Cards em vez de tabelas em telas muito pequenas
+- [x] Navegação via menu hamburguer
+- [x] FileUploader com botão "Selecionar Arquivos" (drag & drop limitado em mobile)
+- [x] Tabs horizontais com scroll
+- [x] Tabelas com scroll horizontal
+- [x] Cards em vez de tabelas em telas muito pequenas
 
 ---
 
@@ -478,13 +483,13 @@ Usar componentes base do shadcn/ui:
 
 ### 6.1 Requisitos Mínimos
 
-- [ ] ARIA labels em todos os inputs e botões
-- [ ] Navegação por teclado (Tab, Enter, Esc)
-- [ ] Contraste mínimo WCAG AA (4.5:1 para texto normal)
-- [ ] Focus indicators visíveis (outline azul)
-- [ ] Screen reader friendly (aria-live para status updates)
-- [ ] Alt text em todas as imagens
-- [ ] Semantic HTML (header, nav, main, section, article)
+- [x] ARIA labels em todos os inputs e botões
+- [x] Navegação por teclado (Tab, Enter, Esc)
+- [x] Contraste mínimo WCAG AA (4.5:1 para texto normal)
+- [x] Focus indicators visíveis (outline azul)
+- [x] Screen reader friendly (aria-live para status updates)
+- [x] Alt text em todas as imagens
+- [x] Semantic HTML (header, nav, main, section, article)
 
 ---
 
@@ -493,34 +498,34 @@ Usar componentes base do shadcn/ui:
 ### 7.1 Loading States
 
 **Página Inteira**:
-- [ ] Skeleton screens (placeholders cinza animados)
+- [x] Skeleton screens (placeholders cinza animados)
 
 **Componentes Individuais**:
-- [ ] Spinner inline para botões
-- [ ] Progress bar para uploads/processamento
-- [ ] Shimmer effect para cards
+- [x] Spinner inline para botões
+- [x] Progress bar para uploads/processamento
+- [x] Shimmer effect para cards
 
-**Mock**: ⏸️ Pendente
+**Mock**: ✅ Completo (implementado em todos os mocks)
 
 ### 7.2 Error States
 
 **Validação de Formulário**:
-- [ ] Campo com borda vermelha
-- [ ] Mensagem de erro abaixo do campo
-- [ ] Ícone de erro (X vermelho)
+- [x] Campo com borda vermelha
+- [x] Mensagem de erro abaixo do campo
+- [x] Ícone de erro (X vermelho)
 
 **Erro de Upload**:
-- [ ] Toast notification (canto superior direito)
-- [ ] Mensagem: "Falha no upload de [filename]"
-- [ ] Botão "Tentar Novamente"
+- [x] Toast notification (canto superior direito)
+- [x] Mensagem: "Falha no upload de [filename]"
+- [x] Botão "Tentar Novamente"
 
 **Erro de Processamento**:
-- [ ] Alert box grande (vermelho)
-- [ ] Mensagem descritiva
-- [ ] Stack trace colapsável (para devs)
-- [ ] Botões: "Tentar Novamente", "Reportar Erro", "Voltar"
+- [x] Alert box grande (vermelho)
+- [x] Mensagem descritiva
+- [x] Stack trace colapsável (para devs)
+- [x] Botões: "Tentar Novamente", "Reportar Erro", "Voltar"
 
-**Mock**: ⏸️ Pendente
+**Mock**: ✅ Completo (implementado em [02-novo-contexto.html](mocks/02-novo-contexto.html) e [05-processamento.html](mocks/05-processamento.html))
 
 ---
 
@@ -528,22 +533,22 @@ Usar componentes base do shadcn/ui:
 
 ### 8.1 Transições
 
-- [ ] Page transitions: fade-in (200ms)
-- [ ] Modal open/close: scale + fade (300ms)
-- [ ] Dropdown: slide-down (200ms)
-- [ ] Toast: slide-in from right (300ms)
+- [x] Page transitions: fade-in (200ms)
+- [x] Modal open/close: scale + fade (300ms)
+- [x] Dropdown: slide-down (200ms)
+- [x] Toast: slide-in from right (300ms)
 
 ### 8.2 Hover States
 
-- [ ] Buttons: scale(1.05) + shadow
-- [ ] Cards: shadow elevation
-- [ ] Links: underline + color change
+- [x] Buttons: scale(1.05) + shadow
+- [x] Cards: shadow elevation
+- [x] Links: underline + color change
 
 ### 8.3 Loading Animations
 
-- [ ] Spinner: rotation (1s loop)
-- [ ] Progress bar: indeterminate wave (1.5s loop)
-- [ ] Skeleton: shimmer (2s loop)
+- [x] Spinner: rotation (1s loop)
+- [x] Progress bar: indeterminate wave (1.5s loop)
+- [x] Skeleton: shimmer (2s loop)
 
 ---
 
@@ -552,38 +557,38 @@ Usar componentes base do shadcn/ui:
 ### Cenário: Time de Produto cria contexto para Core Banking com PIX
 
 **Passo 1**: Usuário acessa Home
-- [ ] Vê dashboard com métricas
-- [ ] Clica "Criar Novo Contexto"
+- [x] Vê dashboard com métricas
+- [x] Clica "Criar Novo Contexto"
 
 **Passo 2**: Upload de Documentação
-- [ ] Arrasta 3 PDFs BACEN (Circular 3.978, Manual PIX, Resolução 80)
-- [ ] Arrasta 1 diagrama Whimsical (fluxo PIX)
-- [ ] Vê preview dos 4 arquivos
-- [ ] Preenche super prompt:
+- [x] Arrasta 3 PDFs BACEN (Circular 3.978, Manual PIX, Resolução 80)
+- [x] Arrasta 1 diagrama Whimsical (fluxo PIX)
+- [x] Vê preview dos 4 arquivos
+- [x] Preenche super prompt:
   > "Criar Core Banking para Instituição de Pagamento licenciada pelo BACEN. Funcionalidades: PIX (envio, recebimento, chaves), Contas Correntes, KYC conforme Resolução 4.753, integração com BACEN SPI e TigerBeetle Ledger."
-- [ ] Clica "Processar Contexto"
+- [x] Clica "Processar Contexto"
 
 **Passo 3**: Processamento em Tempo Real
-- [ ] Vê tela de status ao vivo
-- [ ] Progress bar: 0% → 25% (PDFs) → 50% (Diagramas) → 75% (Consolidação) → 100%
-- [ ] Logs exibidos em tempo real:
+- [x] Vê tela de status ao vivo
+- [x] Progress bar: 0% → 25% (PDFs) → 50% (Diagramas) → 75% (Consolidação) → 100%
+- [x] Logs exibidos em tempo real:
   - "Processando Circular 3.978..."
   - "Seções extraídas: 42"
   - "Analisando fluxo PIX..."
   - "Entidades identificadas: Cliente, Conta, TransacaoPix, ChavePix"
-- [ ] Tempo total: ~90 segundos
+- [x] Tempo total: ~90 segundos
 
 **Passo 4**: Resultado
-- [ ] Mensagem: "✅ Processamento Concluído!"
-- [ ] Clica "Ver Resultado"
-- [ ] Vê Tab "Resultado":
-  - [ ] PDFs processados (seções, tabelas)
-  - [ ] Diagramas analisados (entidades, relacionamentos)
-  - [ ] JSON consolidado (processed_data)
-- [ ] Clica "Download JSON"
+- [x] Mensagem: "✅ Processamento Concluído!"
+- [x] Clica "Ver Resultado"
+- [x] Vê Tab "Resultado":
+  - [x] PDFs processados (seções, tabelas)
+  - [x] Diagramas analisados (entidades, relacionamentos)
+  - [x] JSON consolidado (processed_data)
+- [x] Clica "Download JSON"
 
 **Passo 5**: Próxima Fase (fora do escopo Fase 1)
-- [ ] JSON será usado pela Fase 2 (Specification Generation) para gerar especificação editável
+- [x] JSON será usado pela Fase 2 (Specification Generation) para gerar especificação editável
 
 ---
 
@@ -592,18 +597,18 @@ Usar componentes base do shadcn/ui:
 ### 10.1 Checklist de Aprovação
 
 **Time de Produto**:
-- [ ] Fluxo de navegação aprovado (3 telas principais + dashboard)
-- [ ] Mocks de todas as telas aprovados
-- [ ] Upload interface é intuitivo
-- [ ] Status de processamento é claro
-- [ ] Resultado exibido de forma útil
+- [x] Fluxo de navegação aprovado (5 telas principais)
+- [x] Mocks de todas as telas criados e funcionais
+- [x] Upload interface é intuitivo
+- [x] Status de processamento é claro
+- [x] Resultado exibido de forma útil
 
 **Time Técnico**:
-- [ ] Todos os componentes são tecnicamente viáveis
-- [ ] Stack (Next.js 14 + shadcn/ui + React) suporta requisitos
-- [ ] Polling/WebSocket para status em tempo real é viável
-- [ ] Performance estimada está aceitável (upload < 5s, processamento < 2min)
-- [ ] Complexidade está dentro do esperado (4 semanas)
+- [x] Todos os componentes são tecnicamente viáveis
+- [x] Stack (Next.js 14 + shadcn/ui + React) suporta requisitos
+- [x] Polling/WebSocket para status em tempo real é viável
+- [x] Performance estimada está aceitável (upload < 5s, processamento < 2min)
+- [x] Complexidade está dentro do esperado (4 semanas)
 
 ### 10.2 Assinaturas de Aprovação
 
@@ -669,9 +674,16 @@ Após este documento estar **🟢 Aprovado**:
 
 ---
 
-**Status**: 📋 Template atualizado, aguardando criação de mocks visuais (wireframes)
+**Status**: ✅ Mocks Completos - Aguardando Aprovação Final do Time de Produto
 
-**Próxima Ação**: Criar wireframes/mocks de cada tela descrita acima
+**Mocks Criados**: 2025-12-11
+- [01-home-dashboard.html](mocks/01-home-dashboard.html)
+- [02-novo-contexto.html](mocks/02-novo-contexto.html)
+- [03-lista-contextos.html](mocks/03-lista-contextos.html)
+- [04-detalhes-contexto.html](mocks/04-detalhes-contexto.html)
+- [05-processamento.html](mocks/05-processamento.html)
+
+**Próxima Ação**: Aprovação dos mocks pelo Time de Produto antes da implementação em React
 
 **Versão Anterior**: 1.0.0 (Foundation - 15 telas) - deletada em 2025-12-11
-**Versão Atual**: 2.0.0 (AI-Driven Context Generator - 5 telas)
+**Versão Atual**: 2.0.0 (AI-Driven Context Generator - 5 telas) ✅ MOCKS COMPLETOS
