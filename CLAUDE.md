@@ -32,7 +32,9 @@ Este documento (CLAUDE.md) é o **guia central de implementação** para agents.
 
 ### 📋 Backlog e Execução (docs/backlog/)
 **IMPORTANTE**: Consulte para entender status e prioridades do projeto
-- **[docs/backlog/backlog_geral.md](docs/backlog/backlog_geral.md)** - Status geral de execução, pendências, progresso de cada fase
+- **[docs/backlog/backlog_geral.md](docs/backlog/backlog_geral.md)** - ⭐⭐⭐ **MACRO PLANO**: Status geral de execução, pendências, progresso de cada fase
+  - **RESPONSABILIDADE DOS AGENTS**: Atualizar este arquivo sempre que concluir uma fase ou milestone importante
+  - **MICRO PLANO**: Cada fase tem seu planejamento detalhado em `docs/fases/faseX/planning/`
 
 ### 📍 Fase 1 - AI-Driven Context Generator (docs/fases/fase1/)
 **METODOLOGIA**: Especificações → Mocks UI → Aprovação → Planejamento → Implementação
@@ -45,23 +47,25 @@ Este documento (CLAUDE.md) é o **guia central de implementação** para agents.
   - ContextProcessorOrchestrator
   - Performance requirements
 
-- **[docs/fases/fase1/PLANEJAMENTO_SPRINTS_FASE_1_REVISADO.md](docs/fases/fase1/PLANEJAMENTO_SPRINTS_FASE_1_REVISADO.md)** - ⭐⭐⭐ **CRÍTICO**: Sprint planning completo
-  - 4 sprints (4 semanas)
-  - 43 Kanban cards distribuídos entre 8 agents
-  - Breakdown detalhado por sprint
-  - Critérios de sucesso
-
 - **[docs/fases/fase1/07_mocks_ui_navegacao.md](docs/fases/fase1/07_mocks_ui_navegacao.md)** - ⭐⭐⭐ **CRÍTICO**: Mocks de UI v2.0.0
   - 5 telas (Home, Novo Contexto, Lista, Detalhes, Processamento)
   - Wireframes completos
   - Componentes reutilizáveis
   - **OBRIGATÓRIO**: Aprovar antes de qualquer código frontend
+  - **Protótipos**: [docs/fases/fase1/mocks/](docs/fases/fase1/mocks/) - 5 HTML funcionais ✅
 
-- **[docs/fases/fase1/06_squad_agents.md](docs/fases/fase1/06_squad_agents.md)** - ⭐⭐ Composição da squad (8 agents) e responsabilidades
+#### 📋 Planejamento (docs/fases/fase1/planning/)
+- **[planning/PLANEJAMENTO_SPRINTS_FASE_1_REVISADO.md](docs/fases/fase1/planning/PLANEJAMENTO_SPRINTS_FASE_1_REVISADO.md)** - ⭐⭐⭐ **MICRO PLANO**: Sprint planning completo
+  - 4 sprints (4 semanas)
+  - 43 Kanban cards distribuídos entre 8 agents
+  - Breakdown detalhado por sprint
+  - Critérios de sucesso
 
-#### 📖 Documentos de Contexto
-- **[docs/fases/fase1/FASE_1_REIMPLEMENTACAO_SUMARIO.md](docs/fases/fase1/FASE_1_REIMPLEMENTACAO_SUMARIO.md)** - Sumário da reimplementação (OLD Foundation → NEW AI-Driven Context Generator)
-- **[docs/fases/fase1/FASE_1_ATUALIZACAO_COMPLETA.md](docs/fases/fase1/FASE_1_ATUALIZACAO_COMPLETA.md)** - Log completo de todas as atualizações feitas
+- **[planning/FASE_1_REIMPLEMENTACAO_SUMARIO.md](docs/fases/fase1/planning/FASE_1_REIMPLEMENTACAO_SUMARIO.md)** - Sumário da reimplementação (OLD Foundation → NEW AI-Driven Context Generator)
+- **[planning/FASE_1_ATUALIZACAO_COMPLETA.md](docs/fases/fase1/planning/FASE_1_ATUALIZACAO_COMPLETA.md)** - Log completo de todas as atualizações feitas
+
+#### 👥 Squad (docs/fases/fase1/squad/)
+- **[squad/06_squad_agents.md](docs/fases/fase1/squad/06_squad_agents.md)** - ⭐⭐ Composição da squad (8 agents) e responsabilidades
 
 ### 📍 Fase 2 - Brain (docs/fases/fase2/)
 **METODOLOGIA**: Especificações → Dúvidas → Aprovação → Planejamento → Implementação
@@ -90,11 +94,8 @@ Todas as fases seguem a MESMA estrutura padronizada para facilitar navegação:
 docs/fases/
 ├── fase1/                          # AI-Driven Context Generator
 │   ├── 01_especificacoes.md       # ⭐⭐⭐ Especificações técnicas completas
-│   ├── 06_squad_agents.md         # ⭐⭐ Composição da squad (8 agents)
-│   ├── 07_mocks_ui_navegacao.md   # ⭐⭐⭐ Mocks de UI (OBRIGATÓRIO aprovar antes de código)
-│   ├── PLANEJAMENTO_SPRINTS_FASE_1_REVISADO.md  # ⭐⭐⭐ Sprint planning (4 sprints/4 semanas)
-│   ├── FASE_1_REIMPLEMENTACAO_SUMARIO.md        # Sumário de reimplementação
-│   ├── FASE_1_ATUALIZACAO_COMPLETA.md           # Log de atualizações
+│   ├── 07_mocks_ui_navegacao.md   # ⭐⭐⭐ Especificação de Mocks de UI
+│   │
 │   ├── mocks/                     # 🎨 Protótipos HTML/CSS funcionais
 │   │   ├── README.md              # Status e índice dos mocks
 │   │   ├── 01-home-dashboard.html           # ✅ COMPLETO
@@ -102,9 +103,16 @@ docs/fases/
 │   │   ├── 03-lista-contextos.html          # ✅ COMPLETO
 │   │   ├── 04-detalhes-contexto.html        # ✅ COMPLETO
 │   │   └── 05-processamento.html            # ✅ COMPLETO
-│   ├── planning/                  # Documentos de planejamento detalhado
+│   │
+│   ├── planning/                  # 📋 MICRO PLANO da fase
+│   │   ├── PLANEJAMENTO_SPRINTS_FASE_1_REVISADO.md  # ⭐⭐⭐ Sprint planning detalhado
+│   │   ├── FASE_1_REIMPLEMENTACAO_SUMARIO.md        # Sumário de reimplementação
+│   │   └── FASE_1_ATUALIZACAO_COMPLETA.md           # Log de atualizações
+│   │
 │   ├── sprints/                   # Documentos por sprint (backlog, retrospectivas)
-│   └── squad/                     # Documentos específicos por agent
+│   │
+│   └── squad/                     # 👥 Composição e responsabilidades
+│       └── 06_squad_agents.md     # ⭐⭐ 8 agents e suas responsabilidades
 │
 ├── fase2/                          # Extensibilidade via MCP
 │   ├── mocks/                     # 🎨 Protótipos (aguardando especificações)
