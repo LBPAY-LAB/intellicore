@@ -78,6 +78,114 @@ Serão populadas seguindo a mesma metodologia após conclusão das fases anterio
 
 ---
 
+## 📂 ESTRUTURA DE PASTAS DO PROJETO
+
+> **⚠️ REFERÊNCIA RÁPIDA PARA AGENTS**: Use esta seção para navegar rapidamente no projeto e encontrar documentos/arquivos específicos.
+
+### 🗂️ Organização por Fases (docs/fases/)
+
+Todas as fases seguem a MESMA estrutura padronizada para facilitar navegação:
+
+```
+docs/fases/
+├── fase1/                          # AI-Driven Context Generator
+│   ├── 01_especificacoes.md       # ⭐⭐⭐ Especificações técnicas completas
+│   ├── 06_squad_agents.md         # ⭐⭐ Composição da squad (8 agents)
+│   ├── 07_mocks_ui_navegacao.md   # ⭐⭐⭐ Mocks de UI (OBRIGATÓRIO aprovar antes de código)
+│   ├── PLANEJAMENTO_SPRINTS_FASE_1_REVISADO.md  # ⭐⭐⭐ Sprint planning (4 sprints/4 semanas)
+│   ├── FASE_1_REIMPLEMENTACAO_SUMARIO.md        # Sumário de reimplementação
+│   ├── FASE_1_ATUALIZACAO_COMPLETA.md           # Log de atualizações
+│   ├── mocks/                     # 🎨 Protótipos HTML/CSS funcionais
+│   │   ├── README.md              # Status e índice dos mocks
+│   │   ├── 01-home-dashboard.html           # ✅ COMPLETO
+│   │   ├── 02-novo-contexto.html            # ✅ COMPLETO
+│   │   ├── 03-lista-contextos.html          # ✅ COMPLETO
+│   │   ├── 04-detalhes-contexto.html        # ✅ COMPLETO
+│   │   └── 05-processamento.html            # ✅ COMPLETO
+│   ├── planning/                  # Documentos de planejamento detalhado
+│   ├── sprints/                   # Documentos por sprint (backlog, retrospectivas)
+│   └── squad/                     # Documentos específicos por agent
+│
+├── fase2/                          # Extensibilidade via MCP
+│   ├── mocks/                     # 🎨 Protótipos (aguardando especificações)
+│   │   └── README.md              # ⏸️ PENDENTE
+│   ├── planning/
+│   ├── sprints/
+│   └── squad/
+│
+├── fase3/                          # Autonomia e Auto-Discovery
+│   ├── mocks/                     # 🎨 Protótipos (aguardando especificações)
+│   │   └── README.md              # ⏸️ PENDENTE
+│   ├── planning/
+│   ├── sprints/
+│   └── squad/
+│
+├── fase4/                          # Produção e Integração Real
+│   ├── mocks/                     # 🎨 Protótipos (aguardando especificações)
+│   │   └── README.md              # ⏸️ PENDENTE
+│   ├── planning/
+│   ├── sprints/
+│   └── squad/
+│
+├── fase5/                          # Escala e Otimização
+│   ├── mocks/                     # 🎨 Protótipos (aguardando especificações)
+│   │   └── README.md              # ⏸️ PENDENTE
+│   ├── planning/
+│   ├── sprints/
+│   └── squad/
+│
+└── fase6/                          # Expansão Multi-Domínio
+    ├── mocks/                     # 🎨 Protótipos (aguardando especificações)
+    │   └── README.md              # ⏸️ PENDENTE
+    ├── planning/
+    ├── sprints/
+    └── squad/
+```
+
+### 🎯 Quick Reference: Como Encontrar Documentos
+
+| Preciso de... | Onde encontrar |
+|---------------|----------------|
+| **Especificações técnicas da fase X** | `docs/fases/faseX/01_especificacoes.md` |
+| **Mocks de UI da fase X** | `docs/fases/faseX/07_mocks_ui_navegacao.md` |
+| **Protótipos HTML/CSS da fase X** | `docs/fases/faseX/mocks/*.html` |
+| **Sprint planning da fase X** | `docs/fases/faseX/PLANEJAMENTO_SPRINTS_FASE_X*.md` |
+| **Composição da squad da fase X** | `docs/fases/faseX/06_squad_agents.md` |
+| **Status geral do projeto** | `docs/backlog/backlog_geral.md` |
+| **Visão arquitetural consolidada** | `docs/architecture/VISAO_FINAL_CONSOLIDADA.md` ⭐⭐⭐ |
+| **Stack tecnológico por fase** | `docs/architecture/stack_tecnologico_fases.md` ⭐ |
+| **Guia MCP Server** | `SUPERCORE_MCP_SERVER.md` + `MCP_IMPLEMENTATION_GUIDE.md` |
+
+### 📋 Convenção de Nomenclatura
+
+**Documentos de Especificação**:
+- `01_especificacoes.md` - Especificações técnicas completas
+- `06_squad_agents.md` - Composição da squad
+- `07_mocks_ui_navegacao.md` - Mocks de UI (wireframes)
+
+**Documentos de Planejamento**:
+- `PLANEJAMENTO_SPRINTS_FASE_X*.md` - Sprint planning
+- `FASE_X_*.md` - Sumários, logs, atualizações
+
+**Pasta `mocks/`**:
+- `README.md` - Índice e status dos mocks
+- `01-*.html`, `02-*.html`, etc. - Protótipos HTML/CSS numerados sequencialmente
+
+**Regra**: Arquivos numerados (`01_`, `02_`) seguem ordem de leitura recomendada.
+
+### 🚨 IMPORTANTE: Antes de Implementar Qualquer Fase
+
+1. ✅ Ler `docs/fases/faseX/01_especificacoes.md` (especificações técnicas)
+2. ✅ Ler `docs/fases/faseX/07_mocks_ui_navegacao.md` (mocks de UI)
+3. ✅ Verificar `docs/fases/faseX/mocks/README.md` (status dos protótipos)
+4. ✅ Aguardar aprovação dos mocks pelo Time de Produto
+5. ✅ Ler `docs/fases/faseX/PLANEJAMENTO_SPRINTS_*` (planejamento detalhado)
+6. ✅ Consultar `docs/architecture/VISAO_FINAL_CONSOLIDADA.md` para contexto geral
+
+**Nunca implemente UI sem mocks aprovados** - Ver regra inviolável abaixo.
+
+---
+
 ## ⚠️ REGRA FUNDAMENTAL PARA AGENTS
 
 ### Modo de Operação: Desenvolvimento Autônomo
