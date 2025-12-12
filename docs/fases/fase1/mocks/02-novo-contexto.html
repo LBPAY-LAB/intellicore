@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Contexto - SuperCore</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .file-upload-zone {
+            transition: all 0.3s ease;
+        }
+        .file-upload-zone.drag-over {
+            border-color: #4f46e5;
+            background-color: #eef2ff;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-2xl font-bold text-indigo-600">SuperCore</h1>
+                    </div>
+                    <nav class="hidden md:ml-10 md:flex md:space-x-8">
+                        <a href="01-home-dashboard.html" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">
+                            Home
+                        </a>
+                        <a href="03-lista-contextos.html" class="text-gray-500 hover:text-gray-700 px-1 pt-1 text-sm font-medium">
+                            Contextos
+                        </a>
+                    </nav>
+                </div>
+                <div class="flex items-center">
+                    <button onclick="location.href='01-home-dashboard.html'" class="text-gray-500 hover:text-gray-700 text-sm font-medium">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+            <div class="flex items-center mb-2">
+                <a href="01-home-dashboard.html" class="text-gray-400 hover:text-gray-600">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                </a>
+                <h2 class="ml-3 text-3xl font-bold text-gray-900">Novo Contexto</h2>
+            </div>
+            <p class="text-sm text-gray-600">
+                Faça upload de documentação (PDFs BACEN, diagramas, especificações) para processar automaticamente
+            </p>
+        </p>
+        </div>
+
+        <form id="contextForm" class="space-y-8">
+            <!-- Nome do Contexto -->
+            <div class="bg-white shadow rounded-lg border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Informações Básicas</h3>
+                <div>
+                    <label for="context-name" class="block text-sm font-medium text-gray-700 mb-2">
+                        Nome do Contexto <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="context-name"
+                        name="context-name"
+                        required
+                        placeholder="Ex: Core Banking LBPAY - Especificação PIX"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                    >
+                    <p class="mt-2 text-sm text-gray-500">
+                        Dê um nome descritivo que facilite identificar o contexto posteriormente
+                    </p>
+                </div>
+            </div>
+
+            <!-- Upload de Arquivos -->
+            <div class="bg-white shadow rounded-lg border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Upload de Documentos</h3>
+
+                <!-- Drag & Drop Zone -->
+                <div
+                    id="dropZone"
+                    class="file-upload-zone border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-indigo-400 transition-colors cursor-pointer"
+                    onclick="document.getElementById('fileInput').click()"
+                >
+                    <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                    </svg>
+                    <p class="text-lg font-medium text-gray-700 mb-2">
+                        Arraste arquivos aqui ou clique para selecionar
+                    </p>
+                    <p class="text-sm text-gray-500">
+                        Formatos aceitos: PDF, PNG, JPG, SVG, Mermaid (.md), Texto (.txt)
+                    </p>
+                    <p class="text-xs text-gray-400 mt-2">
+                        Tamanho máximo por arquivo: 10 MB
+                    </p>
+                </div>
+
+                <input
+                    type="file"
+                    id="fileInput"
+                    multiple
+                    accept=".pdf,.png,.jpg,.jpeg,.svg,.md,.txt"
+                    class="hidden"
+                    onchange="handleFileSelect(event)"
+                >
+
+                <!-- File Preview List -->
+                <div id="fileList" class="mt-6 space-y-3 hidden">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Arquivos Selecionados</h4>
+                    <!-- Files will be added here dynamically -->
+                </div>
+            </div>
+
+            <!-- Super Prompt -->
+            <div class="bg-white shadow rounded-lg border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Super Prompt (Opcional)</h3>
+                <div>
+                    <label for="super-prompt" class="block text-sm font-medium text-gray-700 mb-2">
+                        Descreva o que você quer criar
+                    </label>
+                    <textarea
+                        id="super-prompt"
+                        name="super-prompt"
+                        rows="6"
+                        placeholder="Exemplo:&#10;&#10;Criar um Core Banking completo para Instituição de Pagamento (IP) licenciada pelo BACEN, incluindo:&#10;- Módulo PIX completo (envio, recebimento, devolução)&#10;- KYC/Compliance conforme Resolução 4.753&#10;- Gestão de contas correntes&#10;- Integração com TigerBeetle Ledger&#10;&#10;A solução deve suportar 100.000 transações/dia e estar em conformidade com todas as circulares BACEN relevantes."
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors font-mono text-sm"
+                    ></textarea>
+                    <p class="mt-2 text-sm text-gray-500">
+                        Quanto mais detalhado, melhor será a análise. Descreva regras de negócio, integrações necessárias e requisitos específicos.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                <button
+                    type="button"
+                    onclick="location.href='01-home-dashboard.html'"
+                    class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                >
+                    Cancelar
+                </button>
+                <button
+                    type="submit"
+                    class="px-8 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    id="submitBtn"
+                    disabled
+                >
+                    Processar Contexto
+                </button>
+            </div>
+        </form>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-12 bg-white border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <p class="text-center text-sm text-gray-500">
+                SuperCore - AI-Driven Context Generator v2.0.0
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Mock uploaded files storage
+        let uploadedFiles = [];
+
+        // Form validation
+        const contextNameInput = document.getElementById('context-name');
+        const submitBtn = document.getElementById('submitBtn');
+        const fileListDiv = document.getElementById('fileList');
+
+        function validateForm() {
+            const hasName = contextNameInput.value.trim().length > 0;
+            const hasFiles = uploadedFiles.length > 0;
+
+            submitBtn.disabled = !(hasName && hasFiles);
+        }
+
+        contextNameInput.addEventListener('input', validateForm);
+
+        // Drag & Drop handlers
+        const dropZone = document.getElementById('dropZone');
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+
+            const files = Array.from(e.dataTransfer.files);
+            addFiles(files);
+        });
+
+        // File selection handler
+        function handleFileSelect(event) {
+            const files = Array.from(event.target.files);
+            addFiles(files);
+        }
+
+        // Add files to list
+        function addFiles(files) {
+            files.forEach(file => {
+                // Check file size (10 MB limit)
+                if (file.size > 10 * 1024 * 1024) {
+                    alert(`Arquivo "${file.name}" excede o limite de 10 MB`);
+                    return;
+                }
+
+                // Check if file already exists
+                if (uploadedFiles.some(f => f.name === file.name)) {
+                    alert(`Arquivo "${file.name}" já foi adicionado`);
+                    return;
+                }
+
+                uploadedFiles.push(file);
+            });
+
+            renderFileList();
+            validateForm();
+        }
+
+        // Render file list
+        function renderFileList() {
+            if (uploadedFiles.length === 0) {
+                fileListDiv.classList.add('hidden');
+                return;
+            }
+
+            fileListDiv.classList.remove('hidden');
+
+            const fileTypesIcons = {
+                'pdf': `<svg class="h-6 w-6 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path d="M4 18h12V6h-4V2H4v16zm-2 1V0h12l4 4v16H2v-1z"/></svg>`,
+                'png': `<svg class="h-6 w-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/></svg>`,
+                'jpg': `<svg class="h-6 w-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/></svg>`,
+                'svg': `<svg class="h-6 w-6 text-purple-500" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/></svg>`,
+                'md': `<svg class="h-6 w-6 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/></svg>`,
+                'txt': `<svg class="h-6 w-6 text-gray-500" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/></svg>`
+            };
+
+            const html = `
+                <h4 class="text-sm font-semibold text-gray-700 mb-3">
+                    Arquivos Selecionados (${uploadedFiles.length})
+                </h4>
+                <ul class="space-y-2">
+                    ${uploadedFiles.map((file, index) => {
+                        const ext = file.name.split('.').pop().toLowerCase();
+                        const icon = fileTypesIcons[ext] || fileTypesIcons['txt'];
+                        const sizeKB = (file.size / 1024).toFixed(1);
+                        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                        const displaySize = file.size > 1024 * 1024 ? `${sizeMB} MB` : `${sizeKB} KB`;
+
+                        return `
+                            <li class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
+                                <div class="flex items-center flex-1 min-w-0">
+                                    <div class="flex-shrink-0">
+                                        ${icon}
+                                    </div>
+                                    <div class="ml-3 flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-gray-900 truncate">
+                                            ${file.name}
+                                        </p>
+                                        <p class="text-xs text-gray-500">
+                                            ${displaySize}
+                                        </p>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    onclick="removeFile(${index})"
+                                    class="ml-4 text-red-600 hover:text-red-800 transition-colors"
+                                    title="Remover arquivo"
+                                >
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </li>
+                        `;
+                    }).join('')}
+                </ul>
+            `;
+
+            fileListDiv.innerHTML = html;
+        }
+
+        // Remove file from list
+        function removeFile(index) {
+            uploadedFiles.splice(index, 1);
+            renderFileList();
+            validateForm();
+        }
+
+        // Form submission
+        document.getElementById('contextForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const contextName = contextNameInput.value.trim();
+            const superPrompt = document.getElementById('super-prompt').value.trim();
+
+            // Simulate upload and redirect to processing page
+            console.log('Uploading context:', {
+                name: contextName,
+                files: uploadedFiles.map(f => f.name),
+                prompt: superPrompt
+            });
+
+            // Redirect to processing page
+            window.location.href = '05-processamento.html';
+        });
+    </script>
+</body>
+</html>

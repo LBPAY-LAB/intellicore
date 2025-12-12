@@ -6,6 +6,21 @@
 
 ---
 
+## 🔗 Referências Obrigatórias
+
+> **⚠️ LEITURA ESSENCIAL**: Antes de iniciar qualquer sprint, todos os agents devem ler:
+>
+> **[docs/architecture/VISAO_FINAL_CONSOLIDADA.md](../../architecture/VISAO_FINAL_CONSOLIDADA.md)** - ⭐⭐⭐ **Arquitetura completa**
+>
+> Este documento define o AI-Driven Context Generator, RAG Trimodal Híbrido, 3 Pilares da Dynamic UI, e toda a estratégia de implementação.
+
+**Documentos complementares por agent**:
+- Backend agents: [stack_tecnologico_fases.md](../../architecture/stack_tecnologico_fases.md)
+- Todos agents: [visao_arquitetura.md](../../architecture/visao_arquitetura.md)
+- Todos agents: [01_especificacoes.md](01_especificacoes.md)
+
+---
+
 ## Visão Geral
 
 A Fase 1 será executada por uma **squad multi-agent** especializada, onde cada agent tem responsabilidades claras e trabalha de forma autônoma (com orquestração humana).

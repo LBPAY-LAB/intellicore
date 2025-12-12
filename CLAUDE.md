@@ -2,25 +2,66 @@
 
 > **"Eu sou a LBPAY. Eu sei quem sou, o que faço, e como opero."** - O Oráculo
 
+---
+
+## 🚀 VISÃO CONSOLIDADA (LEIA PRIMEIRO)
+
+> **⚠️ DOCUMENTO PRIMÁRIO**: Para visão técnica completa e atualizada do **AI-Driven Context Generator** e arquitetura consolidada, consulte:
+>
+> **[docs/architecture/VISAO_FINAL_CONSOLIDADA.md](docs/architecture/VISAO_FINAL_CONSOLIDADA.md)** - ⭐⭐⭐ **ESSENCIAL**
+>
+> Este documento harmoniza:
+> - AI-Driven Context Generator (6 fases: Oracle → Upload → Spec → Generation → Approval → Usage)
+> - RAG Trimodal Híbrido (instances + embeddings)
+> - 3 Pilares da Dynamic UI (FormGenerator, ProcessFlow, BacenValidation)
+> - Integração com Gateways (LB Connect, LB Dict, Orchestration-GO, Money-Moving)
+> - Arquitetura completa (meta-objects, workflows BPM, screen type conductor, MCP agents)
+> - Roadmap completo (33 semanas/8 meses)
+
+---
+
 ## 📚 Estrutura de Documentação
 
-Este documento é o **guia central de implementação**. A estrutura completa de documentação está organizada em:
+Este documento (CLAUDE.md) é o **guia central de implementação** para agents. A estrutura completa de documentação está organizada em:
 
 ### 🏗️ Arquitetura e Fundamentos (docs/architecture/)
 **IMPORTANTE**: Leia SEMPRE antes de iniciar trabalho em qualquer fase
-- **[docs/architecture/visao_arquitetura.md](docs/architecture/visao_arquitetura.md)** - ⭐ **CRÍTICO**: Visão completa da arquitetura SuperCore, princípios fundamentais, separação de responsabilidades
+- **[docs/architecture/VISAO_FINAL_CONSOLIDADA.md](docs/architecture/VISAO_FINAL_CONSOLIDADA.md)** - ⭐⭐⭐ **ESSENCIAL**: Visão técnica consolidada (AI-Driven Context Generator, RAG Híbrido, 3 Pilares)
+- **[docs/architecture/visao_arquitetura.md](docs/architecture/visao_arquitetura.md)** - ⭐ Visão estratégica resumida (referencia VISAO_FINAL_CONSOLIDADA.md)
 - **[docs/architecture/stack_tecnologico_fases.md](docs/architecture/stack_tecnologico_fases.md)** - ⭐ **CRÍTICO**: Stack tecnológico por fase (versões exatas, justificativas, evolução)
 
 ### 📋 Backlog e Execução (docs/backlog/)
 **IMPORTANTE**: Consulte para entender status e prioridades do projeto
 - **[docs/backlog/backlog_geral.md](docs/backlog/backlog_geral.md)** - Status geral de execução, pendências, progresso de cada fase
 
-### 📍 Fase 1 - Foundation (docs/fases/fase1/)
-**METODOLOGIA**: Especificações → Dúvidas → Aprovação → Planejamento → Implementação
-- **[docs/fases/fase1/01_especificacoes.md](docs/fases/fase1/01_especificacoes.md)** - ⭐ **CRÍTICO**: Especificações técnicas completas (DEVE ser aprovado antes de qualquer código)
-- **[docs/fases/fase1/06_squad_agents.md](docs/fases/fase1/06_squad_agents.md)** - ⭐ **CRÍTICO**: Composição da squad de agents e responsabilidades
-- **[docs/fases/fase1/ORACULO_CONSCIENCIA_DA_PLATAFORMA.md](docs/fases/fase1/ORACULO_CONSCIENCIA_DA_PLATAFORMA.md)** - O conceito revolucionário do Oráculo
-- **[docs/fases/fase1/ROADMAP_IMPLEMENTACAO_4_FASES.md](docs/fases/fase1/ROADMAP_IMPLEMENTACAO_4_FASES.md)** - Roadmap completo de 4 fases (11 meses)
+### 📍 Fase 1 - AI-Driven Context Generator (docs/fases/fase1/)
+**METODOLOGIA**: Especificações → Mocks UI → Aprovação → Planejamento → Implementação
+
+#### 📋 Documentos Essenciais (LEIA ANTES DE IMPLEMENTAR)
+- **[docs/fases/fase1/01_especificacoes.md](docs/fases/fase1/01_especificacoes.md)** - ⭐⭐⭐ **CRÍTICO**: Especificações técnicas completas v2.0.0 (AI-Driven Context Generator)
+  - Database schema (context_inputs, uploaded_files)
+  - 6 REST endpoints (Upload, Processing, Status, Result)
+  - AI Services (PDF Parser, Vision API)
+  - ContextProcessorOrchestrator
+  - Performance requirements
+
+- **[docs/fases/fase1/PLANEJAMENTO_SPRINTS_FASE_1_REVISADO.md](docs/fases/fase1/PLANEJAMENTO_SPRINTS_FASE_1_REVISADO.md)** - ⭐⭐⭐ **CRÍTICO**: Sprint planning completo
+  - 4 sprints (4 semanas)
+  - 43 Kanban cards distribuídos entre 8 agents
+  - Breakdown detalhado por sprint
+  - Critérios de sucesso
+
+- **[docs/fases/fase1/07_mocks_ui_navegacao.md](docs/fases/fase1/07_mocks_ui_navegacao.md)** - ⭐⭐⭐ **CRÍTICO**: Mocks de UI v2.0.0
+  - 5 telas (Home, Novo Contexto, Lista, Detalhes, Processamento)
+  - Wireframes completos
+  - Componentes reutilizáveis
+  - **OBRIGATÓRIO**: Aprovar antes de qualquer código frontend
+
+- **[docs/fases/fase1/06_squad_agents.md](docs/fases/fase1/06_squad_agents.md)** - ⭐⭐ Composição da squad (8 agents) e responsabilidades
+
+#### 📖 Documentos de Contexto
+- **[docs/fases/fase1/FASE_1_REIMPLEMENTACAO_SUMARIO.md](docs/fases/fase1/FASE_1_REIMPLEMENTACAO_SUMARIO.md)** - Sumário da reimplementação (OLD Foundation → NEW AI-Driven Context Generator)
+- **[docs/fases/fase1/FASE_1_ATUALIZACAO_COMPLETA.md](docs/fases/fase1/FASE_1_ATUALIZACAO_COMPLETA.md)** - Log completo de todas as atualizações feitas
 
 ### 📍 Fase 2 - Brain (docs/fases/fase2/)
 **METODOLOGIA**: Especificações → Dúvidas → Aprovação → Planejamento → Implementação

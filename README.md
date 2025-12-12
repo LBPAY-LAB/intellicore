@@ -282,11 +282,19 @@ curl http://localhost:8080/health
 
 ### Project Documentation
 
-- **[CLAUDE.md](CLAUDE.md)** - The implementation bible
-- **[Phase 1 Scope](Docs/fase1/FASE_1_ESCOPO_TECNICO_COMPLETO.md)** - Complete technical specification
-- **[Implementation Status](Docs/fase1/IMPLEMENTATION_STATUS.md)** - Current progress
-- **[Oracle Concept](Docs/fase1/ORACULO_CONSCIENCIA_DA_PLATAFORMA.md)** - Platform consciousness
-- **[CI/CD Pipeline](Docs/CI_CD_PIPELINE.md)** - Automation workflows
+> **⭐⭐⭐ START HERE**: Before diving into any documentation, read the **[VISÃO FINAL CONSOLIDADA](docs/architecture/VISAO_FINAL_CONSOLIDADA.md)** - this is the master architecture document that consolidates everything: AI-Driven Context Generator (6 phases), RAG Trimodal Híbrido, 3 Pilares da Dynamic UI, integration with external gateways, and the complete 33-week roadmap.
+
+**Core Documentation**:
+- **[VISAO_FINAL_CONSOLIDADA.md](docs/architecture/VISAO_FINAL_CONSOLIDADA.md)** - ⭐⭐⭐ **Master architecture document** (read this first!)
+- **[CLAUDE.md](CLAUDE.md)** - Implementation guide for AI agents
+- **[Visão de Arquitetura](docs/architecture/visao_arquitetura.md)** - Strategic architecture overview
+- **[Stack Tecnológico](docs/architecture/stack_tecnologico_fases.md)** - Technology stack by phase
+- **[Backlog Geral](docs/backlog/backlog_geral.md)** - Project roadmap and status
+
+**Phase-Specific Documentation**:
+- **[Phase 1 Specifications](docs/fases/fase1/01_especificacoes.md)** - Foundation phase specifications
+- **[Squad & Agents](docs/fases/fase1/06_squad_agents.md)** - Team composition and agent roles
+- **[Sprint 1 Complete](docs/fases/fase1/SPRINT_1_COMPLETE.md)** - Backend API implementation status
 
 ## Project Structure
 
