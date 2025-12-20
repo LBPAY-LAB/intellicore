@@ -36,46 +36,457 @@ Este documento (CLAUDE.md) é o **guia central de implementação** para agents.
   - **RESPONSABILIDADE DOS AGENTS**: Atualizar este arquivo sempre que concluir uma fase ou milestone importante
   - **MICRO PLANO**: Cada fase tem seu planejamento detalhado em `docs/fases/faseX/planning/`
 
-### 📍 Fase 1 - AI-Driven Context Generator (docs/fases/fase1/)
+### 📍 Fase 0 - Oracle CRUD (Multi-Tenant Foundation) (docs/fases/fase0/)
 **METODOLOGIA**: Especificações → Mocks UI → Aprovação → Planejamento → Implementação
 
-**📊 STATUS ATUAL (2025-12-11)**:
-- ✅ **Planejamento**: 100% completo (specs, mocks, squad, sprints)
-- ❌ **Implementação**: 0% iniciada (código pendente)
-- **Progresso Total**: ~20% (fase de design completa)
+**🔐 VERSÃO**: v2.0.0 - Multi-Tenant Architecture (Oracle-Based Isolation)
+
+**📊 STATUS ATUAL (2025-12-12)**:
+- ✅ **Planejamento**: 100% completo (specs v2.0.0, mocks, squad, sprints)
+- ✅ **Implementação**: **100% COMPLETA** (~3,200 linhas de código + 55+ testes)
+- **Progresso Total**: **100%** ✅ (pronta para produção)
+- **Duração Real**: 2 sessões de implementação (2025-12-11 a 2025-12-12)
+
+**🎯 OBJETIVO CRÍTICO**: Criar fundação multi-tenant com tabela `oracles` (CNPJ, razão social, logo) e APIs de gerenciamento. Todas as fases seguintes dependem de `oracle_id` para isolamento de dados (LGPD/BACEN compliance).
+
+#### 📋 Documentos Essenciais
+- **[FASE_0_COMPLETE.md](FASE_0_COMPLETE.md)** - ⭐⭐⭐ **NOVO**: Sumário executivo da implementação completa (100%)
+- **[FASE_0_IMPLEMENTATION_COMPLETE.md](FASE_0_IMPLEMENTATION_COMPLETE.md)** - ⭐⭐⭐ **NOVO**: Documentação técnica completa da implementação
+- **[docs/fases/fase0/01_especificacoes.md](docs/fases/fase0/01_especificacoes.md)** - ⭐⭐⭐ Especificações técnicas completas v2.0.0 (Oracle CRUD Multi-Tenant)
+  - 🔐 **Multi-Tenant Architecture**:
+    - Tabela `oracles` (CNPJ, razão_social, nome_fantasia, logo_url, status)
+    - Foreign keys `oracle_id NOT NULL` em todas as tabelas dependentes
+    - API endpoints de gerenciamento (CRUD completo)
+    - OracleSelector component (frontend)
+  - 5 REST endpoints (create, list, get, update, delete)
+  - Frontend page structure (/backoffice/data-sources/oracles)
+  - Validations (CNPJ único, status, logo upload)
+
+- **[docs/fases/fase0/mocks/README.md](docs/fases/fase0/mocks/README.md)** - ⭐⭐⭐ **CRÍTICO**: Mocks de UI v2.0.0
+  - 1 tela principal: Oracle Management
+  - Lista de Oracles com status badges (ATIVO, INATIVO, BLOQUEADO)
+  - Formulário de criação/edição (CNPJ, razão social, nome fantasia, logo)
+  - Componentes reutilizáveis (OracleCard, OracleForm, StatusBadge)
+  - **OBRIGATÓRIO**: Aprovar antes de qualquer código frontend
+  - **Protótipo**: Criar `01-oracle-management.html` funcional
+
+#### 📋 Planejamento (docs/fases/fase0/planning/)
+- **[planning/PLANEJAMENTO_SPRINTS_FASE_0.md](docs/fases/fase0/planning/PLANEJAMENTO_SPRINTS_FASE_0.md)** - ⭐⭐⭐ **MICRO PLANO**: Sprint planning completo v2.0.0
+  - 1 sprint (5 dias / 1 semana)
+  - 🔐 34 Kanban cards distribuídos entre 7 agents (~58h total)
+  - Breakdown detalhado por dia (segunda a sexta)
+  - Critérios de sucesso multi-tenant
+
+#### 👥 Squad (docs/fases/fase0/squad/)
+- **[squad/06_squad_agents.md](docs/fases/fase0/squad/06_squad_agents.md)** - ⭐⭐ Composição da squad v2.0.0 (7 agents) e responsabilidades
+  - Backend Architect Agent (11 cards, 18h) - API REST + multi-tenant
+  - Frontend Developer Agent (9 cards, 18h) - OracleSelector + UI
+  - TDD Orchestrator Agent (8 cards, 13h) - Testes multi-tenant
+  - Database Architect Agent (3 cards, 4h) - Schema + indexes
+  - Security Auditor Agent (1 card, 2h) - Row-level security
+  - UI/UX Designer Agent (1 card, 2h) - Oracle management UI
+  - DevOps Agent (1 card, 1h) - Environment variables
+
+---
+
+### 📍 Fase 1 - AI-Driven Context Generator (Multi-Tenant) (docs/fases/fase1/)
+**METODOLOGIA**: Especificações → Mocks UI → Aprovação → Planejamento → Implementação
+
+**🔐 VERSÃO**: v3.0.0 - Multi-Tenant Architecture (Oracle-Based Isolation)
+
+**📊 STATUS ATUAL (2025-12-12)**:
+- ✅ **Planejamento**: 100% completo (specs v3.0.0, mocks, squad, sprints)
+- 🟡 **Implementação**: Sprint 1 completo (25% da fase - **atenção: precisa migração para v3.0.0**)
+  - ✅ Backend API (5 endpoints, Go 1.21) - **Requer: adicionar X-Oracle-ID validation**
+  - ✅ Frontend UI (3 páginas, Next.js 14) - **Requer: adicionar OracleSelector**
+  - ✅ Database (2 tabelas, PostgreSQL 15) - **Requer: adicionar oracle_id FK**
+  - ✅ Storage (MinIO S3-compatible)
+  - ✅ Testes (18 test cases) - **Requer: adicionar multi-tenant tests**
+  - ⏸️ **Validação pendente**: Aguardando Docker Desktop para executar integration tests
+- **Progresso Total**: ~45% (design completo + Sprint 1 implementado em v2.0.0, pendente migração v3.0.0)
+- **Próximo**: Migrar Sprint 1 para v3.0.0 → Validar → Iniciar Sprint 2 (AI Services Integration)
+- **Duração Total Estimada**: 4 semanas (~217h com multi-tenant)
+
+#### ✅ Sprint 1 - Upload & Storage (COMPLETO)
+**Documentos de Entrega**:
+- **[SPRINT_1_HANDOFF.md](SPRINT_1_HANDOFF.md)** - ⭐⭐⭐ **HANDOFF COMPLETO**: Relatório de conclusão Sprint 1
+  - Métricas finais: 22 arquivos, 3.500 LOC, 33h (vs 40h estimadas)
+  - 5 API endpoints, 3 páginas frontend, 2 tabelas database
+  - 18 test cases (225% do planejado)
+  - 7 features extras além do escopo
+  - Critérios de sucesso: 7/8 ✅ (1 pendente validação)
+  - Lições aprendidas e checklist de segurança
+
+- **[STATUS_ATUAL_PROJETO.md](STATUS_ATUAL_PROJETO.md)** - ⭐⭐ **STATUS ATUAL**: Estado completo do projeto
+  - Serviços em execução vs parados
+  - Arquitetura implementada
+  - Como iniciar o projeto (Docker Compose + local dev)
+  - Health checklist e troubleshooting
+
+- **[PROXIMO_PASSO.md](PROXIMO_PASSO.md)** - ⭐⭐ **AÇÃO IMEDIATA**: Guia de validação Sprint 1
+  - Passo a passo (6 etapas) para validar implementação
+  - Checklist completo (infraestrutura, backend, frontend, testes)
+  - Troubleshooting de problemas comuns
+  - Output esperado para cada comando
+
+- **[SPRINT_1_SUMMARY.md](SPRINT_1_SUMMARY.md)** - ⭐ **RESUMO EXECUTIVO**: Overview visual Sprint 1
+- **[QUICK_START.md](QUICK_START.md)** - ⭐ **SETUP RÁPIDO**: Iniciar projeto em 5 minutos
+- **[PHASE_1_SPRINT_1_COMPLETE.md](PHASE_1_SPRINT_1_COMPLETE.md)** - **TÉCNICO**: Deep-dive técnico completo
 
 #### 📋 Documentos Essenciais (LEIA ANTES DE IMPLEMENTAR)
-- **[docs/fases/fase1/01_especificacoes.md](docs/fases/fase1/01_especificacoes.md)** - ⭐⭐⭐ **CRÍTICO**: Especificações técnicas completas v2.0.0 (AI-Driven Context Generator)
-  - Database schema (context_inputs, uploaded_files)
-  - 6 REST endpoints (Upload, Processing, Status, Result)
-  - AI Services (PDF Parser, Vision API)
-  - ContextProcessorOrchestrator
+- **[docs/fases/fase1/01_especificacoes.md](docs/fases/fase1/01_especificacoes.md)** - ⭐⭐⭐ **CRÍTICO**: Especificações técnicas completas v3.0.0 (AI-Driven Context Generator Multi-Tenant)
+  - 🔐 **Multi-Tenant Architecture**:
+    - Database: `oracle_id NOT NULL REFERENCES oracles(id) ON DELETE CASCADE` em `context_inputs` e `uploaded_files`
+    - API: Header `X-Oracle-ID` obrigatório em TODOS os 6 endpoints
+    - Orchestrator: Validação `context.oracle_id == req.oracle_id` antes de processar
+    - Frontend: OracleSelector component + Oracle-filtered lists
+  - 6 REST endpoints (Upload, Processing, Status, Result, Oracle/Whoami, Files)
+  - AI Services (PDF Parser, Vision API) com Oracle context
+  - ContextProcessorOrchestrator com ownership validation
+  - **MCP Server Integration** (3 Resources, 4 Tools, 1 Prompt) - Todos com `oracle_id` parameter
   - Performance requirements
 
-- **[docs/fases/fase1/07_mocks_ui_navegacao.md](docs/fases/fase1/07_mocks_ui_navegacao.md)** - ⭐⭐⭐ **CRÍTICO**: Mocks de UI v2.0.0
+- **[docs/fases/fase1/07_mocks_ui_navegacao.md](docs/fases/fase1/07_mocks_ui_navegacao.md)** - ⭐⭐⭐ **CRÍTICO**: Mocks de UI v3.0.0
   - 5 telas (Home, Novo Contexto, Lista, Detalhes, Processamento)
-  - Wireframes completos
+  - 🔐 Novo: OracleSelector component (top-right, mostra Oracle ativo)
+  - 🔐 Lista de contextos filtrada por Oracle
+  - Wireframes completos com multi-tenant annotations
   - Componentes reutilizáveis
   - **OBRIGATÓRIO**: Aprovar antes de qualquer código frontend
   - **Protótipos**: [docs/fases/fase1/mocks/](docs/fases/fase1/mocks/) - 5 HTML funcionais ✅
 
 #### 📋 Planejamento (docs/fases/fase1/planning/)
-- **[planning/PLANEJAMENTO_SPRINTS_FASE_1_REVISADO.md](docs/fases/fase1/planning/PLANEJAMENTO_SPRINTS_FASE_1_REVISADO.md)** - ⭐⭐⭐ **MICRO PLANO**: Sprint planning completo
+- **[planning/PLANEJAMENTO_SPRINTS_FASE_1_REVISADO.md](docs/fases/fase1/planning/PLANEJAMENTO_SPRINTS_FASE_1_REVISADO.md)** - ⭐⭐⭐ **MICRO PLANO**: Sprint planning completo v3.0.0
   - 4 sprints (4 semanas)
-  - 43 Kanban cards distribuídos entre 8 agents
-  - Breakdown detalhado por sprint
-  - Critérios de sucesso
+  - 🔐 61 Kanban cards distribuídos entre 8 agents (43 base + 10 MCP + 8 multi-tenant)
+  - 🔐 ~217 horas estimadas (174h base + 25h MCP + 18h multi-tenant)
+  - Breakdown detalhado por sprint com multi-tenant additions
+  - Critérios de sucesso incluindo multi-tenant isolation metrics
 
 - **[planning/FASE_1_REIMPLEMENTACAO_SUMARIO.md](docs/fases/fase1/planning/FASE_1_REIMPLEMENTACAO_SUMARIO.md)** - Sumário da reimplementação (OLD Foundation → NEW AI-Driven Context Generator)
 - **[planning/FASE_1_ATUALIZACAO_COMPLETA.md](docs/fases/fase1/planning/FASE_1_ATUALIZACAO_COMPLETA.md)** - Log completo de todas as atualizações feitas
 
 #### 👥 Squad (docs/fases/fase1/squad/)
-- **[squad/06_squad_agents.md](docs/fases/fase1/squad/06_squad_agents.md)** - ⭐⭐ Composição da squad (8 agents) e responsabilidades
+- **[squad/06_squad_agents.md](docs/fases/fase1/squad/06_squad_agents.md)** - ⭐⭐ Composição da squad v3.0.0 (8 agents) e responsabilidades
+  - Backend Architect Agent: API + 🔐 Multi-tenant validation (oracle_id)
+  - Frontend Developer Agent: UI + 🔐 OracleSelector component
+  - AI Engineer Agent: MCP Server implementation (Resources, Tools, Prompts) + 🔐 oracle_id parameter
+  - TDD Orchestrator Agent: Testes + 🔐 Multi-tenant isolation tests
+  - Database Architect Agent: Schema + 🔐 oracle_id FK + indexes
+  - Documentation Agent: MCP documentation complete + v3.0.0 multi-tenant guides
 
-### 📍 Fase 2 - Brain (docs/fases/fase2/)
+#### 🔌 MCP Integration (Model Context Protocol) 🔐 v3.0.0
+- **[SUPERCORE_MCP_SERVER.md](docs/architecture/SUPERCORE_MCP_SERVER.md)** - ⭐⭐⭐ **CRÍTICO**: Especificação completa do MCP Server v3.0.0
+  - Arquitetura híbrida (REST API + MCP Server)
+  - 🔐 **Multi-Tenant**: Todos os Tools/Resources exigem `oracle_id` como primeiro parâmetro
+  - 3 MCP Resources (oracle://config, context-results://{id}?oracle_id={oracle_id}, uploaded-files://{id}?oracle_id={oracle_id})
+  - 4 MCP Tools (create_context, process_context, wait_for_processing, rag_query) - Todos validam oracle_id
+  - 1 MCP Prompt (process-bacen-circular)
+  - Claude Desktop integration
+
+- **[MCP_IMPLEMENTATION_GUIDE.md](docs/architecture/MCP_IMPLEMENTATION_GUIDE.md)** - ⭐⭐⭐ **CRÍTICO**: Guia passo-a-passo de implementação
+  - Setup do MCP Server (Python 3.11+ com mcp library)
+  - Implementação de Resources, Tools e Prompts
+  - Testing strategy (pytest com MCP client mock)
+  - Claude Desktop configuration
+
+### 📍 Fase 2 - Brain (Template System + MCP + Apache Pulsar) (docs/fases/fase2/)
 **METODOLOGIA**: Especificações → Dúvidas → Aprovação → Planejamento → Implementação
-- **[SUPERCORE_MCP_SERVER.md](SUPERCORE_MCP_SERVER.md)** - ⭐ **CRÍTICO**: Especificação completa do MCP Server + Action Agents
-- **[MCP_IMPLEMENTATION_GUIDE.md](MCP_IMPLEMENTATION_GUIDE.md)** - ⭐ **CRÍTICO**: Guia prático de implementação do MCP Server
+
+**📊 STATUS ATUAL (2025-12-12)**:
+- ⏸️ **Planejamento**: Em andamento (aguardando aprovação de especificações)
+- ❌ **Implementação**: 0% iniciada (pendente)
+- **Progresso Total**: ~10% (definição de arquitetura)
+
+**🎯 COMPONENTES CRÍTICOS**:
+
+#### 1. Template System (Pydantic + JSON Schema + Constrained Decoding)
+**Objetivo**: Garantir respostas estruturadas e válidas dos LLMs usando templates baseados em Pydantic.
+
+**Arquitetura**:
+- **Pydantic Models** → **JSON Schema** → **Constrained Decoding** (força LLM a gerar apenas tokens válidos)
+- **Templates Dinâmicos**: Selecionados via Query Router baseado na intenção do usuário
+- **Validação Automática**: Respostas sempre conformes ao schema esperado
+
+**Casos de Uso**:
+- Alerts de segurança estruturados (severidade, categoria, ações recomendadas)
+- Aprovações de compliance (contexto, justificativa, aprovadores)
+- Status de processamento (progresso, etapas, estimativa de conclusão)
+
+#### 2. Query Router (3-Layer Cascading Architecture)
+**Objetivo**: Rotear queries do usuário para o template correto com latência otimizada.
+
+**Camadas**:
+1. **Keyword Matching** (~5ms): Regex/keywords simples para casos comuns
+2. **Semantic Search** (~50ms): Embeddings + similaridade cosseno para intenções complexas
+3. **LLM Router** (~500ms): Fallback inteligente quando camadas anteriores falham
+
+**Vantagens**:
+- 95% das queries resolvidas em <50ms (camadas 1-2)
+- Custo reduzido (menos chamadas LLM)
+- Escalabilidade (cache de embeddings)
+
+#### 3. Apache Pulsar v3.4.0 (Message Broker)
+**Objetivo**: Message broker para integração bidirecional entre MCP Action Agents e Frontend.
+
+**Por Que Pulsar?**
+- ✅ **Multi-Tenancy Nativo**: Namespaces por Oracle (isolamento LGPD/BACEN)
+- ✅ **Schema Registry**: Validação automática de mensagens (Pydantic → Avro)
+- ✅ **Geo-Replication**: Disaster recovery (replicação cross-region)
+- ✅ **At-Least-Once Delivery**: Garante que mensagens críticas não sejam perdidas
+- ✅ **Throughput**: Milhões de mensagens/dia (escala para produção)
+
+**Comparação com Alternativas**:
+| Feature | Apache Pulsar | RabbitMQ | Kafka |
+|---------|---------------|----------|-------|
+| Multi-Tenancy Nativo | ✅ | ❌ | ❌ |
+| Geo-Replication | ✅ Built-in | ❌ Plugins | ✅ MirrorMaker |
+| Schema Registry | ✅ Nativo | ❌ | ✅ Confluent |
+| Throughput | Milhões msg/s | Centenas mil/s | Milhões msg/s |
+| At-Least-Once | ✅ | ✅ | ✅ |
+
+**Tópicos Pulsar (Namespaced por Oracle)**:
+```
+persistent://tenant-{oracle_id}/namespace/security_alerts
+persistent://tenant-{oracle_id}/namespace/compliance_approvals
+persistent://tenant-{oracle_id}/namespace/processing_status
+persistent://tenant-{oracle_id}/namespace/fraud_detections
+persistent://tenant-{oracle_id}/namespace/kyc_validations
+```
+
+#### 4. Interaction Broker (Go Service)
+**Objetivo**: Consumir mensagens do Pulsar, validar contra templates, e publicar para Frontend via WebSocket/SSE.
+
+**Pipeline**:
+1. **Consume** de tópico Pulsar (ex: `security_alerts`)
+2. **Validate** contra Pydantic template (SecurityAlertTemplate)
+3. **Enrich** com contexto adicional (busca dados relacionados)
+4. **Publish** para Frontend via WebSocket (conexão persistente por Oracle)
+
+**Features**:
+- ✅ Multi-tenant: Conexões WebSocket isoladas por `oracle_id`
+- ✅ Retry Policy: Reprocessamento automático de falhas
+- ✅ Dead Letter Queue (DLQ): Mensagens inválidas vão para auditoria
+- ✅ Rate Limiting: Proteção contra flood de mensagens
+
+#### 5. Oracle Template & Notification Management (AI Assistant)
+**Objetivo**: Permitir que Time de Produto/Compliance crie e gerencie templates Pydantic + configurações de notificação **sem escrever código**, através de assistente conversacional com IA.
+
+**🎯 FUNCIONALIDADES CRÍTICAS**:
+
+**5.1. Gestão de Templates via AI Assistant**
+- **Conversa Natural**: Time de Produto descreve requisito em linguagem natural
+- **Geração Automática**: AI (Claude 3.5 Sonnet) gera Pydantic schema + UI hints + código
+- **Preview Interativo**: Visualização do template antes de aprovar
+- **Workflow de Aprovação**: DRAFT → ACTIVE (governança)
+- **Registro Automático**: Pulsar Schema Registry (Pydantic → Avro)
+
+**Exemplo de Fluxo**:
+```
+Time de Produto: "Preciso notificar quando cliente ultrapassar limite de crédito"
+
+AI Assistant:
+- Qual o nome do template? → CreditLimitAlertTemplate
+- Quais campos precisa? → CPF, limite atual, valor tentado, severidade
+- Severidade? → MEDIUM
+- Ações disponíveis? → [Aprovar exceção] [Contatar cliente] [Bloquear temporariamente]
+
+AI gera preview:
+┌──────────────────────────────────────────────┐
+│ 📋 CreditLimitAlertTemplate                  │
+├──────────────────────────────────────────────┤
+│ Campos:                                      │
+│  • alert_id (UUID)                           │
+│  • client_cpf (string, pattern: ^\d{11}$)   │
+│  • current_limit (Decimal)                   │
+│  • attempted_value (Decimal)                 │
+│  • severity (enum: MEDIUM)                   │
+│  • timestamp (datetime)                      │
+│                                              │
+│ UI Hints:                                    │
+│  • Estilo: popup_warning                     │
+│  • Cor: orange                               │
+│  • Botões: [Aprovar exceção] [Contatar]     │
+│                                              │
+│ Tópico Pulsar: credit_alerts                 │
+│ Retenção: 30 dias                            │
+│ State: DRAFT                                 │
+└──────────────────────────────────────────────┘
+
+[Aprovar Template] [Editar] [Cancelar]
+```
+
+**5.2. Gestão de Serviço de Notificações**
+- **Configuração de Tópicos Pulsar**: Criação automática de namespaces e tópicos
+- **Multi-canal**: WebSocket (tempo real) + Email (SMTP) + Slack (webhooks)
+- **Rate Limiting Global**: 100 msg/s por Oracle (configurável)
+- **Priorização**: CRITICAL bypassa rate limits
+- **Filtros Inteligentes**: Condições de envio (NOTIFY_IMMEDIATELY vs BATCH_EVERY_5_MINUTES)
+
+**Estrutura de Configuração (oracle_config)**:
+```sql
+-- Key: 'templates'
+{
+  "templates": [
+    {
+      "template_id": "uuid-security-alert",
+      "name": "SecurityAlertTemplate",
+      "pydantic_schema": {...},
+      "ui_hints": {...},
+      "pulsar_topic": "security_alerts",
+      "state": "ACTIVE",
+      "version": "1.0.0"
+    }
+  ]
+}
+
+-- Key: 'notification_service'
+{
+  "pulsar_cluster": "pulsar://localhost:6650",
+  "tenant": "tenant-{oracle_id}",
+  "namespace": "supercore",
+  "schema_registry_url": "http://localhost:8080/admin/v2/schemas",
+  "channels": {
+    "websocket": {"enabled": true, "broker_url": "ws://interaction-broker:8080"},
+    "email": {"enabled": true, "smtp_host": "smtp.lbpay.com", "smtp_port": 587},
+    "slack": {"enabled": false}
+  }
+}
+
+-- Key: 'notification_policies'
+{
+  "rate_limiting": {
+    "global_limit": 100,  // msg/s
+    "per_template_limits": {
+      "SecurityAlertTemplate": 50,
+      "ComplianceApprovalTemplate": 20
+    }
+  },
+  "priority_rules": [
+    {
+      "condition": "severity == 'CRITICAL'",
+      "action": "BYPASS_RATE_LIMIT"
+    }
+  ],
+  "filtering_rules": [
+    {
+      "template": "SecurityAlertTemplate",
+      "condition": "severity IN ['HIGH', 'CRITICAL']",
+      "delivery_mode": "NOTIFY_IMMEDIATELY"
+    }
+  ]
+}
+```
+
+**5.3. Endpoints da API**
+
+**Backend (FastAPI + Python)**:
+```python
+# POST /api/v1/oracle/templates/create-via-assistant
+# Body: {"conversation_history": [...], "oracle_id": "uuid"}
+# Response: {"status": "preview", "template_preview": {...}, "pydantic_code": "..."}
+
+# POST /api/v1/oracle/templates/approve/{template_id}
+# Response: {"pulsar_topic": "...", "schema_registered": true, "state": "ACTIVE"}
+
+# POST /api/v1/oracle/notification-service/configure-topic
+# Body: {"topic_name": "fraud_alerts", "retention_days": 7}
+
+# POST /api/v1/oracle/notification-policies/configure
+# Body: {"rate_limiting": {...}, "priority_rules": [...]}
+```
+
+**5.4. Frontend Component**
+
+**OracleTemplateManager.tsx**:
+- **Chat Interface**: Conversa com AI Assistant (lado esquerdo)
+- **Preview Pane**: Visualização do template (lado direito)
+- **Approval Workflow**: Botões de ação (Aprovar/Editar/Cancelar)
+- **Real-time Validation**: AI valida antes de persistir
+
+**5.5. Integração com Interaction Broker**
+
+```go
+// interaction_broker/oracle_config_loader.go
+
+func (b *InteractionBroker) LoadOracleConfig(ctx context.Context, oracleID string) (*OracleConfig, error) {
+    // Busca templates ativos
+    var config OracleConfig
+    err := b.db.QueryRow(ctx, `
+        SELECT config->'templates' as templates
+        FROM oracle_config
+        WHERE key = 'templates' AND oracle_id = $1
+    `, oracleID).Scan(&config.Templates)
+
+    // Cacheia configuração (TTL 60s)
+    b.configCache.Set(oracleID, config, 60*time.Second)
+
+    return &config, nil
+}
+
+func (b *InteractionBroker) ValidateMessage(msg *PulsarMessage, config *OracleConfig) error {
+    // Busca template correspondente
+    template := findTemplateByTopic(config.Templates, msg.TopicName)
+    if template == nil {
+        return fmt.Errorf("no active template for topic %s", msg.TopicName)
+    }
+
+    // Valida contra Pydantic schema (via Python sidecar)
+    valid, err := b.pydanticValidator.Validate(msg.Payload, template.PydanticSchema)
+    if !valid {
+        return fmt.Errorf("message validation failed: %v", err)
+    }
+
+    // Aplica rate limiting
+    if !b.rateLimiter.Allow(msg.OracleID, template.Name, config.NotificationPolicies) {
+        return fmt.Errorf("rate limit exceeded for template %s", template.Name)
+    }
+
+    return nil
+}
+```
+
+**5.6. Benefícios**
+
+| Aspecto | Antes (Hardcoded) | Depois (AI Assistant) |
+|---------|-------------------|-----------------------|
+| **Criar novo tipo de notificação** | Dev escreve código Python (2-3 dias) | Time de Produto usa assistente (< 3 min) |
+| **Modificar template** | Deploy de código + restart | Edita via UI + re-aprovação (sem restart) |
+| **Configurar tópico Pulsar** | DevOps manual (tickets) | AI Assistant sugere + cria automaticamente |
+| **Políticas de rate limiting** | Hardcoded em código | Configurável via UI (sem deploy) |
+| **Multi-canal (WebSocket, Email, Slack)** | N/A | Configurável por template |
+| **Versionamento** | Git tags | States (DRAFT, ACTIVE, DEPRECATED) |
+| **Auditoria** | Logs dispersos | `oracle_config` + `state_history` |
+
+**5.7. Como Implementar**
+
+**Sprint 7-8 (2 semanas)**:
+1. ✅ Criar endpoints FastAPI (`/oracle/templates/*`)
+2. ✅ Integrar Claude SDK (conversational interface)
+3. ✅ Implementar frontend `OracleTemplateManager.tsx`
+4. ✅ Adicionar validação dinâmica no Interaction Broker
+5. ✅ Configurar Pulsar Schema Registry (auto-registration)
+6. ✅ Testes end-to-end (criar template → aprovar → receber notificação)
+
+**Critérios de Sucesso**:
+- ✅ Time de Produto cria template em < 3 min (média)
+- ✅ Template aprovado registra schema no Pulsar automaticamente
+- ✅ Interaction Broker valida mensagens contra templates ativos
+- ✅ Rate limiting funciona (CRITICAL bypassa, outros respeitam limites)
+- ✅ Multi-canal entrega notificações (WebSocket + Email)
+
+**Documentação Completa**:
+- **[docs/architecture/VISAO_FINAL_CONSOLIDADA.md](docs/architecture/VISAO_FINAL_CONSOLIDADA.md)** - Seção "Arquitetura da Fase 2"
+- **[docs/architecture/stack_tecnologico_fases.md](docs/architecture/stack_tecnologico_fases.md)** - Stack detalhado da Fase 2
+- **[docs/architecture/SUPERCORE_MCP_SERVER.md](docs/architecture/SUPERCORE_MCP_SERVER.md)** - Especificação MCP Server
+- **[docs/architecture/MCP_IMPLEMENTATION_GUIDE.md](docs/architecture/MCP_IMPLEMENTATION_GUIDE.md)** - Guia de implementação MCP
+
+**Próximos Passos**:
+1. ✅ Aprovação da arquitetura Template System + Pulsar
+2. ⏸️ Criação de `docs/fases/fase2/01_especificacoes.md` (specs detalhadas)
+3. ⏸️ Criação de `docs/fases/fase2/07_mocks_ui_navegacao.md` (interfaces de interação)
+4. ⏸️ Planejamento de sprints e squad (4-6 semanas estimadas)
+5. ⏸️ Implementação e testes integrados
 
 ### 📍 Fases 3 e 4 (docs/fases/fase3/, docs/fases/fase4/)
 Serão populadas seguindo a mesma metodologia após conclusão das fases anteriores.
@@ -167,7 +578,7 @@ docs/fases/
 | **Status geral do projeto** | `docs/backlog/backlog_geral.md` |
 | **Visão arquitetural consolidada** | `docs/architecture/VISAO_FINAL_CONSOLIDADA.md` ⭐⭐⭐ |
 | **Stack tecnológico por fase** | `docs/architecture/stack_tecnologico_fases.md` ⭐ |
-| **Guia MCP Server** | `SUPERCORE_MCP_SERVER.md` + `MCP_IMPLEMENTATION_GUIDE.md` |
+| **Guia MCP Server** | `docs/architecture/SUPERCORE_MCP_SERVER.md` + `docs/architecture/MCP_IMPLEMENTATION_GUIDE.md` |
 
 ### 📋 Convenção de Nomenclatura
 

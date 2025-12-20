@@ -572,6 +572,168 @@ Retorne APENAS o Markdown, sem explicações adicionais.`;
 
 ## 📝 Fase 2: Geração Automática de Especificação (Iteração)
 
+### Arquitetura da Fase 2: Template System + Apache Pulsar
+
+**Fase 2 introduz 3 componentes fundamentais**:
+
+1. **Template System** (Pydantic + JSON Schema + Constrained Decoding)
+2. **Query Router** (Keyword → Semantic → LLM cascata)
+3. **Apache Pulsar** (Message Broker para Agent Integration)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  FRONTEND (Next.js) - Chat com Assistente                  │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │  User pergunta: "Crie cadastro de cliente PF"       │  │
+│  │  ↓ WebSocket/SSE                                     │  │
+│  │  Assistente responde com JSON estruturado           │  │
+│  │  └─ Renderiza UI dinamicamente (FormBuilder)        │  │
+│  └──────────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────────┘
+          ↓ HTTP REST
+┌─────────────────────────────────────────────────────────────┐
+│  BACKEND (Go + Python) - Template System                   │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │  Query Router (Python)                               │  │
+│  │  ├─ Layer 1: Keyword Matching (~5ms)                 │  │
+│  │  ├─ Layer 2: Semantic Search (~50ms, embeddings)     │  │
+│  │  └─ Layer 3: LLM Router (~500ms, GPT-4)             │  │
+│  │                                                       │  │
+│  │  → Seleciona Template Pydantic correto               │  │
+│  │     (ClienteTemplate, TransacaoTemplate, etc)        │  │
+│  └──────────────────────────────────────────────────────┘  │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │  LLM com Constrained Decoding                        │  │
+│  │  ├─ Recebe JSON Schema do template                   │  │
+│  │  ├─ Gera APENAS tokens válidos (100% compliance)     │  │
+│  │  └─ Retorna JSON estruturado                         │  │
+│  └──────────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────────┘
+          ↓ publica eventos
+┌─────────────────────────────────────────────────────────────┐
+│  APACHE PULSAR (Message Broker v3.4.0)                      │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │  Topics:                                             │  │
+│  │  ├─ security_alerts (SecurityAgent → Frontend)      │  │
+│  │  ├─ compliance_approvals (ComplianceAgent → User)   │  │
+│  │  ├─ processing_status (Orchestrator → Frontend)     │  │
+│  │  ├─ fraud_detections (FraudAgent → Assistente)      │  │
+│  │  └─ kyc_validations (KYCAgent → Workflow)           │  │
+│  │                                                       │  │
+│  │  Features:                                            │  │
+│  │  • Multi-tenancy nativo (namespace por Oracle)       │  │
+│  │  • Geo-replication (multi-region)                    │  │
+│  │  • Schema Registry (validação automática)            │  │
+│  │  • At-least-once delivery garantido                  │  │
+│  └──────────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────────┘
+          ↓ consome
+┌─────────────────────────────────────────────────────────────┐
+│  MCP ACTION AGENTS (Python/TypeScript)                      │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │  SecurityAgent                                       │  │
+│  │  └─ Detecta login suspeito                          │  │
+│  │  └─ Publica: {topic: "security_alerts", ...}        │  │
+│  │                                                       │  │
+│  │  FraudAgent                                          │  │
+│  │  └─ Score de risco > 0.8                            │  │
+│  │  └─ Publica: {topic: "fraud_detections", ...}       │  │
+│  │                                                       │  │
+│  │  ComplianceAgent                                     │  │
+│  │  └─ Requer aprovação humana                         │  │
+│  │  └─ Publica: {topic: "compliance_approvals", ...}   │  │
+│  └──────────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────────┘
+          ↓ valida e encaminha
+┌─────────────────────────────────────────────────────────────┐
+│  INTERACTION BROKER (Go)                                    │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │  1. Consome mensagens do Pulsar                      │  │
+│  │  2. Valida contra Template Pydantic                  │  │
+│  │  3. Enriquece com contexto (user_id, oracle_id)      │  │
+│  │  4. Publica em WebSocket/SSE → Frontend              │  │
+│  └──────────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────────┘
+```
+
+### Por Que Apache Pulsar?
+
+| Critério | Pulsar | RabbitMQ | Kafka |
+|----------|--------|----------|-------|
+| **Multi-Tenancy Nativo** | ✅ Namespaces | ❌ Manual | ❌ Manual |
+| **Geo-Replication** | ✅ Built-in | ❌ Plugin | ❌ Mirror Maker |
+| **Schema Registry** | ✅ Nativo (Avro/JSON/Protobuf) | ❌ Não | ⚠️ Confluent Schema Registry |
+| **Message Retention** | ✅ Flexível (TTL + Backlog) | ⚠️ Limitado | ✅ Ótimo |
+| **Latência** | ⚠️ ~5-10ms | ✅ ~1-2ms | ⚠️ ~5ms |
+| **Throughput** | ✅ Milhões msg/s | ⚠️ Dezenas k msg/s | ✅ Milhões msg/s |
+| **Garantias de Entrega** | ✅ At-least-once + Exactly-once | ✅ At-least-once | ✅ At-least-once |
+| **Complexidade Operacional** | ⚠️ Média (BookKeeper + Broker) | ✅ Baixa | ⚠️ Alta |
+
+**Decisão**: **Apache Pulsar v3.4.0**
+- ✅ Multi-tenancy essencial para SuperCore (namespace por Oracle)
+- ✅ Schema Registry valida mensagens automaticamente (Pydantic → Avro)
+- ✅ Geo-replication para DR (disaster recovery)
+- ✅ Throughput suficiente para escala (milhões de mensagens/dia)
+
+### Oracle Configuration v2.0: Template & Notification Management
+
+**NOVA FUNCIONALIDADE**: Na Fase 2, o Oráculo ganha capacidade de **gerenciar templates Pydantic** e **configurar serviços de notificação** via **AI Assistant**.
+
+#### Extensão da Tabela `oracle_config`
+
+```sql
+-- Novas keys para Fase 2:
+-- 'templates' - Templates Pydantic gerenciados via AI
+-- 'notification_service' - Configuração do Pulsar + roteamento
+-- 'notification_policies' - Rate limiting, priorização, filtros
+```
+
+#### Fluxo de Criação de Template via AI Assistant
+
+```
+1. Time de Produto/Compliance: "Preciso notificar quando cliente
+   ultrapassar limite de crédito"
+
+2. AI Assistant: Conversa estruturada para coletar:
+   - Nome do template
+   - Campos necessários
+   - Severidade (LOW, MEDIUM, HIGH, CRITICAL)
+   - Ações disponíveis (botões de ação)
+
+3. AI gera preview:
+   ┌────────────────────────────────────────────────┐
+   │ 📋 CreditLimitAlertTemplate                    │
+   ├────────────────────────────────────────────────┤
+   │ Campos:                                        │
+   │  • alert_id (UUID)                             │
+   │  • client_cpf (string)                         │
+   │  • current_limit (Decimal)                     │
+   │  • attempted_value (Decimal)                   │
+   │  • severity (enum: MEDIUM)                     │
+   │                                                │
+   │ Ações: [Aprovar exceção] [Contatar cliente]   │
+   │ Tópico Pulsar: credit_alerts                   │
+   │ Retenção: 30 dias                              │
+   └────────────────────────────────────────────────┘
+
+4. Aprovação → AI gera código Pydantic automaticamente
+
+5. Template registrado em:
+   - oracle_config (PostgreSQL)
+   - Pulsar Schema Registry (Avro)
+   - Interaction Broker (validação dinâmica)
+```
+
+#### Benefícios
+
+| Feature | Antes (hardcoded) | Depois (AI Assistant) |
+|---------|-------------------|-----------------------|
+| **Criar novo tipo de notificação** | Dev escreve código Python | Time de Produto usa assistente (3 min) |
+| **Modificar template** | Deploy de código | Edita via UI + re-aprovação |
+| **Configurar tópico Pulsar** | DevOps manual | AI Assistant sugere + cria automaticamente |
+| **Políticas de rate limiting** | Hardcoded | Configurável via UI (sem deploy) |
+| **Multi-canal (WebSocket, Email, Slack)** | N/A | Configurável por template |
+
 ### Interface: Editor de Especificação
 
 ```
