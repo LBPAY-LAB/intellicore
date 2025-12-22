@@ -1,0 +1,560 @@
+# 🤖 CLAUDE.md - Documento Mestre do SuperCore v2.0
+
+**Versão**: 2.0.0
+**Data**: 2024-12-21
+**Status**: 🟢 ATIVO E ATUALIZADO
+
+> **Este é o documento de referência central para todos os agentes AI que trabalham no projeto SuperCore v2.0.**
+> **Sempre consulte este arquivo antes de tomar decisões importantes.**
+
+---
+
+## 📋 Visão Geral do Projeto
+
+**Nome**: SuperCore v2.0
+**Tipo**: Fintech Platform - Meta-Plataforma de Geração de Software
+**Descrição**: Plataforma que GERA soluções de negócio através de:
+- Definição de Oráculos (domínios de conhecimento)
+- Objetos e Agentes dinâmicos
+- Workflows automatizados
+- Deploy completo de stacks tecnológicas
+
+**Princípio Central**:
+> *"Não construímos soluções. Construímos a MÁQUINA que GERA soluções."*
+
+---
+
+## 📚 Documentação Base (LEITURA OBRIGATÓRIA)
+
+### Localização
+Toda documentação fundamental está em: **`Supercore_v2.0/DOCUMENTACAO_BASE/`**
+
+### Documentos Base
+
+#### 1️⃣ [requisitos_funcionais_v2.0.md](Supercore_v2.0/DOCUMENTACAO_BASE/requisitos_funcionais_v2.0.md)
+**O QUE construir**
+- 37 Requisitos Consolidados (RF001-RF062)
+- 4 Casos de Uso com ROI quantificado
+- Matriz de Rastreabilidade Completa
+
+**Quando consultar**:
+- Antes de criar cards de produto
+- Ao definir user stories
+- Ao validar escopo de features
+
+#### 2️⃣ [arquitetura_supercore_v2.0.md](Supercore_v2.0/DOCUMENTACAO_BASE/arquitetura_supercore_v2.0.md)
+**COMO construir - Arquitetura**
+- 6 Camadas: Dados, Oráculo, Objetos, Agentes, MCPs, Interfaces
+- 7 ADRs (Decisões Arquiteturais)
+- 5 Diagramas Mermaid
+- 4 Pilares: Oráculo, Objetos, Agentes, MCPs
+
+**Quando consultar**:
+- Antes de propor designs técnicos
+- Ao decidir em qual camada implementar
+- Ao criar novos ADRs
+
+#### 3️⃣ [stack_supercore_v2.0.md](Supercore_v2.0/DOCUMENTACAO_BASE/stack_supercore_v2.0.md)
+**COMO construir - Tecnologias**
+- 50+ Tecnologias catalogadas
+- Stack: Go, Python, TypeScript, PostgreSQL, Redis, NebulaGraph
+- LangFlow e CrewAI detalhados
+- 50+ Exemplos de código
+
+**Quando consultar**:
+- Antes de escolher bibliotecas/frameworks
+- Ao escrever código (padrões)
+- Ao fazer setup de ambiente
+
+---
+
+## 📂 Estrutura de Diretórios
+
+```
+supercore/
+├── CLAUDE.md                                    ← VOCÊ ESTÁ AQUI
+│
+├── Supercore_v2.0/DOCUMENTACAO_BASE/            ← DOCUMENTAÇÃO BASE (READ-ONLY)
+│   ├── COMECE_AQUI.md
+│   ├── requisitos_funcionais_v2.0.md
+│   ├── arquitetura_supercore_v2.0.md
+│   └── stack_supercore_v2.0.md
+│
+├── artefactos_implementacao/                    ← OUTPUTS DAS SQUADS
+│   ├── produto/                                 ← Cards, user stories, backlog
+│   ├── arquitetura/                             ← Designs, ADRs, diagramas
+│   ├── engenharia/
+│   │   ├── frontend/                            ← Código React/TS
+│   │   └── backend/                             ← Código Go/Python
+│   ├── qa/                                      ← Testes, reports
+│   └── deploy/                                  ← Terraform, CI/CD
+│
+├── .claude/                                     ← SKILLS E AGENTES
+│   ├── agents/management/                       ← Agentes das squads
+│   └── skills/                                  ← Skills customizadas
+│
+├── scripts/squad-orchestrator/                  ← ORQUESTRAÇÃO
+│   ├── meta-squad-bootstrap.sh
+│   ├── meta-squad-config.json
+│   └── monitoring/                              ← Portal web
+│
+└── infrastructure/terraform/                    ← INFRAESTRUTURA AWS
+```
+
+---
+
+## 🎭 Squads e Responsabilidades
+
+### 📋 Squad Produto
+**Agentes**: product-owner, business-analyst, ux-designer
+
+**Inputs**:
+- `Supercore_v2.0/DOCUMENTACAO_BASE/requisitos_funcionais_v2.0.md`
+- `Supercore_v2.0/DOCUMENTACAO_BASE/arquitetura_supercore_v2.0.md`
+- `Supercore_v2.0/DOCUMENTACAO_BASE/stack_supercore_v2.0.md`
+
+**Outputs**:
+- `artefactos_implementacao/produto/`
+  - Cards de features
+  - User stories
+  - Backlog priorizado
+  - Critérios de aceitação
+  - **UX Designs:**
+    - `ux-designs/wireframes/` - Wireframes detalhados (back-office + front-office)
+    - `ux-designs/user-flows/` - Fluxos de usuário (Mermaid diagrams)
+    - `ux-designs/design-system/` - Design tokens e componentes
+    - `ux-designs/prototypes/` - Links para protótipos interativos
+
+**Responsabilidades**:
+- **Product Owner & Business Analyst**:
+  - Analisar requisitos funcionais (RF001-RF062)
+  - Criar cards baseados em requisitos
+  - Priorizar backlog
+  - Definir critérios de aceitação funcionais
+- **UX Designer**:
+  - Criar wireframes detalhados para TODAS as telas (back-office + front-office)
+  - Mapear user flows completos
+  - Definir design system (tokens, componentes, patterns)
+  - Adicionar critérios de UX/usabilidade aos cards
+  - Garantir acessibilidade WCAG 2.1 AA
+  - Validar implementabilidade com stack (React, shadcn/ui, Tailwind)
+
+**Portais a Desenhar**:
+- **Back-office**: Admin do SuperCore (gestão de Oráculos, Object Definitions, Agentes, Workflows, MCPs)
+- **Front-office**: Interfaces geradas dinamicamente pelos Oráculos
+
+**Permissões**:
+- ✅ **READ**: `Supercore_v2.0/DOCUMENTACAO_BASE/` (todos arquivos), `CLAUDE.md`
+- ✅ **WRITE**: `artefactos_implementacao/produto/`
+- ❌ **NÃO PODE** modificar documentação base ou `CLAUDE.md`
+
+---
+
+### 🏗️ Squad Arquitetura
+**Agentes**: tech-lead, solution-architect, security-architect
+
+**Inputs**:
+- `artefactos_implementacao/produto/` (cards)
+- `Supercore_v2.0/DOCUMENTACAO_BASE/arquitetura_supercore_v2.0.md`
+- `Supercore_v2.0/DOCUMENTACAO_BASE/stack_supercore_v2.0.md`
+
+**Outputs**:
+- `artefactos_implementacao/arquitetura/`
+  - Designs técnicos detalhados
+  - ADRs (Architecture Decision Records)
+  - Diagramas (Mermaid, C4, etc.)
+  - Definições de APIs e contratos
+- `CLAUDE.md` (atualizações quando necessário)
+
+**Responsabilidades**:
+- Criar designs técnicos conformes com arquitetura base
+- Escrever ADRs para decisões importantes
+- Definir APIs, contratos e interfaces
+- Validar conformidade arquitetural
+- **Atualizar CLAUDE.md** em mudanças significativas
+
+**Permissões**:
+- ✅ **READ**: `Supercore_v2.0/DOCUMENTACAO_BASE/`, `artefactos_implementacao/produto/`
+- ✅ **WRITE**: `artefactos_implementacao/arquitetura/`, `CLAUDE.md`
+- ❌ **NÃO PODE** modificar documentação base
+
+---
+
+### ⚙️ Squad Engenharia - Frontend
+**Agentes**: frontend-lead, react-developer, ui-ux-designer
+
+**Inputs**:
+- `artefactos_implementacao/arquitetura/` (designs técnicos)
+- `Supercore_v2.0/DOCUMENTACAO_BASE/stack_supercore_v2.0.md`
+
+**Outputs**:
+- `artefactos_implementacao/engenharia/frontend/`
+  - Código React/TypeScript
+  - Componentes UI
+  - Testes (unit, integration, E2E)
+  - Documentação de componentes
+
+**Responsabilidades**:
+- Implementar UIs em React/TypeScript
+- Seguir stack definida (React, Next.js, shadcn/ui, Tailwind)
+- Escrever testes (Jest, React Testing Library, Playwright)
+- Documentar componentes e APIs frontend
+
+**Permissões**:
+- ✅ **READ**: `Supercore_v2.0/DOCUMENTACAO_BASE/`, `artefactos_implementacao/arquitetura/`
+- ✅ **WRITE**: `artefactos_implementacao/engenharia/frontend/`, `/frontend/`, `/src/`
+- ✅ **RUN**: `npm test`, `npm run lint`, `npm run build`
+- ✅ **COMMIT**: Código frontend após aprovação
+
+---
+
+### ⚙️ Squad Engenharia - Backend
+**Agentes**: backend-lead, golang-developer, python-developer, data-modeling-specialist, rag-specialist, vector-db-specialist, graph-db-specialist
+
+**Inputs**:
+- `artefactos_implementacao/arquitetura/` (designs técnicos)
+- `Supercore_v2.0/DOCUMENTACAO_BASE/stack_supercore_v2.0.md`
+
+**Outputs**:
+- `artefactos_implementacao/engenharia/backend/`
+  - Código Go/Python
+  - APIs (FastAPI, Gin)
+  - Migrations de BD
+  - Testes (unit, integration)
+  - Documentação OpenAPI/Swagger
+  - **Data Engineering**:
+    - `data-modeling/` - Schemas PostgreSQL, JSON Schemas, ERDs
+    - `rag/` - RAG pipelines, chunking, embedding generation
+    - `vector-db/` - Vector DB setup (Qdrant), similarity search
+    - `graph-db/` - NebulaGraph schemas, graph queries
+  - **Integration & Tooling**:
+    - `mcps/` - MCP servers (Filesystem, Database, API, RAG), registry, permissions
+    - `integration/` - Query router, multi-source fetcher, hybrid intelligence
+
+**Responsabilidades**:
+- **Backend Core** (golang-developer, python-developer):
+  - Implementar APIs em Go/Python
+  - Seguir stack definida (Go, Python, FastAPI, PostgreSQL, Redis)
+  - Escrever testes abrangentes
+  - Documentar APIs (OpenAPI)
+
+- **Data Modeling Specialist**:
+  - Desenhar schemas PostgreSQL (oracles, object_definitions, ai_agents, workflows, documents, etc)
+  - Criar JSON Schemas para validação de objetos dinâmicos
+  - Definir migrations (Flyway/Goose)
+  - Otimizar indexes e performance (EXPLAIN ANALYZE)
+  - Criar ERD diagrams (Mermaid)
+
+- **RAG Specialist**:
+  - Implementar pipelines RAG completos (ingest -> chunk -> embed -> retrieve)
+  - Document processing (PDF, DOCX, TXT, MD, HTML)
+  - Chunking strategies (semantic, fixed-size, recursive)
+  - Embedding generation (OpenAI, Cohere, local models)
+  - Retrieval optimization (hybrid search, reranking, HyDE)
+  - Integração com Vector DB e PostgreSQL
+
+- **Vector DB Specialist**:
+  - Setup e configuração Qdrant (collections, indexes)
+  - Implementar VectorDBClient interface (upsert, search, delete)
+  - Otimizar similarity search (HNSW, filtering)
+  - Multi-tenancy (collection per Oracle)
+  - Performance tuning (<100ms p95 search latency)
+  - Backup e disaster recovery
+
+- **Graph DB Specialist**:
+  - Setup e configuração NebulaGraph (Meta, Storage, Graph services)
+  - Desenhar graph schemas (Tags, Edges) para SuperCore
+  - Implementar sync PostgreSQL -> NebulaGraph (event-driven)
+  - Queries complexas (traversals, path finding)
+  - Graph algorithms (PageRank, Louvain, Betweenness Centrality)
+  - Use cases (dependency analysis, knowledge discovery)
+
+- **MCP Specialist**:
+  - Criar MCP servers (Filesystem, Database, API, RAG, Browser)
+  - Implementar MCP registry (PostgreSQL) com permissões
+  - MCP Client para CrewAI/LangChain agents
+  - Tools expostos: read_file, query_sql, http_request, semantic_search, etc
+  - Permissions management (quais agentes podem usar quais MCPs)
+  - Audit logging de tool calls
+  - MCP versioning e health checks
+
+- **Integration Specialist**:
+  - Orquestrar RAG + SQL + Graph + External APIs (Hybrid Intelligence)
+  - Query Router (LLM-based) - decidir quais fontes consultar
+  - Multi-Source Fetcher (execução paralela de queries)
+  - Result Merger (combinar resultados de múltiplas fontes)
+  - LLM Synthesis (gerar resposta final usando contexto multi-source)
+  - Use cases: financial analysis, customer intelligence, compliance checks
+  - Performance: <2s end-to-end (p95)
+
+**Permissões**:
+- ✅ **READ**: `Supercore_v2.0/DOCUMENTACAO_BASE/`, `artefactos_implementacao/arquitetura/`
+- ✅ **WRITE**: `artefactos_implementacao/engenharia/backend/`, `/backend/`, `/services/`, `/api/`, `/migrations/`
+- ✅ **RUN**: `go test ./...`, `pytest`, `docker build`
+- ✅ **COMMIT**: Código backend após aprovação
+
+---
+
+### 🧪 Squad QA
+**Agentes**: qa-lead, test-engineer, security-auditor
+
+**Inputs**:
+- `artefactos_implementacao/engenharia/` (código frontend + backend)
+- `Supercore_v2.0/DOCUMENTACAO_BASE/requisitos_funcionais_v2.0.md`
+
+**Outputs**:
+- `artefactos_implementacao/qa/`
+  - Casos de teste
+  - Test reports
+  - Bug reports
+  - Security scan reports
+  - Performance test results
+
+**Responsabilidades**:
+- Validar conformidade com requisitos (RF001-RF062)
+- Executar testes (unit, integration, E2E, security, performance)
+- Verificar cobertura ≥80%
+- Criar bug reports detalhados
+- **Rejeitar** cards que violem zero-tolerance policy
+- Aprovar cards que passem em todos os critérios
+
+**Permissões**:
+- ✅ **READ**: Todos os artefactos + Documentação base
+- ✅ **WRITE**: `artefactos_implementacao/qa/`, `/tests/`, `/docs/qa/`
+- ✅ **RUN**: `npm test`, `pytest`, `cypress run`, `playwright test`
+- ✅ **APPROVE/REJECT**: Cards com feedback detalhado
+
+---
+
+### 🚀 Squad Deploy
+**Agentes**: deploy-lead
+
+**Inputs**:
+- `artefactos_implementacao/qa/` (outputs aprovados)
+- `Supercore_v2.0/DOCUMENTACAO_BASE/stack_supercore_v2.0.md`
+
+**Outputs**:
+- `artefactos_implementacao/deploy/`
+  - Terraform modules e environments
+  - GitHub Actions workflows
+  - Runbooks operacionais
+  - Documentação de infra
+
+**Responsabilidades**:
+- Criar infraestrutura como código (Terraform)
+- Configurar CI/CD pipelines (GitHub Actions)
+- Gerenciar deploys: QA (auto), Staging (aprovação Tech Lead), Production (aprovação PO + Tech Lead)
+- Criar runbooks e docs operacionais
+- Monitorar deploys e performance
+
+**Permissões**:
+- ✅ **READ**: `Supercore_v2.0/DOCUMENTACAO_BASE/`, `artefactos_implementacao/qa/`
+- ✅ **WRITE**: `artefactos_implementacao/deploy/`, `/infrastructure/`, `/.github/workflows/`
+- ✅ **RUN**: `terraform init/plan/apply`, security scans (tfsec, checkov)
+- ✅ **DEPLOY**:
+  - QA: Auto-deploy (após testes)
+  - Staging: Requer aprovação Tech Lead
+  - Production: Requer aprovação PO + Tech Lead + Change Window
+
+---
+
+## 🚫 Zero-Tolerance Policy
+
+**TODOS os agentes** devem seguir rigorosamente:
+
+### ❌ PROIBIDO (Auto-reject pela Squad QA):
+1. **Mock implementations** em código de produção
+2. **TODO/FIXME/HACK** comments não resolvidos
+3. **Hardcoded credentials** ou configurações sensíveis
+4. **Missing error handling** (sem tratamento de erros)
+5. **Cobertura de testes <80%**
+6. **Vulnerabilidades HIGH/CRITICAL** em scans de segurança
+7. **Código fora da stack** definida em `stack_supercore_v2.0.md`
+8. **Placeholder data** ou dados fake em produção
+
+### ✅ OBRIGATÓRIO:
+1. **Real database integration** (não mocks)
+2. **Comprehensive error handling** (try/catch, error boundaries)
+3. **Production-grade security** (encryption, auth, HTTPS)
+4. **Complete testing** (unit + integration + E2E ≥80%)
+5. **Full documentation** (código comentado + README + API docs)
+6. **Observability** (logs estruturados, métricas, traces)
+7. **Conformidade com stack** definida
+
+### 🔄 Ciclos de Feedback QA:
+- **Máximo 3 ciclos** de correção por card
+- Após 3 rejeições → Escalação automática para Tech Lead
+- Cada rejeição deve ter feedback detalhado e actionable
+
+---
+
+## 🔄 Fluxo de Trabalho
+
+```mermaid
+graph TD
+    A[Squad Produto] --> B[Squad Arquitetura]
+    B --> C[Squad Engenharia]
+    C --> D[Squad QA]
+    D -->|PASS| E[Squad Deploy]
+    D -->|FAIL| F[Correction Card]
+    F --> C
+    E --> G{Ambiente}
+    G -->|QA| H[Auto-Deploy]
+    G -->|Staging| I[Aprovação Tech Lead]
+    G -->|Production| J[Aprovação PO + Tech Lead]
+```
+
+### Fluxo Detalhado:
+
+**1. Squad Produto**
+- Lê `requisitos_funcionais_v2.0.md`
+- Cria cards de features (RF001-RF017 para Fase 1)
+- Output: `artefactos_implementacao/produto/`
+
+**2. Squad Arquitetura**
+- Recebe cards de produto
+- Consulta `arquitetura_supercore_v2.0.md` e `stack_supercore_v2.0.md`
+- Cria designs técnicos + ADRs
+- Atualiza `CLAUDE.md` se necessário
+- Output: `artefactos_implementacao/arquitetura/`
+
+**3. Squad Engenharia (Frontend + Backend em paralelo)**
+- Frontend: Implementa UIs (React/TS)
+- Backend: Implementa APIs (Go/Python)
+- Ambos seguem designs de arquitetura
+- Output: `artefactos_implementacao/engenharia/`
+
+**4. Squad QA**
+- Valida contra requisitos originais
+- Executa testes (unit, integration, E2E, security)
+- Verifica zero-tolerance compliance
+- **SE PASS**: Envia para Deploy
+- **SE FAIL**: Cria correction card → Volta para Engenharia
+
+**5. Squad Deploy**
+- Cria infraestrutura (Terraform)
+- Configura CI/CD (GitHub Actions)
+- Deploy:
+  - **QA**: Auto-deploy (após testes)
+  - **Staging**: Aguarda aprovação Tech Lead
+  - **Production**: Aguarda aprovação PO + Tech Lead + Change Window
+
+---
+
+## 📝 Atualização do CLAUDE.md
+
+### Quando Atualizar:
+✅ Decisões arquiteturais importantes (novos ADRs)
+✅ Mudanças na estrutura de pastas
+✅ Novas squads ou agentes
+✅ Mudanças em processos críticos
+✅ Novas tecnologias aprovadas
+
+### Como Atualizar:
+1. **Squad Arquitetura** tem permissão de escrita
+2. Adicionar seção com **data** e **descrição** da mudança
+3. Manter **histórico** (não deletar, marcar deprecated se necessário)
+4. Notificar squads via sistema de cards
+
+### Requer Aprovação:
+- Estrutura de Diretórios: **Tech Lead**
+- Zero-Tolerance Policy: **PO + Tech Lead**
+- Fluxo de Trabalho: **Scrum Master + Tech Lead**
+
+---
+
+## 🎯 Fase Atual
+
+**Fase**: Fase 1 - Fundação
+**Período**: Q1 2025
+**Requisitos**: RF001-RF017 (Oráculo + Objetos)
+**Camadas**: 0 (Dados), 1 (Oráculo), 2 (Objetos)
+**Stack Principal**: PostgreSQL, FastAPI, Go, Next.js, Redis
+
+**Próximas Fases**:
+- **Fase 2** (Q2 2025): IA-Driven + Multi-Agente (CrewAI, LangFlow)
+- **Fase 3** (Q3 2025): Escalabilidade (NebulaGraph, OpenTelemetry)
+- **Fase 4** (Q4 2025): Produção HA (Kubernetes, Observabilidade)
+
+---
+
+## 📊 Métricas de Qualidade
+
+### Código:
+- **Cobertura de Testes**: ≥80% (target: 90%)
+- **Code Review**: 100% dos PRs revisados
+
+### Segurança:
+- **Vulnerabilidades HIGH/CRITICAL**: 0
+- **Secrets Expostos**: 0
+- **Security Scans**: Trivy, TruffleHog (obrigatórios)
+
+### Performance:
+- **API Response Time (p95)**: <500ms
+- **Frontend Load Time**: <2s
+- **Database Queries**: <100ms (p95)
+
+### Disponibilidade:
+- **QA**: 95%
+- **Staging**: 99%
+- **Production**: 99.9%
+
+---
+
+## 🔗 Links Rápidos
+
+### Documentação Base:
+- [COMECE AQUI](Supercore_v2.0/DOCUMENTACAO_BASE/COMECE_AQUI.md)
+- [Requisitos Funcionais](Supercore_v2.0/DOCUMENTACAO_BASE/requisitos_funcionais_v2.0.md)
+- [Arquitetura](Supercore_v2.0/DOCUMENTACAO_BASE/arquitetura_supercore_v2.0.md)
+- [Stack Tecnológica](Supercore_v2.0/DOCUMENTACAO_BASE/stack_supercore_v2.0.md)
+
+### Sistema de Orquestração:
+- [Config Squads](scripts/squad-orchestrator/meta-squad-config.json)
+- [Portal de Monitoramento](http://localhost:3001)
+- [Sistema Completo](scripts/squad-orchestrator/SYSTEM_READY.md)
+
+### Infraestrutura:
+- [Terraform Modules](infrastructure/terraform/modules/)
+- [Ambientes](infrastructure/terraform/environments/)
+- [CI/CD](infrastructure/README.md)
+
+---
+
+## 📞 Escalação
+
+### Responsáveis Humanos:
+- **Product Owner**: Aprovações de requisitos e produção
+- **Tech Lead**: Aprovações de arquitetura e staging
+- **Scrum Master**: Facilitação e desbloqueios
+
+### Quando Escalar:
+❗ Decisões fora do escopo definido
+❗ Conflitos entre squads não resolvidos
+❗ Bloqueios técnicos sem solução
+❗ Mudanças em requisitos fundamentais
+❗ Deploy para Production (sempre)
+
+---
+
+## 🔄 Histórico de Mudanças
+
+### 2024-12-21 - v2.0.0 (Criação)
+- ✅ Criação do CLAUDE.md como documento mestre
+- ✅ Definição de estrutura de diretórios com `artefactos_implementacao/`
+- ✅ Configuração de permissões por squad
+- ✅ Integração com documentação base em `Supercore_v2.0/DOCUMENTACAO_BASE/`
+- ✅ Definição de fluxo de trabalho completo
+- ✅ Implementação de zero-tolerance policy
+- ✅ Skills em `.claude/` para agentes
+
+---
+
+**Este documento é a fonte única da verdade para todos os agentes AI.**
+**Sempre consulte antes de decisões importantes.**
+
+---
+
+**Versão**: 2.0.0
+**Última Atualização**: 2024-12-21
+**Mantido por**: Squad Arquitetura (aprovação Tech Lead)

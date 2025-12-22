@@ -1,30 +1,73 @@
 # Índice de Documentação SuperCore v2.0
 
-**Atualizado**: 2025-12-20
+**Atualizado**: 2025-12-21
 **Status**: Documentação Consolidada Completa
 
 ---
 
-## 🎯 COMECE AQUI
+## 🎯 O QUE É SUPERCORE V2.0?
 
-### Se você tem 15 minutos
-👉 Leia: **[CONSOLIDACAO_RESUMO.md](CONSOLIDACAO_RESUMO.md)**
-- Missão cumprida
-- Estatísticas
-- Próximas ações
+**SuperCore NÃO é um Core Banking, CRM, ERP ou qualquer solução específica.**
+
+**SuperCore É uma plataforma universal que GERA soluções empresariais completas para QUALQUER domínio através de IA.**
+
+### Conceito Fundamental
+```
+SuperCore (Plataforma Universal)
+    ↓
+Oráculo (Conhecimento + IA)
+    ↓
+Solução Completa Gerada
+(APIs + UI + Agents + Workflows)
+```
+
+**User stories específicos** (criar conta bancária, processar PIX) são criados **DENTRO de cada Oráculo**, não no SuperCore em si.
+
+---
+
+## 🎯 COMECE AQUI - 3 DOCUMENTOS BASE
+
+### 1️⃣ [requisitos_funcionais_v2.0.md](requisitos_funcionais_v2.0.md)
+**O QUE VAMOS CONSTRUIR** (2-3 horas de leitura)
+- 37 Requisitos Funcionais (RF001-RF062)
+- 4 Pilares: Oráculo, Objetos Dinâmicos, Agentes IA, MCPs
+- 4 Casos de Uso demonstrando capacidades da plataforma
+- Matriz de Rastreabilidade
+- **Foco**: Capacidades da PLATAFORMA (não use cases específicos)
+
+### 2️⃣ [arquitetura_supercore_v2.0.md](arquitetura_supercore_v2.0.md)
+**COMO VAMOS CONSTRUIR - Arquitetura** (3-4 horas de leitura)
+- 6 Camadas arquiteturais detalhadas
+- 9 ADRs (Architecture Decision Records)
+- Integração LangFlow + LangGraph + CrewAI + LangChain
+- Communication Router (Interaction Broker)
+- Exemplo end-to-end completo: Onboarding
+- **Foco**: Design patterns, fluxos, decisões técnicas
+
+### 3️⃣ [stack_supercore_v2.0.md](stack_supercore_v2.0.md)
+**COMO VAMOS CONSTRUIR - Tecnologias** (2-3 horas de leitura)
+- 50+ Tecnologias catalogadas por camada
+- Go (middleware), Python (IA), TypeScript (frontend)
+- LangGraph (stateful), CrewAI (agentes), LangFlow (workflows)
+- 50+ Exemplos de código executável
+- **Foco**: Ferramentas, bibliotecas, setup
+
+---
+
+## 📖 LEITURA RÁPIDA (Se não tem tempo para os 3 documentos)
+
+### Se você tem 30 minutos
+👉 Leia: **[COMECE_AQUI.md](COMECE_AQUI.md)**
+- O que é SuperCore
+- Guia de leitura dos 3 documentos
+- Roadmap de implementação
+- Próximos passos
 
 ### Se você tem 1 hora
-👉 Leia: **[REQUISITOS_LEIA-ME.md](REQUISITOS_LEIA-ME.md)**
-- Acesso rápido
-- Busca por tema/RF/fase
-- Mapa de relacionamentos
-
-### Se você tem 2-3 horas
-👉 Leia: **[requisitos_funcionais_v2.0.md](requisitos_funcionais_v2.0.md)**
-- Documento principal completo
-- Todos os 37 requisitos detalhados
-- 4 casos de uso com fluxos
-- Matriz de rastreabilidade
+👉 Leia os **resumos executivos** de cada documento:
+- [requisitos_funcionais_v2.0.md](requisitos_funcionais_v2.0.md) - Seção 1 (Visão Geral)
+- [arquitetura_supercore_v2.0.md](arquitetura_supercore_v2.0.md) - Seção 1 (Introdução)
+- [stack_supercore_v2.0.md](stack_supercore_v2.0.md) - Seção 1 (Overview)
 
 ---
 
@@ -240,14 +283,16 @@ Novidades v2.0: 8 requisitos
 - [ ] Revisar seção 4 (RNFs) com arquitetura
 
 ### Próxima Semana
-- [ ] Aprovação formal dos requisitos
-- [ ] Decompor em user stories (Jira)
+- [ ] Aprovação formal dos 3 documentos base
+- [ ] Decompor RF001-RF017 em tarefas técnicas (Jira/GitHub Issues)
 - [ ] Estimar esforço por RF (planning poker)
 
 ### Sprint Planning (Fase 1)
 - [ ] Usar `requisitos_funcionais_v2.0.md` como baseline
-- [ ] Mapear RFs para histórias
-- [ ] Definir DOD (Definition of Done) baseado em critérios de aceitação
+- [ ] Mapear RF001-RF017 para tarefas técnicas de implementação
+- [ ] Definir DOD (Definition of Done) baseado em critérios de aceitação de cada RF
+
+> **IMPORTANTE**: User stories específicos (criar conta PIX, processar boleto) NÃO fazem parte da Fase 1. Eles são criados DENTRO de cada Oráculo depois que o SuperCore estiver pronto.
 
 ---
 

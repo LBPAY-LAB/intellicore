@@ -1,0 +1,322 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0.0",
+  "description": "SuperCore Squad Orchestration Configuration - Example Template",
+  "metadata": {
+    "project": "SuperCore",
+    "sprint": "Sprint 1 - Phase 1",
+    "created_by": "Squad Orchestrator",
+    "created_at": "2025-01-20T00:00:00Z"
+  },
+  "global_config": {
+    "autonomous_mode": true,
+    "max_parallel_tasks": 3,
+    "auto_retry_on_failure": true,
+    "max_retries": 2,
+    "checkpoint_interval_minutes": 15,
+    "communication_method": "state_files",
+    "timeout_hours": 8,
+    "notification_webhooks": []
+  },
+  "squads": [
+    {
+      "name": "planning-squad",
+      "description": "Architecture planning and requirements analysis",
+      "agent": "architect-planner",
+      "priority": 1,
+      "thinking_level": "think hard",
+      "autonomous_permissions": {
+        "can_create_files": true,
+        "can_edit_files": true,
+        "can_create_directories": true,
+        "can_run_commands": false,
+        "can_install_packages": false,
+        "can_commit_changes": false,
+        "allowed_paths": [
+          "/docs/architecture/",
+          "/docs/requirements/",
+          "/docs/adr/"
+        ]
+      },
+      "tasks": [
+        {
+          "id": "PLAN-001",
+          "title": "Create system architecture documentation",
+          "description": "Think hard about the microservices architecture for order processing system",
+          "type": "architecture",
+          "priority": "critical",
+          "estimated_hours": 2,
+          "prompt": "Ultrathink about designing a scalable order processing architecture:\n\nRequirements:\n- Handle 100k orders/day\n- Multi-region deployment\n- Event-driven architecture\n- Real-time inventory updates\n\nCreate comprehensive design in /docs/architecture/order-processing-system.md with:\n- System components diagram\n- API specifications\n- Data flow diagrams\n- Technology stack decisions\n- Scalability considerations\n- Security architecture",
+          "success_criteria": [
+            "Architecture document created with all sections",
+            "Mermaid diagrams included",
+            "Trade-offs documented",
+            "ADR created for key decisions"
+          ],
+          "outputs": [
+            "/docs/architecture/order-processing-system.md",
+            "/docs/adr/001-event-driven-architecture.md"
+          ]
+        },
+        {
+          "id": "PLAN-002",
+          "title": "Define API contracts",
+          "description": "Design RESTful API contracts for all microservices",
+          "type": "api_design",
+          "priority": "high",
+          "estimated_hours": 3,
+          "depends_on": ["PLAN-001"],
+          "prompt": "Think hard about API contract design:\n\nCreate OpenAPI 3.0 specifications for:\n- Order Service API\n- Inventory Service API\n- Payment Service API\n- Notification Service API\n\nEnsure:\n- RESTful design principles\n- Proper HTTP status codes\n- Versioning strategy\n- Authentication/Authorization\n- Rate limiting design\n\nOutput to /docs/api/ directory",
+          "success_criteria": [
+            "All 4 API specs created",
+            "OpenAPI 3.0 valid syntax",
+            "Examples included",
+            "Security schemes defined"
+          ],
+          "outputs": [
+            "/docs/api/order-service-v1.yaml",
+            "/docs/api/inventory-service-v1.yaml",
+            "/docs/api/payment-service-v1.yaml",
+            "/docs/api/notification-service-v1.yaml"
+          ]
+        }
+      ],
+      "completion_criteria": {
+        "all_tasks_completed": true,
+        "all_outputs_created": true,
+        "no_blocking_issues": true
+      },
+      "communication": {
+        "state_file": "planning-squad-state.json",
+        "publishes": ["architecture_ready", "api_contracts_ready"],
+        "subscribes": []
+      }
+    },
+    {
+      "name": "backend-squad",
+      "description": "Backend implementation and database design",
+      "agent": "backend-developer",
+      "priority": 2,
+      "thinking_level": "think",
+      "autonomous_permissions": {
+        "can_create_files": true,
+        "can_edit_files": true,
+        "can_create_directories": true,
+        "can_run_commands": true,
+        "can_install_packages": true,
+        "can_commit_changes": true,
+        "allowed_paths": [
+          "/src/services/",
+          "/src/models/",
+          "/src/repositories/",
+          "/tests/"
+        ],
+        "allowed_commands": [
+          "npm install",
+          "npm test",
+          "npm run lint",
+          "pip install",
+          "pytest",
+          "ruff check"
+        ]
+      },
+      "tasks": [
+        {
+          "id": "BACK-001",
+          "title": "Implement Order Service",
+          "description": "Create Order microservice with FastAPI",
+          "type": "implementation",
+          "priority": "critical",
+          "estimated_hours": 6,
+          "depends_on": ["PLAN-001", "PLAN-002"],
+          "waits_for_events": ["architecture_ready", "api_contracts_ready"],
+          "prompt": "Implement Order Service backend:\n\nRequirements:\n- Use FastAPI framework\n- Implement all endpoints from /docs/api/order-service-v1.yaml\n- Use repository pattern for data access\n- Include comprehensive error handling\n- Add request validation with Pydantic\n- Implement logging and tracing\n\nThink about:\n- Error handling strategy\n- Input validation\n- Database transaction management\n- API versioning implementation\n\nCreate in /src/services/order-service/ with:\n- main.py (FastAPI app)\n- routes/ (API endpoints)\n- models/ (Pydantic models)\n- repositories/ (data access)\n- tests/ (unit + integration tests)\n\nRun all tests before completing.",
+          "success_criteria": [
+            "All API endpoints implemented",
+            "100% test coverage for business logic",
+            "All tests passing",
+            "Linting passes",
+            "No security vulnerabilities"
+          ],
+          "outputs": [
+            "/src/services/order-service/",
+            "/tests/services/order-service/"
+          ],
+          "validation_commands": [
+            "pytest tests/services/order-service/ -v --cov",
+            "ruff check src/services/order-service/"
+          ]
+        },
+        {
+          "id": "BACK-002",
+          "title": "Implement Inventory Service",
+          "description": "Create Inventory microservice with FastAPI",
+          "type": "implementation",
+          "priority": "high",
+          "estimated_hours": 5,
+          "depends_on": ["PLAN-002"],
+          "waits_for_events": ["api_contracts_ready"],
+          "prompt": "Implement Inventory Service:\n\n- Follow Order Service patterns\n- Implement real-time stock updates\n- Add caching layer with Redis\n- Include optimistic locking for concurrent updates\n\nThink hard about:\n- Race conditions in inventory updates\n- Cache invalidation strategy\n- Performance optimization\n\nCreate in /src/services/inventory-service/",
+          "success_criteria": [
+            "All endpoints working",
+            "Redis caching implemented",
+            "Race conditions handled",
+            "Tests passing"
+          ],
+          "outputs": [
+            "/src/services/inventory-service/"
+          ],
+          "validation_commands": [
+            "pytest tests/services/inventory-service/ -v"
+          ]
+        }
+      ],
+      "completion_criteria": {
+        "all_tasks_completed": true,
+        "all_tests_passing": true,
+        "code_coverage_minimum": 80
+      },
+      "communication": {
+        "state_file": "backend-squad-state.json",
+        "publishes": ["order_service_ready", "inventory_service_ready"],
+        "subscribes": ["architecture_ready", "api_contracts_ready"]
+      }
+    },
+    {
+      "name": "quality-squad",
+      "description": "Code review, security auditing, and testing",
+      "agent": "security-auditor",
+      "priority": 3,
+      "thinking_level": "think harder",
+      "autonomous_permissions": {
+        "can_create_files": true,
+        "can_edit_files": false,
+        "can_create_directories": true,
+        "can_run_commands": true,
+        "can_install_packages": false,
+        "can_commit_changes": false,
+        "allowed_paths": [
+          "/docs/security/",
+          "/docs/reviews/",
+          "/tests/"
+        ],
+        "allowed_commands": [
+          "pytest",
+          "npm test",
+          "bandit",
+          "safety check",
+          "trivy",
+          "ruff check"
+        ]
+      },
+      "tasks": [
+        {
+          "id": "QA-001",
+          "title": "Security audit of Order Service",
+          "description": "Comprehensive security analysis",
+          "type": "security_audit",
+          "priority": "critical",
+          "estimated_hours": 3,
+          "depends_on": ["BACK-001"],
+          "waits_for_events": ["order_service_ready"],
+          "prompt": "Ultrathink about security for Order Service:\n\nPerform comprehensive security audit:\n\nAnalyze:\n- Authentication flows\n- Authorization checks\n- Input validation\n- SQL injection risks\n- XSS vulnerabilities\n- CSRF protection\n- Rate limiting\n- Secrets management\n- API security\n- Error handling (info disclosure)\n\nUse paranoid mindset - assume breach.\n\nRun tools:\n- bandit (Python SAST)\n- safety check (dependency vulnerabilities)\n- trivy (container scanning if applicable)\n\nCreate detailed audit in /docs/security/order-service-audit.md with:\n- Threat model\n- Attack vectors identified\n- Vulnerabilities found (CRITICAL/HIGH/MEDIUM/LOW)\n- Remediation plan\n- Residual risk assessment\n\nThis handles customer orders and payments - CRITICAL system.",
+          "success_criteria": [
+            "Security audit document created",
+            "All CRITICAL issues identified",
+            "Remediation plan provided",
+            "Security tools executed",
+            "No high-severity vulnerabilities accepted"
+          ],
+          "outputs": [
+            "/docs/security/order-service-audit.md",
+            "/docs/security/vulnerability-report.json"
+          ],
+          "validation_commands": [
+            "bandit -r src/services/order-service/ -f json -o /tmp/bandit-report.json",
+            "safety check --json"
+          ]
+        },
+        {
+          "id": "QA-002",
+          "title": "Integration testing suite",
+          "description": "End-to-end integration tests",
+          "type": "testing",
+          "priority": "high",
+          "estimated_hours": 4,
+          "depends_on": ["BACK-001", "BACK-002"],
+          "waits_for_events": ["order_service_ready", "inventory_service_ready"],
+          "prompt": "Think hard about integration testing:\n\nCreate comprehensive integration test suite:\n\nTest scenarios:\n1. Complete order flow (create → process → fulfill)\n2. Inventory update on order\n3. Concurrent order handling\n4. Error handling and rollback\n5. API contract compliance\n6. Performance under load\n\nCreate in /tests/integration/ with:\n- docker-compose for test environment\n- Pytest fixtures for setup/teardown\n- Test data factories\n- API contract tests\n\nEnsure:\n- All services can communicate\n- Data consistency\n- Error scenarios covered\n- Performance benchmarks met",
+          "success_criteria": [
+            "All integration tests passing",
+            "Test coverage >80%",
+            "Performance benchmarks met",
+            "Error scenarios tested"
+          ],
+          "outputs": [
+            "/tests/integration/",
+            "/tests/integration/docker-compose.test.yml"
+          ],
+          "validation_commands": [
+            "docker-compose -f tests/integration/docker-compose.test.yml up -d",
+            "pytest tests/integration/ -v --maxfail=1"
+          ]
+        }
+      ],
+      "completion_criteria": {
+        "all_tasks_completed": true,
+        "no_critical_vulnerabilities": true,
+        "all_tests_passing": true
+      },
+      "communication": {
+        "state_file": "quality-squad-state.json",
+        "publishes": ["security_audit_complete", "integration_tests_complete"],
+        "subscribes": ["order_service_ready", "inventory_service_ready"]
+      }
+    }
+  ],
+  "workflows": {
+    "on_task_complete": {
+      "update_state_file": true,
+      "notify_dependent_squads": true,
+      "create_checkpoint": true
+    },
+    "on_task_failure": {
+      "log_error": true,
+      "create_incident_report": true,
+      "retry_if_transient": true,
+      "notify_on_critical": true
+    },
+    "on_squad_complete": {
+      "publish_events": true,
+      "create_summary_report": true,
+      "update_dashboard": true
+    }
+  },
+  "notifications": {
+    "enabled": true,
+    "channels": [
+      {
+        "type": "slack",
+        "webhook_url": "${SLACK_WEBHOOK_URL}",
+        "events": ["squad_complete", "critical_failure", "security_issue"]
+      },
+      {
+        "type": "email",
+        "recipients": ["team@supercore.com"],
+        "events": ["all_squads_complete", "critical_failure"]
+      }
+    ]
+  },
+  "checkpointing": {
+    "enabled": true,
+    "interval_minutes": 15,
+    "checkpoint_location": "./state/checkpoints/",
+    "max_checkpoints": 10
+  },
+  "monitoring": {
+    "dashboard_enabled": true,
+    "metrics_collection": true,
+    "log_aggregation": true,
+    "real_time_updates": true
+  }
+}
