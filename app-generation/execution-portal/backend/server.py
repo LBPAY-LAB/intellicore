@@ -1079,12 +1079,12 @@ class BootstrapController:
 
     def stop_bootstrap(self, confirmed: bool = False) -> BootstrapStatus:
         """
-        Stop running bootstrap - PARA O PROJETO COMPLETAMENTE
+        Stop running bootstrap - PARA O PROJETO COMPLETAMENTE E LIMPA TUDO
 
         Esta operação:
         1. Para o orchestrator
         2. Para Celery workers
-        3. Marca que a próxima "Iniciar Projeto" deve limpar TUDO
+        3. LIMPA TUDO IMEDIATAMENTE (código, artefactos, database, estado)
 
         Diferente de PAUSAR que salva estado para retomar.
         """
@@ -1096,10 +1096,10 @@ class BootstrapController:
 
         current_status = self.get_status()
 
-        if current_status.status != "running":
+        if current_status.status not in ["running", "starting"]:
             raise HTTPException(status_code=400, detail="Nenhum projeto em execução")
 
-        print("🛑 PARANDO PROJETO COMPLETAMENTE...")
+        print("🛑 PARANDO PROJETO COMPLETAMENTE E LIMPANDO TUDO...")
 
         # 1. Parar orchestrator
         if current_status.pid:
@@ -1108,6 +1108,8 @@ class BootstrapController:
                 print(f"   ✅ Orchestrator parado (PID: {current_status.pid})")
             except ProcessLookupError:
                 print(f"   ⚠️  Orchestrator já estava parado")
+            except Exception as e:
+                print(f"   ⚠️  Erro ao parar orchestrator: {e}")
 
         # 2. Parar Celery workers
         try:
@@ -1120,16 +1122,98 @@ class BootstrapController:
         except Exception as e:
             print(f"   ⚠️  Erro ao parar Celery: {e}")
 
-        # 3. Marcar que próxima inicialização deve limpar tudo
-        # (A limpeza já está implementada em start_bootstrap, então não precisamos marcar nada)
+        # 3. LIMPEZA COMPLETA - AGORA (não esperar próximo start)
+        print("🧹 LIMPEZA COMPLETA - Removendo TUDO...")
 
+        # 3a. Limpar arquivos de estado do orchestrator
+        state_dir = self.base_dir / "state"
+        for state_file in [".bootstrap_status", "pause.json"]:
+            state_path = state_dir / state_file
+            if state_path.exists():
+                state_path.unlink()
+                print(f"   ✅ Removido: state/{state_file}")
+
+        # 3b. Reset backlog_master.json (vazio)
+        backlog_path = state_dir / "backlog_master.json"
+        fresh_backlog = {
+            "project": "SuperCore v2.0",
+            "cards": [],
+            "journal": [],
+            "metadata": {"total_cards": 0, "last_updated": ""}
+        }
+        with open(backlog_path, 'w') as f:
+            json.dump(fresh_backlog, f, indent=2)
+        print(f"   ✅ Reset: state/backlog_master.json (0 cards)")
+
+        # 3c. Limpar database do portal (TODAS as tabelas)
+        monitoring_db = DB_PATH
+        if monitoring_db.exists():
+            import sqlite3
+            conn = sqlite3.connect(monitoring_db, timeout=30.0)
+            cursor = conn.cursor()
+
+            cursor.execute("DELETE FROM events")
+            events_deleted = cursor.rowcount
+            cursor.execute("DELETE FROM cards")
+            cards_deleted = cursor.rowcount
+            cursor.execute("DELETE FROM sessions")
+            sessions_deleted = cursor.rowcount
+            cursor.execute("DELETE FROM squads")
+            squads_deleted = cursor.rowcount
+            cursor.execute("DELETE FROM metrics")
+            metrics_deleted = cursor.rowcount
+            cursor.execute("DELETE FROM checkpoints")
+            checkpoints_deleted = cursor.rowcount
+            cursor.execute("DELETE FROM squad_tasks")
+            tasks_deleted = cursor.rowcount
+            cursor.execute("DELETE FROM squad_structure")
+            structures_deleted = cursor.rowcount
+
+            conn.commit()
+            conn.close()
+            print(f"   ✅ DB Limpo: {events_deleted} eventos, {cards_deleted} cards, {sessions_deleted} sessions, {squads_deleted} squads, {metrics_deleted} metrics, {checkpoints_deleted} checkpoints, {tasks_deleted} tasks, {structures_deleted} squad structures")
+
+        # 3d. Limpar artefactos gerados (documentos, código)
+        artefactos_dir = self.base_dir.parent.parent / "app-artefacts"
+        if artefactos_dir.exists():
+            for item in artefactos_dir.iterdir():
+                if item.is_dir() and item.name not in ['.gitkeep']:
+                    shutil.rmtree(item)
+                elif item.is_file() and item.name not in ['.gitkeep', 'README.md']:
+                    item.unlink()
+            print(f"   ✅ app-artefacts/ limpo")
+
+        # 3e. Limpar código gerado (app-solution/)
+        app_solution_dir = self.base_dir.parent.parent / "app-solution"
+        if app_solution_dir.exists():
+            for item in app_solution_dir.iterdir():
+                if item.is_dir():
+                    shutil.rmtree(item)
+                    print(f"   ✅ Deletado: app-solution/{item.name}/")
+                else:
+                    item.unlink()
+                    print(f"   ✅ Deletado: app-solution/{item.name}")
+
+        # 3f. Limpar logs antigos
+        logs_dir = self.base_dir / "logs"
+        if logs_dir.exists():
+            from datetime import datetime, timedelta
+            hoje = datetime.now().date()
+            for log_file in logs_dir.glob("*.log*"):
+                file_date = datetime.fromtimestamp(log_file.stat().st_mtime).date()
+                if file_date < hoje:
+                    log_file.unlink()
+                    print(f"   ✅ Removido log antigo: {log_file.name}")
+
+        # 4. Salvar status "stopped"
         stopped_status = BootstrapStatus(
             status="stopped",
             session_id=current_status.session_id
         )
         self.save_status(stopped_status)
 
-        print("✅ Projeto parado. Próximo 'Iniciar Projeto' limpará TUDO e começará do zero.")
+        print("✅ LIMPEZA COMPLETA! Projeto parado e resetado para estado inicial.")
+        print("   Próximo 'Iniciar Projeto' começará completamente do zero.")
 
         return stopped_status
 
