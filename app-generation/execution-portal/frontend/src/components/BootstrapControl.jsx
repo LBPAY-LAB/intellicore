@@ -181,7 +181,7 @@ function BootstrapControl({ bootstrapStatus, onStart, onStop, onResume }) {
   }
 
   const isRunning = bootstrapStatus?.status === 'running' || bootstrapStatus?.status === 'starting'
-  const isIdle = !bootstrapStatus || bootstrapStatus.status === 'idle' || bootstrapStatus.status === 'completed' || bootstrapStatus.status === 'error'
+  const isIdle = !bootstrapStatus || bootstrapStatus.status === 'idle' || bootstrapStatus.status === 'completed' || bootstrapStatus.status === 'error' || bootstrapStatus.status === 'stopped'
   const hasCheckpoint = lastCheckpoint && !isLoadingCheckpoint
 
   console.log('[BootstrapControl] Render - bootstrapStatus:', bootstrapStatus?.status)
@@ -379,6 +379,7 @@ function getStatusLabel(status) {
     'running': 'Em Execução',
     'completed': 'Concluído',
     'error': 'Erro',
+    'stopped': 'Parado',
     'awaiting_approval': 'Aguardando Aprovação'
   }
   return labels[status] || status
