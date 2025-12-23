@@ -1,7 +1,7 @@
 # 🤖 CLAUDE.md - Documento Mestre do SuperCore v2.0
 
-**Versão**: 2.1.0
-**Data**: 2024-12-22
+**Versão**: 2.0.0
+**Data**: 2024-12-21
 **Status**: 🟢 ATIVO E ATUALIZADO
 
 > **Este é o documento de referência central para todos os agentes AI que trabalham no projeto SuperCore v2.0.**
@@ -181,12 +181,12 @@ supercore/
 **Agentes**: tech-lead, solution-architect, security-architect
 
 **Inputs**:
-- `app-generation/app-artefacts/produto/` (cards)
+- `artefactos_implementacao/produto/` (cards)
 - `app-generation/documentation-base/arquitetura_supercore_v2.0.md`
 - `app-generation/documentation-base/stack_supercore_v2.0.md`
 
 **Outputs**:
-- `app-generation/app-artefacts/arquitetura/`
+- `artefactos_implementacao/arquitetura/`
   - Designs técnicos detalhados
   - ADRs (Architecture Decision Records)
   - Diagramas (Mermaid, C4, etc.)
@@ -201,8 +201,8 @@ supercore/
 - **Atualizar CLAUDE.md** em mudanças significativas
 
 **Permissões**:
-- ✅ **READ**: `app-generation/documentation-base/`, `app-generation/app-artefacts/produto/`
-- ✅ **WRITE**: `app-generation/app-artefacts/arquitetura/`, `CLAUDE.md`
+- ✅ **READ**: `app-generation/documentation-base/`, `artefactos_implementacao/produto/`
+- ✅ **WRITE**: `artefactos_implementacao/arquitetura/`, `CLAUDE.md`
 - ❌ **NÃO PODE** modificar documentação base
 
 ---
@@ -211,11 +211,11 @@ supercore/
 **Agentes**: frontend-lead, react-developer, ui-ux-designer
 
 **Inputs**:
-- `app-generation/app-artefacts/arquitetura/` (designs técnicos)
+- `artefactos_implementacao/arquitetura/` (designs técnicos)
 - `app-generation/documentation-base/stack_supercore_v2.0.md`
 
 **Outputs**:
-- `app-generation/app-artefacts/engenharia/frontend/`
+- `artefactos_implementacao/engenharia/frontend/`
   - Código React/TypeScript
   - Componentes UI
   - Testes (unit, integration, E2E)
@@ -228,8 +228,8 @@ supercore/
 - Documentar componentes e APIs frontend
 
 **Permissões**:
-- ✅ **READ**: `app-generation/documentation-base/`, `app-generation/app-artefacts/arquitetura/`
-- ✅ **WRITE**: `app-generation/app-artefacts/engenharia/frontend/`, `/frontend/`, `/src/`
+- ✅ **READ**: `app-generation/documentation-base/`, `artefactos_implementacao/arquitetura/`
+- ✅ **WRITE**: `artefactos_implementacao/engenharia/frontend/`, `/frontend/`, `/src/`
 - ✅ **RUN**: `npm test`, `npm run lint`, `npm run build`
 - ✅ **COMMIT**: Código frontend após aprovação
 
@@ -239,11 +239,11 @@ supercore/
 **Agentes**: backend-lead, golang-developer, python-developer, data-modeling-specialist, rag-specialist, vector-db-specialist, graph-db-specialist
 
 **Inputs**:
-- `app-generation/app-artefacts/arquitetura/` (designs técnicos)
+- `artefactos_implementacao/arquitetura/` (designs técnicos)
 - `app-generation/documentation-base/stack_supercore_v2.0.md`
 
 **Outputs**:
-- `app-generation/app-artefacts/engenharia/backend/`
+- `artefactos_implementacao/engenharia/backend/`
   - Código Go/Python
   - APIs (FastAPI, Gin)
   - Migrations de BD
@@ -315,8 +315,8 @@ supercore/
   - Performance: <2s end-to-end (p95)
 
 **Permissões**:
-- ✅ **READ**: `app-generation/documentation-base/`, `app-generation/app-artefacts/arquitetura/`
-- ✅ **WRITE**: `app-generation/app-artefacts/engenharia/backend/`, `/backend/`, `/services/`, `/api/`, `/migrations/`
+- ✅ **READ**: `app-generation/documentation-base/`, `artefactos_implementacao/arquitetura/`
+- ✅ **WRITE**: `artefactos_implementacao/engenharia/backend/`, `/backend/`, `/services/`, `/api/`, `/migrations/`
 - ✅ **RUN**: `go test ./...`, `pytest`, `docker build`
 - ✅ **COMMIT**: Código backend após aprovação
 
@@ -326,11 +326,11 @@ supercore/
 **Agentes**: qa-lead, test-engineer, security-auditor
 
 **Inputs**:
-- `app-generation/app-artefacts/engenharia/` (código frontend + backend)
+- `artefactos_implementacao/engenharia/` (código frontend + backend)
 - `app-generation/documentation-base/requisitos_funcionais_v2.0.md`
 
 **Outputs**:
-- `app-generation/app-artefacts/qa/`
+- `artefactos_implementacao/qa/`
   - Casos de teste
   - Test reports
   - Bug reports
@@ -347,7 +347,7 @@ supercore/
 
 **Permissões**:
 - ✅ **READ**: Todos os artefactos + Documentação base
-- ✅ **WRITE**: `app-generation/app-artefacts/qa/`, `/tests/`, `/docs/qa/`
+- ✅ **WRITE**: `artefactos_implementacao/qa/`, `/tests/`, `/docs/qa/`
 - ✅ **RUN**: `npm test`, `pytest`, `cypress run`, `playwright test`
 - ✅ **APPROVE/REJECT**: Cards com feedback detalhado
 
@@ -357,11 +357,11 @@ supercore/
 **Agentes**: deploy-lead
 
 **Inputs**:
-- `app-generation/app-artefacts/qa/` (outputs aprovados)
+- `artefactos_implementacao/qa/` (outputs aprovados)
 - `app-generation/documentation-base/stack_supercore_v2.0.md`
 
 **Outputs**:
-- `app-generation/app-artefacts/deploy/`
+- `artefactos_implementacao/deploy/`
   - Terraform modules e environments
   - GitHub Actions workflows
   - Runbooks operacionais
@@ -375,8 +375,8 @@ supercore/
 - Monitorar deploys e performance
 
 **Permissões**:
-- ✅ **READ**: `app-generation/documentation-base/`, `app-generation/app-artefacts/qa/`
-- ✅ **WRITE**: `app-generation/app-artefacts/deploy/`, `/infrastructure/`, `/.github/workflows/`
+- ✅ **READ**: `app-generation/documentation-base/`, `artefactos_implementacao/qa/`
+- ✅ **WRITE**: `artefactos_implementacao/deploy/`, `/infrastructure/`, `/.github/workflows/`
 - ✅ **RUN**: `terraform init/plan/apply`, security scans (tfsec, checkov)
 - ✅ **DEPLOY**:
   - QA: Auto-deploy (após testes)
@@ -436,20 +436,20 @@ graph TD
 **1. Squad Produto**
 - Lê `requisitos_funcionais_v2.0.md`
 - Cria cards de features (RF001-RF017 para Fase 1)
-- Output: `app-generation/app-artefacts/produto/`
+- Output: `artefactos_implementacao/produto/`
 
 **2. Squad Arquitetura**
 - Recebe cards de produto
 - Consulta `arquitetura_supercore_v2.0.md` e `stack_supercore_v2.0.md`
 - Cria designs técnicos + ADRs
 - Atualiza `CLAUDE.md` se necessário
-- Output: `app-generation/app-artefacts/arquitetura/`
+- Output: `artefactos_implementacao/arquitetura/`
 
 **3. Squad Engenharia (Frontend + Backend em paralelo)**
 - Frontend: Implementa UIs (React/TS)
 - Backend: Implementa APIs (Go/Python)
 - Ambos seguem designs de arquitetura
-- Output: `app-generation/app-artefacts/engenharia/`
+- Output: `artefactos_implementacao/engenharia/`
 
 **4. Squad QA**
 - Valida contra requisitos originais
@@ -537,10 +537,9 @@ graph TD
 - [Stack Tecnológica](app-generation/documentation-base/stack_supercore_v2.0.md)
 
 ### Sistema de Orquestração:
-- [Config Squads](app-generation/app-execution/meta-squad-config.json)
-- [Portal Backend](http://localhost:3000) - FastAPI + SQLite
-- [Portal Frontend](http://localhost:3003) - React + Vite
-- [Reset Completo](app-generation/app-execution/reset-completo.sh)
+- [Config Squads](scripts/squad-orchestrator/meta-squad-config.json)
+- [Portal de Monitoramento](http://localhost:3001)
+- [Sistema Completo](scripts/squad-orchestrator/SYSTEM_READY.md)
 
 ### Infraestrutura:
 - [Terraform Modules](infrastructure/terraform/modules/)
@@ -567,21 +566,9 @@ graph TD
 
 ## 🔄 Histórico de Mudanças
 
-### 2024-12-22 - v2.1.0 (Reorganização Completa)
-- ✅ **Separação Factory vs Product**: Criação de `app-generation/` (factory) e `app-solution/` (product)
-- ✅ **app-data.md**: Sistema de configuração centralizada de metadados do projeto
-- ✅ **Portal de Execução**: Movido para `app-generation/execution-portal/` (backend port 3000, frontend port 3003)
-- ✅ **Orquestrador**: Movido para `app-generation/app-execution/`
-- ✅ **Documentação Base**: Movida para `app-generation/documentation-base/`
-- ✅ **Artefactos**: Movidos para `app-generation/app-artefacts/`
-- ✅ **Reset Completo**: Novo script que limpa app-solution/ em cada início de projeto
-- ✅ **UI Dinâmica**: Header e botões agora mostram nome do projeto de app-data.md
-- ✅ **Fix Stop Button**: Adicionado confirmação e query parameter `confirmed=true`
-- ✅ **Paths Atualizados**: Todos os paths no CLAUDE.md atualizados para nova estrutura
-
 ### 2024-12-21 - v2.0.0 (Criação)
 - ✅ Criação do CLAUDE.md como documento mestre
-- ✅ Definição de estrutura de diretórios com `app-generation/app-artefacts/`
+- ✅ Definição de estrutura de diretórios com `artefactos_implementacao/`
 - ✅ Configuração de permissões por squad
 - ✅ Integração com documentação base em `app-generation/documentation-base/`
 - ✅ Definição de fluxo de trabalho completo
@@ -595,6 +582,6 @@ graph TD
 
 ---
 
-**Versão**: 2.1.0
-**Última Atualização**: 2024-12-22
+**Versão**: 2.0.0
+**Última Atualização**: 2024-12-21
 **Mantido por**: Squad Arquitetura (aprovação Tech Lead)

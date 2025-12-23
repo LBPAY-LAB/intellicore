@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "project_name": "SuperCore v2.0",
+  "phase": 1,
+  "cards": [],
+  "metadata": {
+    "total_cards": 0,
+    "by_status": {
+      "TODO": 0,
+      "IN_PROGRESS": 0,
+      "BLOCKED": 0,
+      "IN_REVIEW": 0,
+      "DONE": 0
+    },
+    "by_squad": {},
+    "by_priority": {}
+  },
+  "last_updated": ""
+}

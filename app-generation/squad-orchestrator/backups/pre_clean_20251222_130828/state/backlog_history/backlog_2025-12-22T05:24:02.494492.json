@@ -1,0 +1,148 @@
+{
+  "version": "2.0.0",
+  "project": "SuperCore v2.0",
+  "last_updated": "2025-12-22T05:19:01.041265",
+  "current_sprint": 1,
+  "cards": [
+    {
+      "card_id": "EPIC-001",
+      "title": "Product Discovery & Requirements Analysis",
+      "description": "Analyze all requirements documentation and define the MVP scope for SuperCore v2.0",
+      "squad": "produto",
+      "status": "TODO",
+      "priority": "CRITICAL",
+      "created_at": "2025-12-22T05:19:01.039176",
+      "updated_at": "2025-12-22T05:19:01.039177",
+      "assigned_to": null,
+      "depends_on": [],
+      "blocked_by": [],
+      "acceptance_criteria": [
+        "All requirements documents analyzed",
+        "MVP features clearly defined",
+        "User flows documented",
+        "Success metrics established"
+      ],
+      "deliverables": [],
+      "tags": [],
+      "estimated_hours": null,
+      "actual_hours": null
+    },
+    {
+      "card_id": "PROD-001",
+      "title": "Define MVP Features from Requirements",
+      "description": "\nAnalyze requisitos_funcionais_v2.0.md and create a comprehensive MVP feature list.\n\nKey Areas to Cover:\n- Authentication & Authorization\n- Company Search (semantic + traditional)\n- Document RAG pipeline\n- Real-time notifications\n- Multi-tenant architecture\n\nDeliverable: Create /artefactos_implementacao/produto/MVP_Features.md\n            ",
+      "squad": "produto",
+      "status": "TODO",
+      "priority": "CRITICAL",
+      "created_at": "2025-12-22T05:19:01.039665",
+      "updated_at": "2025-12-22T05:19:01.039666",
+      "assigned_to": null,
+      "depends_on": [
+        "EPIC-001"
+      ],
+      "blocked_by": [],
+      "acceptance_criteria": [
+        "MVP_Features.md created with all core features listed",
+        "Features prioritized (must-have vs nice-to-have)",
+        "Each feature has clear description and business value",
+        "Technical complexity estimated for each feature"
+      ],
+      "deliverables": [],
+      "tags": [],
+      "estimated_hours": null,
+      "actual_hours": null
+    },
+    {
+      "card_id": "PROD-002",
+      "title": "Create User Flows & Journey Maps",
+      "description": "\nBased on fluxos_usuario_v2.0.md, create detailed user flow diagrams for all main journeys:\n- User registration & authentication\n- Company search workflow\n- Document upload & RAG ingestion\n- Real-time notification reception\n\nDeliverable: Create /artefactos_implementacao/produto/User_Flows.md with Mermaid diagrams\n            ",
+      "squad": "produto",
+      "status": "TODO",
+      "priority": "HIGH",
+      "created_at": "2025-12-22T05:19:01.040148",
+      "updated_at": "2025-12-22T05:19:01.040149",
+      "assigned_to": null,
+      "depends_on": [
+        "PROD-001"
+      ],
+      "blocked_by": [],
+      "acceptance_criteria": [
+        "User_Flows.md created with Mermaid diagrams",
+        "All main user journeys documented",
+        "Happy paths and error paths defined",
+        "User touchpoints identified"
+      ],
+      "deliverables": [],
+      "tags": [],
+      "estimated_hours": null,
+      "actual_hours": null
+    },
+    {
+      "card_id": "PROD-003",
+      "title": "Design UI Wireframes & Mockups",
+      "description": "\nCreate wireframes for all main screens:\n- Login / Registration\n- Dashboard\n- Company Search Interface\n- Document Upload Interface\n- Settings / Profile\n\nDeliverable: Create wireframes in /artefactos_implementacao/produto/ux-designs/\n            ",
+      "squad": "produto",
+      "status": "TODO",
+      "priority": "HIGH",
+      "created_at": "2025-12-22T05:19:01.040657",
+      "updated_at": "2025-12-22T05:19:01.040658",
+      "assigned_to": null,
+      "depends_on": [
+        "PROD-002"
+      ],
+      "blocked_by": [],
+      "acceptance_criteria": [
+        "Wireframes created for all main screens",
+        "Responsive design considerations documented",
+        "Accessibility requirements noted",
+        "UI components inventory created"
+      ],
+      "deliverables": [],
+      "tags": [],
+      "estimated_hours": null,
+      "actual_hours": null
+    },
+    {
+      "card_id": "PROD-004",
+      "title": "Define Success Metrics & KPIs",
+      "description": "\nEstablish measurable KPIs for the MVP:\n- User engagement metrics\n- Search quality metrics\n- System performance metrics\n- Business impact metrics\n\nDeliverable: Create /artefactos_implementacao/produto/Success_Metrics.md\n            ",
+      "squad": "produto",
+      "status": "TODO",
+      "priority": "MEDIUM",
+      "created_at": "2025-12-22T05:19:01.041261",
+      "updated_at": "2025-12-22T05:19:01.041262",
+      "assigned_to": null,
+      "depends_on": [
+        "PROD-001"
+      ],
+      "blocked_by": [],
+      "acceptance_criteria": [
+        "Success_Metrics.md created",
+        "KPIs defined with target values",
+        "Measurement methodology documented",
+        "Monitoring strategy outlined"
+      ],
+      "deliverables": [],
+      "tags": [],
+      "estimated_hours": null,
+      "actual_hours": null
+    }
+  ],
+  "metadata": {
+    "total_cards": 5,
+    "by_status": {
+      "TODO": 5,
+      "IN_PROGRESS": 0,
+      "BLOCKED": 0,
+      "IN_REVIEW": 0,
+      "DONE": 0
+    },
+    "by_squad": {},
+    "by_priority": {
+      "CRITICAL": 0,
+      "HIGH": 0,
+      "MEDIUM": 0,
+      "LOW": 0
+    }
+  }
+}
