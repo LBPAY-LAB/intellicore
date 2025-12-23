@@ -39,8 +39,7 @@
       "comments": [],
       "qa_cycles": 0,
       "blocked_reason": null,
-      "blocked_since": null,
-      "celery_task_id": "1de54024-94ab-453b-ada2-d8433b5381b3"
+      "blocked_since": null
     }
   ],
   "journal": [],
@@ -55,5 +54,5 @@
       "DONE": 0
     }
   },
-  "last_updated": "2025-12-23T00:34:12.579158"
+  "last_updated": "2025-12-23T00:32:12.517856"
 }

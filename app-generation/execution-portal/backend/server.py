@@ -296,7 +296,7 @@ class MonitoringDB:
 
     def init_db(self):
         """Initialize SQLite database with schema"""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30.0)  # 30 second timeout
         cursor = conn.cursor()
 
         # Squads table
@@ -449,14 +449,16 @@ class MonitoringDB:
 
     def execute(self, query: str, params: tuple = ()) -> List[Dict]:
         """Execute query and return results as list of dicts"""
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30.0)  # 30 second timeout
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-        cursor.execute(query, params)
-        results = [dict(row) for row in cursor.fetchall()]
-        conn.commit()
-        conn.close()
-        return results
+        try:
+            cursor.execute(query, params)
+            results = [dict(row) for row in cursor.fetchall()]
+            conn.commit()
+            return results
+        finally:
+            conn.close()
 
     def execute_one(self, query: str, params: tuple = ()) -> Optional[Dict]:
         """Execute query and return single result"""
@@ -975,25 +977,11 @@ class BootstrapController:
 
         print("✅ LIMPEZA COMPLETA! Projeto resetado para estado inicial.")
 
-        # Generate NEW session ID and insert into database IMMEDIATELY
+        # Generate NEW session ID (will be inserted later in the flow)
         session_id = f"session_{int(time.time())}"
         self.current_session_id = session_id
-
-        # Insert new session into database
-        if monitoring_db.exists():
-            import sqlite3
-            conn = sqlite3.connect(monitoring_db)
-            cursor = conn.cursor()
-            cursor.execute("""
-                INSERT INTO sessions (session_id, started_at, status)
-                VALUES (?, ?, 'starting')
-            """, (session_id, datetime.now().isoformat()))
-            conn.commit()
-            conn.close()
-            print(f"   ✅ Nova sessão criada no DB: {session_id}")
-
-        # Update collector's current session
         collector.current_session_id = session_id
+        print(f"   🆕 Nova sessão ID gerado: {session_id}")
 
         # Determine config file
         config_file = None
@@ -2532,7 +2520,13 @@ async def event_stream():
 @app.post("/api/bootstrap/start")
 async def start_bootstrap(request: BootstrapRequest) -> BootstrapStatus:
     """Start bootstrap process"""
-    return await bootstrap_controller.start_bootstrap(request)
+    try:
+        return await bootstrap_controller.start_bootstrap(request)
+    except Exception as e:
+        import traceback
+        print(f"❌ ERROR in start_bootstrap: {e}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Bootstrap start failed: {str(e)}")
 
 
 @app.post("/api/bootstrap/stop")

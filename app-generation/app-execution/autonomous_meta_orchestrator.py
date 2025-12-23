@@ -37,25 +37,27 @@ if USE_CELERY:
 else:
     CELERY_AVAILABLE = False
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('/Users/jose.silva.lb/LBPay/supercore/scripts/squad-orchestrator/logs/meta-orchestrator.log'),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger('meta-orchestrator')
-
-# Paths
+# Paths (configure before logging)
 SCRIPT_DIR = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent.parent
 DOCS_DIR = PROJECT_ROOT / "Supercore_v2.0" / "DOCUMENTACAO_BASE"
 STATE_DIR = SCRIPT_DIR / "state"
 BACKLOG_FILE = STATE_DIR / "backlog_master.json"
 JOURNAL_FILE = STATE_DIR / "project_journal.json"
-DB_PATH = SCRIPT_DIR / "monitoring" / "data" / "monitoring.db"
+LOGS_DIR = SCRIPT_DIR / "logs"
+LOGS_DIR.mkdir(parents=True, exist_ok=True)  # Ensure logs directory exists
+DB_PATH = SCRIPT_DIR.parent / "execution-portal" / "backend" / "data" / "monitoring.db"
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(LOGS_DIR / 'meta-orchestrator.log'),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger('meta-orchestrator')
 
 
 class AutonomousMetaOrchestrator:
