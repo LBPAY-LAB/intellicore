@@ -1,0 +1,115 @@
+openapi: 3.0.0
+info:
+  title: RF001 - Technical Design & Architecture
+  description: API for RF001
+  version: 1.0.0
+  contact:
+    name: SquadOS Architecture Team
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Development server
+
+paths:
+  /oracles:
+    get:
+      summary: List all oracles
+      operationId: listOracles
+      tags:
+        - Oracles
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Oracle'
+    post:
+      summary: Create a new oracle
+      operationId: createOracle
+      tags:
+        - Oracles
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OracleCreate'
+      responses:
+        '201':
+          description: Oracle created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Oracle'
+
+  /oracles/{id}:
+    get:
+      summary: Get oracle by ID
+      operationId: getOracle
+      tags:
+        - Oracles
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Oracle'
+        '404':
+          description: Oracle not found
+
+components:
+  schemas:
+    Oracle:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+          enum: [backend, frontend]
+        config:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - type
+
+    OracleCreate:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [backend, frontend]
+        config:
+          type: object
+      required:
+        - name
+        - type
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []

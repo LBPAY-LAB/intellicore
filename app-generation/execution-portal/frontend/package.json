@@ -1,7 +1,7 @@
 {
-  "name": "supercore-monitoring-dashboard",
-  "version": "2.0.0",
-  "description": "Real-time monitoring dashboard for SuperCore v2.0 squad orchestration",
+  "name": "squados-execution-portal",
+  "version": "3.0.0",
+  "description": "SquadOS Execution Portal - Real-time monitoring dashboard for AI squad orchestration. Where Documentation Becomes Software, Autonomously.",
   "private": true,
   "scripts": {
     "dev": "vite",

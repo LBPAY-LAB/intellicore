@@ -40,7 +40,7 @@ else:
 # Paths (configure before logging)
 SCRIPT_DIR = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent.parent
-DOCS_DIR = PROJECT_ROOT / "Supercore_v2.0" / "DOCUMENTACAO_BASE"
+DOCS_DIR = SCRIPT_DIR.parent / "documentation-base"
 STATE_DIR = SCRIPT_DIR / "state"
 BACKLOG_FILE = STATE_DIR / "backlog_master.json"
 JOURNAL_FILE = STATE_DIR / "project_journal.json"
@@ -60,10 +60,20 @@ logging.basicConfig(
 logger = logging.getLogger('meta-orchestrator')
 
 
+class HumanRejectionError(Exception):
+    """Raised when human rejects a review checkpoint"""
+    pass
+
+
 class AutonomousMetaOrchestrator:
     """
     Autonomous orchestrator that reads docs, creates cards, and coordinates all squads.
+    Includes Human-in-the-Loop reviews every 6 hours for validation and course correction.
     """
+
+    # Human review checkpoint interval (6 hours in seconds)
+    REVIEW_INTERVAL_HOURS = 6
+    REVIEW_INTERVAL_SECONDS = REVIEW_INTERVAL_HOURS * 3600
 
     def __init__(self, session_id: str):
         self.session_id = session_id
@@ -71,6 +81,8 @@ class AutonomousMetaOrchestrator:
         self.backlog = self._load_backlog()
         self.journal = self._load_journal()
         self.card_counter = self._get_next_card_id()
+        self.last_review_time = datetime.now()  # Track time since last review
+        self._ensure_review_table_exists()
 
     def _load_backlog(self) -> Dict[str, Any]:
         """Load current backlog state"""
@@ -212,9 +224,9 @@ class AutonomousMetaOrchestrator:
             with open(card_file, 'w', encoding='utf-8') as f:
                 f.write(f"# {card['title']}\n\n")
                 f.write(f"**Card ID**: {card['card_id']}\n")
-                f.write(f"**Squad**: {card['squad']}\n")
-                f.write(f"**Status**: {card['status']}\n")
-                f.write(f"**Priority**: {card['priority']}\n")
+                f.write(f"**Squad**: {card.get('squad', 'unknown')}\n")
+                f.write(f"**Status**: {card.get('status', 'TODO')}\n")
+                f.write(f"**Priority**: {card.get('priority', 'MEDIUM')}\n")
                 f.write(f"**Phase**: {card.get('phase', 1)}\n")
                 f.write(f"**Type**: {card.get('type', 'story')}\n\n")
 
@@ -548,11 +560,16 @@ Deliverable: /app-artefacts/arquitetura/RAG_Pipeline.md
         logger.info("✅ Created architecture cards for Phase 2")
 
     async def execute_ready_cards(self):
-        """Execute cards that are ready (TODO status, dependencies met)"""
-        # Find TODO cards with no pending dependencies
+        """Execute cards that are ready (TODO status, dependencies met, not already enqueued)"""
+        # Find TODO cards with no pending dependencies and no active Celery task
         ready_cards = []
         for card in self.backlog["cards"]:
             if card["status"] != "TODO":
+                continue
+
+            # CRITICAL: Skip if card already has a Celery task ID (already enqueued)
+            if card.get("celery_task_id"):
+                # Card is already being executed by a worker, skip it
                 continue
 
             # Check dependencies
@@ -707,41 +724,261 @@ Deliverable: /app-artefacts/arquitetura/RAG_Pipeline.md
 
     async def run(self):
         """Main autonomous orchestration loop"""
-        logger.info("=" * 80)
-        logger.info("🚀 AUTONOMOUS META-ORCHESTRATOR STARTING")
-        logger.info(f"Session: {self.session_id}")
-        logger.info("=" * 80)
+        try:
+            logger.info("=" * 80)
+            logger.info("🚀 AUTONOMOUS META-ORCHESTRATOR STARTING")
+            logger.info(f"Session: {self.session_id}")
+            logger.info("=" * 80)
 
+            self._log_journal_entry(
+                "🚀 Meta-Orchestrator Started",
+                f"Session {self.session_id} - Beginning autonomous project orchestration",
+                "orchestrator_started"
+            )
+
+            # Step 1: Read documentation
+            logger.info("\n📖 STEP 1: Reading Documentation...")
+            docs = await self.read_documentation()
+            logger.info(f"✅ STEP 1 COMPLETE: Read {len(docs)} documentation files")
+
+            # Step 2: Create initial cards (Phase 1: Produto)
+            logger.info("\n📋 STEP 2: Creating Initial Cards...")
+            await self.create_initial_cards()
+            logger.info(f"✅ STEP 2 COMPLETE: Created {len(self.backlog['cards'])} cards")
+
+            # CHECKPOINT: Human review after backlog generation
+            if self._should_trigger_review():
+                await self._request_human_review(
+                    phase="Product Backlog Generated",
+                    summary=f"{len(self.backlog['cards'])} PROD cards created from requirements",
+                    artifacts=["app-artefacts/produto/backlog.json", "app-artefacts/produto/User_Stories_Completo.md"]
+                )
+
+            # Step 3: Start autonomous monitoring and coordination
+            logger.info("\n🔄 STEP 3: Starting Monitoring and Coordination Loop...")
+            logger.info("⚠️  This will run FOREVER until project completes or is stopped")
+            await self.monitor_and_coordinate()
+
+        except Exception as e:
+            logger.error(f"❌ CRITICAL ERROR in orchestrator.run(): {e}")
+            import traceback
+            logger.error(traceback.format_exc())
+            # Re-raise to ensure process exits with error
+            raise
+
+    def _ensure_review_table_exists(self):
+        """Ensure human_reviews table exists in portal database"""
+        if not DB_PATH.exists():
+            logger.warning(f"⚠️  Portal DB not found, skipping review table creation")
+            return
+
+        try:
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
+
+            # Create human_reviews table
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS human_reviews (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    session_id TEXT NOT NULL,
+                    review_id TEXT NOT NULL UNIQUE,
+                    phase TEXT NOT NULL,
+                    timestamp TEXT NOT NULL,
+                    summary TEXT NOT NULL,
+                    artifacts TEXT,
+                    status TEXT NOT NULL DEFAULT 'AWAITING_APPROVAL',
+                    approved_by TEXT,
+                    approved_at TEXT,
+                    rejection_reason TEXT,
+                    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+                )
+            """)
+
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_human_reviews_session ON human_reviews(session_id)")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_human_reviews_status ON human_reviews(status)")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_human_reviews_review_id ON human_reviews(review_id)")
+
+            conn.commit()
+            conn.close()
+            logger.debug("✅ Human reviews table ensured")
+
+        except Exception as e:
+            logger.error(f"❌ Failed to ensure review table: {e}")
+
+    def _should_trigger_review(self) -> bool:
+        """Check if enough time has elapsed since last human review"""
+        elapsed = (datetime.now() - self.last_review_time).total_seconds()
+        return elapsed >= self.REVIEW_INTERVAL_SECONDS
+
+    async def _request_human_review(self, phase: str, summary: str, artifacts: List[str]) -> None:
+        """
+        Pause execution and request human approval
+
+        Args:
+            phase: Current phase (e.g., "Product Backlog Generated", "Technical Designs Complete")
+            summary: Summary of work done since last review
+            artifacts: List of artifact paths created
+
+        Raises:
+            HumanRejectionError: If human rejects the review
+        """
+        import uuid
+
+        review_id = f"REVIEW-{uuid.uuid4().hex[:8]}"
+
+        review_request = {
+            "session_id": self.session_id,
+            "review_id": review_id,
+            "phase": phase,
+            "timestamp": datetime.now().isoformat(),
+            "summary": summary,
+            "artifacts": json.dumps(artifacts),
+            "status": "AWAITING_APPROVAL"
+        }
+
+        # Save review request to database
+        self._save_review_request(review_request)
+
+        # Log to journal
         self._log_journal_entry(
-            "🚀 Meta-Orchestrator Started",
-            f"Session {self.session_id} - Beginning autonomous project orchestration",
-            "orchestrator_started"
+            f"⏸️ Human Review Required: {phase}",
+            summary,
+            "human_review_requested"
         )
 
-        # Step 1: Read documentation
-        docs = await self.read_documentation()
-        logger.info(f"✅ Read {len(docs)} documentation files")
+        logger.info("="*80)
+        logger.info(f"⏸️  EXECUTION PAUSED - Awaiting human review")
+        logger.info(f"   Review ID: {review_id}")
+        logger.info(f"   Phase: {phase}")
+        logger.info(f"   Summary: {summary}")
+        logger.info(f"   Artifacts: {len(artifacts)} files")
+        logger.info("="*80)
 
-        # Step 2: Create initial cards (Phase 1: Produto)
-        await self.create_initial_cards()
+        # Block until approval received
+        await self._wait_for_approval(review_id)
 
-        # Step 3: Start autonomous monitoring and coordination
-        await self.monitor_and_coordinate()
+        # Reset review timer
+        self.last_review_time = datetime.now()
+
+        logger.info(f"✅ Human approval received. Resuming execution...")
+
+    def _save_review_request(self, review: Dict[str, Any]) -> None:
+        """Save review request to portal database"""
+        if not DB_PATH.exists():
+            logger.warning(f"⚠️  Portal DB not found, review request not saved")
+            return
+
+        try:
+            conn = sqlite3.connect(DB_PATH)
+            cursor = conn.cursor()
+
+            cursor.execute("""
+                INSERT INTO human_reviews (
+                    session_id, review_id, phase, timestamp, summary,
+                    artifacts, status
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (
+                review["session_id"],
+                review["review_id"],
+                review["phase"],
+                review["timestamp"],
+                review["summary"],
+                review["artifacts"],
+                review["status"]
+            ))
+
+            conn.commit()
+            conn.close()
+
+            logger.info(f"💾 Review request saved: {review['review_id']}")
+
+        except Exception as e:
+            logger.error(f"❌ Failed to save review request: {e}")
+
+    async def _wait_for_approval(self, review_id: str) -> None:
+        """
+        Block execution until human approves via Portal UI
+
+        Args:
+            review_id: Review request ID
+
+        Raises:
+            HumanRejectionError: If human rejects
+        """
+        if not DB_PATH.exists():
+            logger.warning(f"⚠️  Portal DB not found, skipping approval wait")
+            return
+
+        while True:
+            try:
+                conn = sqlite3.connect(DB_PATH)
+                cursor = conn.cursor()
+
+                cursor.execute(
+                    "SELECT status, approved_by, rejection_reason FROM human_reviews WHERE review_id = ?",
+                    (review_id,)
+                )
+                row = cursor.fetchone()
+                conn.close()
+
+                if not row:
+                    logger.error(f"❌ Review {review_id} not found in database")
+                    break
+
+                status, approved_by, rejection_reason = row
+
+                if status == "APPROVED":
+                    logger.info(f"✅ Review {review_id} APPROVED by {approved_by}")
+                    return
+
+                elif status == "REJECTED":
+                    logger.error(f"❌ Review {review_id} REJECTED by {approved_by}")
+                    logger.error(f"   Reason: {rejection_reason}")
+                    raise HumanRejectionError(f"Human rejected phase: {rejection_reason}")
+
+                # Still awaiting - sleep and retry
+                await asyncio.sleep(10)  # Poll every 10 seconds
+
+            except HumanRejectionError:
+                raise
+            except Exception as e:
+                logger.error(f"❌ Error checking approval status: {e}")
+                await asyncio.sleep(10)
 
 
 async def main():
     """Entry point for autonomous meta-orchestrator"""
     import sys
 
-    if len(sys.argv) < 2:
-        print("Usage: python3 autonomous_meta_orchestrator.py <session_id>")
+    try:
+        if len(sys.argv) < 2:
+            print("Usage: python3 autonomous_meta_orchestrator.py <session_id>")
+            sys.exit(1)
+
+        session_id = sys.argv[1]
+        logger.info(f"🎯 Starting orchestrator for session: {session_id}")
+
+        orchestrator = AutonomousMetaOrchestrator(session_id)
+        await orchestrator.run()
+
+    except KeyboardInterrupt:
+        logger.info("\n⏹️  Orchestrator stopped by user (Ctrl+C)")
+        sys.exit(0)
+    except Exception as e:
+        logger.error(f"\n❌ FATAL ERROR in main(): {e}")
+        import traceback
+        logger.error(traceback.format_exc())
         sys.exit(1)
-
-    session_id = sys.argv[1]
-
-    orchestrator = AutonomousMetaOrchestrator(session_id)
-    await orchestrator.run()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\n⏹️  Orchestrator stopped")
+        sys.exit(0)
+    except Exception as e:
+        print(f"\n❌ FATAL ERROR: {e}")
+        import traceback
+        print(traceback.format_exc())
+        sys.exit(1)

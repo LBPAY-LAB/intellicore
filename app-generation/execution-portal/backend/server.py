@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """
-SuperCore v2.0 - Real-time Monitoring Server
-FastAPI + WebSocket + SSE for squad monitoring
+SquadOS Execution Portal - Backend Server
+Real-time monitoring for AI squad orchestration
+Where Documentation Becomes Software, Autonomously
+
+FastAPI + WebSocket + SSE + SQLite
 """
 
 import asyncio
@@ -742,9 +745,9 @@ class ConnectionManager:
 # ============================================================================
 
 app = FastAPI(
-    title="SuperCore v2.0 Monitoring API",
-    description="Real-time monitoring for squad orchestration",
-    version="2.0.0"
+    title="SquadOS Execution Portal API",
+    description="Real-time monitoring for AI squad orchestration. Where Documentation Becomes Software, Autonomously.",
+    version="3.0.0"
 )
 
 # CORS middleware
@@ -857,12 +860,25 @@ class BootstrapController:
     def get_status(self) -> BootstrapStatus:
         """Get current bootstrap status"""
         if not self.status_file.exists():
-            return BootstrapStatus(status="idle")
+            # No status file - return idle with current session
+            current_session = collector.get_current_session()
+            return BootstrapStatus(status="idle", session_id=current_session)
 
         with open(self.status_file) as f:
             data = json.load(f)
 
-        return BootstrapStatus(**data)
+        status_obj = BootstrapStatus(**data)
+
+        # If bootstrap is idle/stopped, sync session_id with current active session
+        # This ensures UI shows consistent session across Header and Bootstrap Control
+        if status_obj.status in ["idle", "stopped"]:
+            current_session = collector.get_current_session()
+            if current_session and current_session != status_obj.session_id:
+                status_obj.session_id = current_session
+                # Save updated status to file
+                self.save_status(status_obj)
+
+        return status_obj
 
     def save_status(self, status: BootstrapStatus):
         """Save bootstrap status to file"""
@@ -870,118 +886,31 @@ class BootstrapController:
             json.dump(status.dict(), f, indent=2)
 
     async def start_bootstrap(self, request: BootstrapRequest) -> BootstrapStatus:
-        """Start bootstrap process - SEMPRE limpa TUDO antes de iniciar"""
+        """
+        Start bootstrap process
+
+        NOTE: Cleanup and backlog generation are now done BEFORE clicking "Iniciar Projeto"
+        This method just starts the orchestrator with the backlog already prepared
+        """
         # Check if already running
         current_status = self.get_status()
         if current_status.status in ["running", "starting"]:
             raise HTTPException(status_code=400, detail="Bootstrap already running")
 
-        # CLEANUP: SEMPRE limpar TUDO antes de iniciar novo projeto (independente do status anterior)
-        print("🧹 LIMPEZA COMPLETA - Removendo TUDO de execuções anteriores...")
-        print(f"   Status anterior: {current_status.status}")
+        print("\n🚀 INICIANDO PROJETO...")
 
-        # 1. Limpar arquivos de estado do orchestrator
-        state_dir = self.base_dir / "state"
-        for state_file in [".bootstrap_status", "pause.json"]:
-            state_path = state_dir / state_file
-            if state_path.exists():
-                state_path.unlink()
-                print(f"   ✅ Removido: state/{state_file}")
-
-        # 2. Reset backlog_master.json (vazio)
-        backlog_path = state_dir / "backlog_master.json"
-        fresh_backlog = {
-            "project": request.project_name or "SuperCore v2.0",
-            "cards": [],
-            "journal": [],
-            "metadata": {"total_cards": 0, "last_updated": ""}
-        }
-        with open(backlog_path, 'w') as f:
-            json.dump(fresh_backlog, f, indent=2)
-        print(f"   ✅ Reset: state/backlog_master.json (0 cards)")
-
-        # 3. Limpar database do portal (TODAS as tabelas para começar do zero)
-        monitoring_db = DB_PATH
-        if monitoring_db.exists():
-            import sqlite3
-            conn = sqlite3.connect(monitoring_db)
-            cursor = conn.cursor()
-
-            # Limpar TODAS as tabelas (reset completo)
-            cursor.execute("DELETE FROM events")
-            events_deleted = cursor.rowcount
-
-            cursor.execute("DELETE FROM cards")
-            cards_deleted = cursor.rowcount
-
-            cursor.execute("DELETE FROM sessions")
-            sessions_deleted = cursor.rowcount
-
-            cursor.execute("DELETE FROM squads")
-            squads_deleted = cursor.rowcount
-
-            cursor.execute("DELETE FROM metrics")
-            metrics_deleted = cursor.rowcount
-
-            cursor.execute("DELETE FROM checkpoints")
-            checkpoints_deleted = cursor.rowcount
-
-            cursor.execute("DELETE FROM squad_tasks")
-            tasks_deleted = cursor.rowcount
-
-            cursor.execute("DELETE FROM squad_structure")
-            structures_deleted = cursor.rowcount
-
-            conn.commit()
-            conn.close()
-            print(f"   ✅ DB Limpo: {events_deleted} eventos, {cards_deleted} cards, {sessions_deleted} sessions, {squads_deleted} squads, {metrics_deleted} metrics, {checkpoints_deleted} checkpoints, {tasks_deleted} tasks, {structures_deleted} squad structures")
-
-        # 4. Limpar bootstrap_status.json do monitoring
-        monitoring_status = DATA_DIR / "bootstrap_status.json"
-        if monitoring_status.exists():
-            monitoring_status.unlink()
-            print(f"   ✅ Removido: monitoring/bootstrap_status.json")
-
-        # 5. Limpar artefactos gerados (documentos, código)
-        artefactos_dir = self.base_dir.parent.parent / "app-artefacts"
-        if artefactos_dir.exists():
-            for item in artefactos_dir.iterdir():
-                if item.is_dir() and item.name not in ['.gitkeep']:
-                    shutil.rmtree(item)
-                elif item.is_file() and item.name not in ['.gitkeep', 'README.md']:
-                    item.unlink()
-            print(f"   ✅ app-artefacts/ limpo")
-
-        # 6. Limpar código gerado (app-solution/)
-        app_solution_dir = self.base_dir.parent.parent / "app-solution"
-        if app_solution_dir.exists():
-            for item in app_solution_dir.iterdir():
-                if item.is_dir():
-                    shutil.rmtree(item)
-                    print(f"   ✅ Deletado: app-solution/{item.name}/")
-                else:
-                    item.unlink()
-                    print(f"   ✅ Deletado: app-solution/{item.name}")
-
-        # 6. Limpar logs antigos (manter apenas logs de hoje)
-        logs_dir = self.base_dir / "logs"
-        if logs_dir.exists():
-            from datetime import datetime, timedelta
-            hoje = datetime.now().date()
-            for log_file in logs_dir.glob("*.log*"):
-                # Manter apenas logs de hoje
-                file_date = datetime.fromtimestamp(log_file.stat().st_mtime).date()
-                if file_date < hoje:
-                    log_file.unlink()
-                    print(f"   ✅ Removido log antigo: {log_file.name}")
-
-        print("✅ LIMPEZA COMPLETA! Projeto resetado para estado inicial.")
-
-        # Generate NEW session ID (will be inserted later in the flow)
-        session_id = f"session_{int(time.time())}"
-        self.current_session_id = session_id
-        collector.current_session_id = session_id
-        print(f"   🆕 Nova sessão ID gerado: {session_id}")
+        # REUSE existing session ID (don't create a new one!)
+        # This ensures Header and Bootstrap Control show the same session
+        session_id = collector.get_current_session()
+        if not session_id:
+            # Fallback: create new session only if none exists
+            session_id = f"session_{int(time.time())}"
+            collector.current_session_id = session_id
+            print(f"   🆕 Nova sessão ID criado: {session_id}")
+        else:
+            # Reuse existing session
+            self.current_session_id = session_id
+            print(f"   ♻️  Reutilizando sessão ID existente: {session_id}")
 
         # Determine config file
         config_file = None
@@ -1035,10 +964,17 @@ class BootstrapController:
                 session_id
             ]
 
+            # Redirect stdout/stderr to log files (NOT PIPE to avoid deadlock)
+            orchestrator_log = self.base_dir / "logs" / "meta-orchestrator.log"
+            orchestrator_err_log = self.base_dir / "logs" / "meta-orchestrator.err.log"
+
+            stdout_file = open(orchestrator_log, "a")
+            stderr_file = open(orchestrator_err_log, "a")
+
             process = subprocess.Popen(
                 cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                stdout=stdout_file,
+                stderr=stderr_file,
                 cwd=self.base_dir,
                 start_new_session=True  # Create new process group
             )
@@ -1054,9 +990,10 @@ class BootstrapController:
             )
             self.save_status(status)
 
-            # Create session in database
+            # Update or create session in database (avoid UNIQUE constraint error)
+            # Since we reuse existing session_id from startup, use INSERT OR REPLACE
             db.execute(
-                "INSERT INTO sessions (session_id, started_at, status) VALUES (?, ?, 'active')",
+                "INSERT OR REPLACE INTO sessions (session_id, started_at, status) VALUES (?, ?, 'active')",
                 (session_id, datetime.now().isoformat())
             )
 
@@ -1370,9 +1307,10 @@ class BootstrapController:
             )
             self.save_status(status)
 
-            # Create session in database
+            # Create session in database (resume creates a NEW session, so regular INSERT is OK)
+            # But use INSERT OR REPLACE for safety in case of race conditions
             self.db.execute(
-                "INSERT INTO sessions (session_id, started_at, status, config) VALUES (?, ?, 'active', ?)",
+                "INSERT OR REPLACE INTO sessions (session_id, started_at, status, config) VALUES (?, ?, 'active', ?)",
                 (new_session_id, datetime.now().isoformat(), json.dumps({
                     "resumed_from": checkpoint.checkpoint_id,
                     "original_session": checkpoint.session_id,
@@ -1612,7 +1550,7 @@ async def startup_event():
         collector.current_session_id = session_id
 
         query = """
-            INSERT INTO sessions (session_id, started_at, status)
+            INSERT OR REPLACE INTO sessions (session_id, started_at, status)
             VALUES (?, ?, 'active')
         """
         db.execute(query, (session_id, datetime.now().isoformat()))
@@ -1667,6 +1605,323 @@ async def get_status() -> SessionStatus:
         metrics=metrics,
         recent_events=events
     )
+
+
+@app.get("/api/health/celery")
+async def check_celery_health():
+    """
+    Check if Celery worker is running and healthy
+
+    Returns:
+        JSON with celery_worker status: 'healthy', 'offline', or 'error'
+    """
+    try:
+        import subprocess
+
+        # Check if Celery worker process is running
+        # Look for the PID file created by start-celery-worker.sh
+        celery_pid_file = Path("/tmp/celery_worker.pid")
+
+        if not celery_pid_file.exists():
+            return {
+                "celery_worker": "offline",
+                "message": "Celery worker PID file not found"
+            }
+
+        # Read PID and check if process is alive
+        try:
+            with open(celery_pid_file, 'r') as f:
+                pid = int(f.read().strip())
+
+            # Check if process exists and is running
+            result = subprocess.run(
+                ['ps', '-p', str(pid)],
+                capture_output=True,
+                text=True,
+                timeout=2
+            )
+
+            if result.returncode == 0:
+                # Process exists - now try to ping Celery worker
+                try:
+                    # Try importing and using Celery inspect API
+                    import sys
+                    sys.path.insert(0, str(BASE_DIR))
+                    from tasks import app as celery_app
+
+                    inspect = celery_app.control.inspect(timeout=1.0)
+                    active = inspect.active()
+
+                    if active:
+                        worker_names = list(active.keys())
+                        return {
+                            "celery_worker": "healthy",
+                            "pid": pid,
+                            "workers": worker_names,
+                            "message": f"Celery worker running with {len(worker_names)} worker(s)"
+                        }
+                    else:
+                        return {
+                            "celery_worker": "offline",
+                            "pid": pid,
+                            "message": "Celery process running but no active workers responding"
+                        }
+                except Exception as inspect_err:
+                    # Process exists but inspect failed - assume healthy if process is running
+                    return {
+                        "celery_worker": "healthy",
+                        "pid": pid,
+                        "message": "Celery process running (inspect unavailable)"
+                    }
+            else:
+                # PID file exists but process is not running
+                return {
+                    "celery_worker": "offline",
+                    "message": f"Celery worker PID {pid} not running (stale PID file)"
+                }
+        except (ValueError, IOError) as pid_err:
+            return {
+                "celery_worker": "error",
+                "message": f"Error reading PID file: {str(pid_err)}"
+            }
+
+    except Exception as e:
+        return {
+            "celery_worker": "error",
+            "message": f"Health check failed: {str(e)}"
+        }
+
+
+@app.get("/api/health/redis")
+async def check_redis_health():
+    """
+    Check if Redis is running and accessible
+
+    Returns:
+        JSON with redis status: 'healthy', 'offline', or 'error'
+    """
+    try:
+        import redis
+        import socket
+
+        # Try to connect to Redis
+        try:
+            # Use standard Redis connection (localhost:6379)
+            r = redis.Redis(host='localhost', port=6379, socket_timeout=2, socket_connect_timeout=2)
+
+            # Test connection with PING
+            response = r.ping()
+
+            if response:
+                # Get additional info
+                info = r.info('server')
+                return {
+                    "redis": "healthy",
+                    "version": info.get('redis_version', 'unknown'),
+                    "uptime_seconds": info.get('uptime_in_seconds', 0),
+                    "message": "Redis is running and responding"
+                }
+            else:
+                return {
+                    "redis": "error",
+                    "message": "Redis did not respond to PING"
+                }
+
+        except redis.ConnectionError as conn_err:
+            return {
+                "redis": "offline",
+                "message": f"Cannot connect to Redis: {str(conn_err)}"
+            }
+        except socket.timeout:
+            return {
+                "redis": "offline",
+                "message": "Redis connection timeout"
+            }
+        except Exception as redis_err:
+            return {
+                "redis": "error",
+                "message": f"Redis error: {str(redis_err)}"
+            }
+
+    except ImportError:
+        return {
+            "redis": "error",
+            "message": "Redis Python client not installed (pip install redis)"
+        }
+    except Exception as e:
+        return {
+            "redis": "error",
+            "message": f"Health check failed: {str(e)}"
+        }
+
+
+@app.post("/api/services/restart/celery")
+async def restart_celery_worker():
+    """
+    Restart the Celery worker using the start-celery-worker.sh script
+
+    Returns:
+        JSON with status of the restart operation
+    """
+    try:
+        import subprocess
+
+        # Path to the start script (in app-execution folder)
+        script_path = BASE_DIR / "app-execution" / "start-celery-worker.sh"
+
+        if not script_path.exists():
+            return {
+                "status": "error",
+                "message": f"Start script not found: {script_path}"
+            }
+
+        # Kill existing worker first
+        celery_pid_file = Path("/tmp/celery_worker.pid")
+        if celery_pid_file.exists():
+            try:
+                with open(celery_pid_file, 'r') as f:
+                    pid = int(f.read().strip())
+
+                # Kill the process
+                subprocess.run(['kill', str(pid)], timeout=2)
+                # Killed existing Celery worker
+
+                # Remove PID file
+                celery_pid_file.unlink()
+            except Exception as kill_err:
+                # Error killing existing worker - continue anyway
+                pass
+
+        # Start new worker
+        result = subprocess.run(
+            [str(script_path)],
+            cwd=str(BASE_DIR),
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+
+        if result.returncode == 0:
+            return {
+                "status": "success",
+                "message": "Celery worker restarted successfully",
+                "output": result.stdout
+            }
+        else:
+            return {
+                "status": "error",
+                "message": f"Failed to restart Celery worker",
+                "error": result.stderr
+            }
+
+    except subprocess.TimeoutExpired:
+        return {
+            "status": "error",
+            "message": "Restart script timed out"
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Error restarting Celery: {str(e)}"
+        }
+
+
+@app.post("/api/services/restart/redis")
+async def restart_redis():
+    """
+    Restart Redis service using brew services
+
+    Returns:
+        JSON with status of the restart operation
+    """
+    try:
+        import subprocess
+
+        # Try to restart Redis using brew services
+        result = subprocess.run(
+            ['brew', 'services', 'restart', 'redis'],
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+
+        if result.returncode == 0:
+            return {
+                "status": "success",
+                "message": "Redis restarted successfully",
+                "output": result.stdout
+            }
+        else:
+            # If brew fails, try with redis-server directly
+            # Brew restart failed - trying direct start
+
+            # Try starting Redis directly
+            subprocess.Popen(
+                ['redis-server'],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+
+            return {
+                "status": "success",
+                "message": "Attempted to start Redis directly (brew unavailable)"
+            }
+
+    except FileNotFoundError:
+        return {
+            "status": "error",
+            "message": "Brew not found. Please install Redis manually."
+        }
+    except subprocess.TimeoutExpired:
+        return {
+            "status": "error",
+            "message": "Redis restart timed out"
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Error restarting Redis: {str(e)}"
+        }
+
+
+@app.post("/api/services/restart/backend")
+async def restart_backend():
+    """
+    Restart the backend server (this endpoint will cause connection loss)
+
+    Returns:
+        JSON with status message (client will lose connection immediately after)
+    """
+    try:
+        import os
+        import signal
+
+        # Get current process PID
+        current_pid = os.getpid()
+
+        # Backend restart requested
+
+        # Schedule restart after response is sent
+        async def delayed_restart():
+            import asyncio
+            await asyncio.sleep(1)  # Give time for response to be sent
+            # Sending SIGTERM to self for restart
+            os.kill(current_pid, signal.SIGTERM)
+
+        # Import asyncio and create task
+        import asyncio
+        asyncio.create_task(delayed_restart())
+
+        return {
+            "status": "success",
+            "message": "Backend restart initiated. Server will be unavailable for a few seconds."
+        }
+
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Error restarting backend: {str(e)}"
+        }
 
 
 @app.get("/api/squads")
@@ -2144,25 +2399,18 @@ async def get_dual_progress():
     - execution: How many cards have been executed (Celery workers execution)
     - overall: Overall project progress
 
-    Example:
+    Example (before backlog generation):
     {
-      "planning": {
-        "cards_created": 35,
-        "cards_planned": 180,
-        "progress_percentage": 19.4
-      },
-      "execution": {
-        "cards_done": 8,
-        "cards_in_progress": 3,
-        "cards_todo": 24,
-        "total_cards": 35,
-        "progress_percentage": 22.9
-      },
-      "overall": {
-        "cards_finalized": 8,
-        "cards_total_estimated": 180,
-        "progress_percentage": 4.4
-      }
+      "planning": {"cards_created": 0, "cards_planned": 0, "progress_percentage": 0.0},
+      "execution": {"cards_done": 0, "cards_in_progress": 0, "cards_todo": 0, "total_cards": 0, "progress_percentage": 0.0},
+      "overall": {"cards_finalized": 0, "cards_total_estimated": 0, "progress_percentage": 0.0}
+    }
+
+    Example (after backlog generation - 63 cards):
+    {
+      "planning": {"cards_created": 35, "cards_planned": 63, "progress_percentage": 55.6},
+      "execution": {"cards_done": 8, "cards_in_progress": 3, "cards_todo": 24, "total_cards": 35, "progress_percentage": 22.9},
+      "overall": {"cards_finalized": 8, "cards_total_estimated": 63, "progress_percentage": 12.7}
     }
     """
     try:
@@ -2170,10 +2418,11 @@ async def get_dual_progress():
         backlog_file = STATE_DIR / "backlog_master.json"
 
         if not backlog_file.exists():
+            # Before backlog generation, show 0 planned cards
             return {
                 "planning": {
                     "cards_created": 0,
-                    "cards_planned": 180,
+                    "cards_planned": 0,
                     "progress_percentage": 0.0
                 },
                 "execution": {
@@ -2185,7 +2434,7 @@ async def get_dual_progress():
                 },
                 "overall": {
                     "cards_finalized": 0,
-                    "cards_total_estimated": 180,
+                    "cards_total_estimated": 0,
                     "progress_percentage": 0.0
                 }
             }
@@ -2675,6 +2924,540 @@ async def get_project_data():
         }
 
 
+@app.post("/api/cleanup")
+async def cleanup_execution():
+    """
+    Cleanup all execution data (app-solution, app-artefacts, DB, logs)
+
+    This endpoint is called BEFORE project analysis to ensure clean state.
+    Deletes:
+    - app-solution/ (generated code)
+    - app-artefacts/ (output files)
+    - Database tables (events, cards, checkpoints)
+    - Execution logs
+
+    Returns:
+        JSON with cleanup status
+    """
+    try:
+        print("\n🧹 LIMPEZA COMPLETA - Removendo dados de execução anterior...")
+
+        # 1. Delete app-solution/
+        solution_dir = BASE_DIR.parent / "app-solution"
+        if solution_dir.exists():
+            shutil.rmtree(solution_dir)
+            print(f"   ✅ Removido: {solution_dir}")
+        solution_dir.mkdir(parents=True, exist_ok=True)
+
+        # 2. Delete app-artefacts/
+        artefacts_dir = BASE_DIR.parent / "app-artefacts"
+        if artefacts_dir.exists():
+            shutil.rmtree(artefacts_dir)
+            print(f"   ✅ Removido: {artefacts_dir}")
+        artefacts_dir.mkdir(parents=True, exist_ok=True)
+
+        # 3. Clear database tables
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+
+        cursor.execute("DELETE FROM events")
+        cursor.execute("DELETE FROM cards")
+        cursor.execute("DELETE FROM checkpoints")
+
+        conn.commit()
+        conn.close()
+        print("   ✅ Database limpa (events, cards, checkpoints)")
+
+        # 4. Clear logs (keep directory)
+        if LOGS_DIR.exists():
+            for log_file in LOGS_DIR.glob("*.log"):
+                log_file.unlink()
+            print(f"   ✅ Logs removidos: {LOGS_DIR}")
+
+        # 5. Clear state files (keep directory structure)
+        if STATE_DIR.exists():
+            # Keep backlog_master.json structure, but reset it
+            backlog_file = STATE_DIR / "backlog_master.json"
+            if backlog_file.exists():
+                backlog_file.write_text(json.dumps({
+                    "project": "SuperCore v2.0",
+                    "cards": [],
+                    "journal": [],
+                    "metadata": {"total_cards": 0}
+                }, indent=2))
+                print("   ✅ backlog_master.json resetado")
+
+        print("✅ LIMPEZA COMPLETA!")
+
+        return {
+            "status": "success",
+            "message": "Cleanup completed successfully",
+            "cleaned": {
+                "solution_dir": str(solution_dir),
+                "artefacts_dir": str(artefacts_dir),
+                "database_tables": ["events", "cards", "checkpoints"],
+                "logs": str(LOGS_DIR),
+                "state": str(STATE_DIR)
+            }
+        }
+
+    except Exception as e:
+        import traceback
+        print(f"❌ Erro durante cleanup: {e}")
+        print(traceback.format_exc())
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro durante cleanup: {str(e)}"
+        )
+
+
+@app.post("/api/squados/initialize")
+async def initialize_squados():
+    """
+    Initialize SquadOS - Complete system initialization and cleanup
+
+    This endpoint:
+    1. Checks and starts all required services (Backend, Celery, Redis)
+    2. Performs complete cleanup (cards, artefacts, code, logs, state)
+    3. Resets system to pristine state ready for new project
+    4. Returns status of all services and cleanup operations
+
+    Called when user clicks "Iniciar SquadOS" button (first step before analysis)
+    """
+    try:
+        print("\n🚀 INICIALIZANDO SQUADOS - Sistema de Geração Autônoma")
+
+        initialization_status = {
+            "status": "success",
+            "services": {},
+            "cleanup": {},
+            "ready": False
+        }
+
+        # ========================================
+        # STEP 1: Check and start all services
+        # ========================================
+        print("\n📊 PASSO 1: Verificando e iniciando serviços...")
+
+        # 1.1 Backend is already running (this endpoint is responding)
+        initialization_status["services"]["backend"] = {
+            "status": "running",
+            "message": "Backend API operacional (porta 3000)"
+        }
+        print("   ✅ Backend API: Rodando")
+
+        # 1.2 Check/Start Celery Worker
+        try:
+            celery_health = await check_celery_health()
+            if celery_health.get("celery_worker") == "healthy":
+                initialization_status["services"]["celery"] = {
+                    "status": "running",
+                    "message": "Celery Worker já está rodando"
+                }
+                print("   ✅ Celery Worker: Já rodando")
+            else:
+                # Try to start Celery
+                print("   🔄 Celery Worker offline - iniciando...")
+                celery_script = BASE_DIR / "app-execution" / "start-celery-worker.sh"
+
+                if celery_script.exists():
+                    result = subprocess.run(
+                        ["bash", str(celery_script)],
+                        cwd=BASE_DIR,
+                        capture_output=True,
+                        text=True,
+                        timeout=10
+                    )
+
+                    if result.returncode == 0:
+                        initialization_status["services"]["celery"] = {
+                            "status": "started",
+                            "message": "Celery Worker iniciado com sucesso"
+                        }
+                        print("   ✅ Celery Worker: Iniciado")
+                    else:
+                        initialization_status["services"]["celery"] = {
+                            "status": "error",
+                            "message": f"Falha ao iniciar Celery: {result.stderr}"
+                        }
+                        print(f"   ❌ Celery Worker: Erro ao iniciar")
+                else:
+                    initialization_status["services"]["celery"] = {
+                        "status": "error",
+                        "message": "Script de inicialização não encontrado"
+                    }
+        except Exception as e:
+            initialization_status["services"]["celery"] = {
+                "status": "error",
+                "message": f"Erro ao verificar Celery: {str(e)}"
+            }
+            print(f"   ❌ Celery Worker: {str(e)}")
+
+        # 1.3 Check/Start Redis
+        try:
+            redis_health = await check_redis_health()
+            if redis_health.get("redis") == "healthy":
+                initialization_status["services"]["redis"] = {
+                    "status": "running",
+                    "message": f"Redis operacional (v{redis_health.get('version', 'unknown')})"
+                }
+                print(f"   ✅ Redis: Rodando (v{redis_health.get('version', 'unknown')})")
+            else:
+                # Try to start Redis
+                print("   🔄 Redis offline - tentando iniciar...")
+                try:
+                    result = subprocess.run(
+                        ["redis-server", "--daemonize", "yes"],
+                        capture_output=True,
+                        text=True,
+                        timeout=5
+                    )
+
+                    if result.returncode == 0:
+                        # Wait a bit for Redis to start
+                        await asyncio.sleep(1)
+                        # Check again
+                        redis_health = await check_redis_health()
+                        if redis_health.get("redis") == "healthy":
+                            initialization_status["services"]["redis"] = {
+                                "status": "started",
+                                "message": f"Redis iniciado com sucesso (v{redis_health.get('version', 'unknown')})"
+                            }
+                            print(f"   ✅ Redis: Iniciado (v{redis_health.get('version', 'unknown')})")
+                        else:
+                            initialization_status["services"]["redis"] = {
+                                "status": "error",
+                                "message": "Redis iniciado mas não está respondendo"
+                            }
+                            print("   ❌ Redis: Iniciado mas não está respondendo")
+                    else:
+                        initialization_status["services"]["redis"] = {
+                            "status": "error",
+                            "message": f"Falha ao iniciar Redis: {result.stderr}"
+                        }
+                        print(f"   ❌ Redis: Erro ao iniciar - {result.stderr}")
+                except FileNotFoundError:
+                    initialization_status["services"]["redis"] = {
+                        "status": "error",
+                        "message": "redis-server não encontrado - instale Redis primeiro"
+                    }
+                    print("   ❌ Redis: redis-server não encontrado no PATH")
+                except Exception as start_err:
+                    initialization_status["services"]["redis"] = {
+                        "status": "error",
+                        "message": f"Erro ao tentar iniciar Redis: {str(start_err)}"
+                    }
+                    print(f"   ❌ Redis: Erro ao iniciar - {str(start_err)}")
+        except Exception as e:
+            initialization_status["services"]["redis"] = {
+                "status": "error",
+                "message": f"Erro ao verificar Redis: {str(e)}"
+            }
+            print(f"   ❌ Redis: {str(e)}")
+
+        # ========================================
+        # STEP 2: Complete cleanup
+        # ========================================
+        print("\n🧹 PASSO 2: Limpeza completa do sistema...")
+
+        # 2.1 Delete app-solution/
+        solution_dir = BASE_DIR.parent / "app-solution"
+        if solution_dir.exists():
+            shutil.rmtree(solution_dir)
+        solution_dir.mkdir(parents=True, exist_ok=True)
+        initialization_status["cleanup"]["solution_dir"] = str(solution_dir)
+        print(f"   ✅ Código gerado limpo: {solution_dir}")
+
+        # 2.2 Delete app-artefacts/
+        artefacts_dir = BASE_DIR.parent / "app-artefacts"
+        if artefacts_dir.exists():
+            shutil.rmtree(artefacts_dir)
+        artefacts_dir.mkdir(parents=True, exist_ok=True)
+        initialization_status["cleanup"]["artefacts_dir"] = str(artefacts_dir)
+        print(f"   ✅ Artefatos limpos: {artefacts_dir}")
+
+        # 2.3 Clear database tables AND reset bootstrap status
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM events")
+        cursor.execute("DELETE FROM cards")
+        cursor.execute("DELETE FROM checkpoints")
+
+        # Reset bootstrap status to idle (clean slate)
+        from datetime import datetime
+        new_session_id = f"session_{int(time.time())}"
+        cursor.execute("""
+            INSERT OR REPLACE INTO sessions (session_id, status, started_at)
+            VALUES (?, ?, ?)
+        """, (new_session_id, "idle", datetime.now().isoformat()))
+
+        conn.commit()
+        conn.close()
+        initialization_status["cleanup"]["database_tables"] = ["events", "cards", "checkpoints"]
+        initialization_status["cleanup"]["bootstrap_status"] = "reset to idle"
+        print("   ✅ Database limpa (events, cards, checkpoints)")
+        print("   ✅ Bootstrap status resetado para 'idle'")
+
+        # Also reset bootstrap controller status file
+        bootstrap_status_file = DATA_DIR / "bootstrap_status.json"
+        if bootstrap_status_file.exists():
+            bootstrap_status_file.unlink()
+        print("   ✅ Bootstrap status file removido")
+
+        # Save new idle status
+        bootstrap_controller.save_status(BootstrapStatus(
+            status="idle",
+            session_id=new_session_id,
+            pid=None,
+            started_at=None
+        ))
+        print("   ✅ Bootstrap controller resetado para 'idle'")
+
+        # 2.4 Clear logs
+        if LOGS_DIR.exists():
+            for log_file in LOGS_DIR.glob("*.log"):
+                log_file.unlink()
+        initialization_status["cleanup"]["logs"] = str(LOGS_DIR)
+        print(f"   ✅ Logs removidos: {LOGS_DIR}")
+
+        # 2.5 Clear state directory
+        state_dir = BASE_DIR / "app-execution" / "state"
+        if state_dir.exists():
+            # Keep directory but clear contents except .gitkeep
+            for item in state_dir.iterdir():
+                if item.name != '.gitkeep':
+                    if item.is_file():
+                        item.unlink()
+                    elif item.is_dir():
+                        shutil.rmtree(item)
+        initialization_status["cleanup"]["state"] = str(state_dir)
+        print(f"   ✅ Estado limpo: {state_dir}")
+
+        # ========================================
+        # STEP 3: Verify system is ready
+        # ========================================
+        print("\n🔍 PASSO 3: Verificando prontidão do sistema...")
+
+        # Check if all critical services are running
+        backend_ok = initialization_status["services"]["backend"]["status"] == "running"
+        celery_ok = initialization_status["services"]["celery"]["status"] in ["running", "started"]
+        redis_ok = initialization_status["services"]["redis"]["status"] == "running"
+
+        initialization_status["ready"] = backend_ok and celery_ok and redis_ok
+
+        if initialization_status["ready"]:
+            print("\n✅ SQUADOS PRONTO - Todos os serviços operacionais e sistema limpo!")
+            print("   📋 Próximo passo: Analisar Projeto (gerar backlog)")
+        else:
+            print("\n⚠️  SQUADOS PARCIALMENTE PRONTO - Alguns serviços offline")
+            print("   🔧 Inicie os serviços offline manualmente")
+
+        return initialization_status
+
+    except Exception as e:
+        import traceback
+        print(f"❌ Erro durante inicialização do SquadOS: {e}")
+        print(traceback.format_exc())
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro durante inicialização do SquadOS: {str(e)}"
+        )
+
+
+@app.post("/api/squados/shutdown")
+async def shutdown_squados():
+    """
+    Shutdown SquadOS - Stop all services (Celery, Redis)
+    Backend will remain running to respond to this request
+    """
+    try:
+        print("\n" + "="*80)
+        print("🛑 SHUTDOWN SQUADOS - Parando todos os serviços...")
+        print("="*80)
+
+        shutdown_status = {
+            "services": {
+                "celery": {},
+                "redis": {}
+            },
+            "timestamp": time.time()
+        }
+
+        # ========================================
+        # STEP 1: Stop Celery Worker
+        # ========================================
+        print("\n🔄 PASSO 1: Parando Celery Worker...")
+        try:
+            # Find and kill all celery worker processes
+            result = subprocess.run(
+                ["pgrep", "-f", "celery.*worker"],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+
+            if result.returncode == 0 and result.stdout.strip():
+                pids = result.stdout.strip().split('\n')
+                for pid in pids:
+                    try:
+                        subprocess.run(["kill", pid], timeout=5)
+                        print(f"   ✅ Celery worker parado (PID: {pid})")
+                    except Exception as e:
+                        print(f"   ⚠️  Erro ao parar worker {pid}: {e}")
+
+                shutdown_status["services"]["celery"] = {
+                    "status": "stopped",
+                    "message": f"Celery workers parados ({len(pids)} processos)",
+                    "pids": pids
+                }
+            else:
+                shutdown_status["services"]["celery"] = {
+                    "status": "not_running",
+                    "message": "Celery worker não estava rodando"
+                }
+                print("   ℹ️  Celery worker não estava rodando")
+
+        except Exception as e:
+            shutdown_status["services"]["celery"] = {
+                "status": "error",
+                "message": f"Erro ao parar Celery: {str(e)}"
+            }
+            print(f"   ❌ Erro ao parar Celery: {e}")
+
+        # ========================================
+        # STEP 2: Stop Redis
+        # ========================================
+        print("\n🔄 PASSO 2: Parando Redis...")
+        try:
+            # Try to shutdown Redis gracefully via redis-cli
+            result = subprocess.run(
+                ["redis-cli", "shutdown"],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+
+            if result.returncode == 0:
+                shutdown_status["services"]["redis"] = {
+                    "status": "stopped",
+                    "message": "Redis parado com sucesso"
+                }
+                print("   ✅ Redis parado com sucesso")
+            else:
+                # Try to kill redis-server process
+                result = subprocess.run(
+                    ["pgrep", "-f", "redis-server"],
+                    capture_output=True,
+                    text=True,
+                    timeout=5
+                )
+
+                if result.returncode == 0 and result.stdout.strip():
+                    pids = result.stdout.strip().split('\n')
+                    for pid in pids:
+                        try:
+                            subprocess.run(["kill", pid], timeout=5)
+                            print(f"   ✅ Redis parado (PID: {pid})")
+                        except Exception as e:
+                            print(f"   ⚠️  Erro ao parar Redis {pid}: {e}")
+
+                    shutdown_status["services"]["redis"] = {
+                        "status": "stopped",
+                        "message": f"Redis parado ({len(pids)} processos)",
+                        "pids": pids
+                    }
+                else:
+                    shutdown_status["services"]["redis"] = {
+                        "status": "not_running",
+                        "message": "Redis não estava rodando"
+                    }
+                    print("   ℹ️  Redis não estava rodando")
+
+        except FileNotFoundError:
+            shutdown_status["services"]["redis"] = {
+                "status": "error",
+                "message": "redis-cli não encontrado - Redis pode continuar rodando"
+            }
+            print("   ⚠️  redis-cli não encontrado")
+        except Exception as e:
+            shutdown_status["services"]["redis"] = {
+                "status": "error",
+                "message": f"Erro ao parar Redis: {str(e)}"
+            }
+            print(f"   ❌ Erro ao parar Redis: {e}")
+
+        # ========================================
+        # STEP 3: Summary
+        # ========================================
+        print("\n✅ SHUTDOWN COMPLETO")
+        print("   📋 Backend continua rodando (porta 3000)")
+        print("   🛑 Celery Worker: " + shutdown_status["services"]["celery"]["message"])
+        print("   🛑 Redis: " + shutdown_status["services"]["redis"]["message"])
+        print("="*80 + "\n")
+
+        return shutdown_status
+
+    except Exception as e:
+        import traceback
+        print(f"❌ Erro durante shutdown do SquadOS: {e}")
+        print(traceback.format_exc())
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro durante shutdown do SquadOS: {str(e)}"
+        )
+
+
+@app.post("/api/backlog/generate")
+async def generate_backlog():
+    """
+    Generate rigorous backlog from Fase 1 requirements (RF001-RF017)
+
+    This endpoint:
+    1. Analyzes all 14 RFs from Phase 1 (Oráculo + Objetos)
+    2. Calculates EXACT number of cards per RF based on complexity
+    3. Generates 63 product cards with detailed specifications
+    4. Saves to backlog_master.json
+    5. Returns summary statistics
+
+    Called after cleanup and BEFORE "Iniciar Projeto"
+    """
+    try:
+        import sys
+        import importlib.util
+
+        # Load backlog_generator module dynamically
+        backlog_gen_file = BASE_DIR / "app-execution" / "backlog_generator.py"
+
+        spec = importlib.util.spec_from_file_location("backlog_generator", backlog_gen_file)
+        backlog_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(backlog_module)
+
+        BacklogGenerator = backlog_module.BacklogGenerator
+
+        print("📋 Gerando backlog rigoroso da Fase 1...")
+
+        generator = BacklogGenerator()
+        summary = generator.run()
+
+        print(f"✅ Backlog gerado: {summary['total_cards']} cards de produto")
+
+        return {
+            "status": "success",
+            "message": f"Backlog gerado com sucesso: {summary['total_cards']} cards de produto",
+            "summary": summary,
+            "backlog_ready": True
+        }
+
+    except Exception as e:
+        import traceback
+        print(f"❌ Erro ao gerar backlog: {e}")
+        print(traceback.format_exc())
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro ao gerar backlog: {str(e)}"
+        )
+
+
 @app.post("/api/execution/pause")
 async def pause_execution():
     """
@@ -2686,7 +3469,7 @@ async def pause_execution():
     - Creates pause flag for orchestrator
     """
     try:
-        script_path = BASE_DIR / "project-lifecycle.sh"
+        script_path = BASE_DIR / "app-execution" / "project-lifecycle.sh"
 
         if not script_path.exists():
             raise HTTPException(
@@ -2738,7 +3521,7 @@ async def resume_execution():
     - Removes pause flag
     """
     try:
-        script_path = BASE_DIR / "project-lifecycle.sh"
+        script_path = BASE_DIR / "app-execution" / "project-lifecycle.sh"
 
         if not script_path.exists():
             raise HTTPException(
@@ -3125,6 +3908,202 @@ async def upload_config(file: UploadFile = File(...)):
     except json.JSONDecodeError as e:
         config_path.unlink()  # Delete invalid file
         raise HTTPException(status_code=400, detail=f"Invalid JSON: {str(e)}")
+
+
+# ============================================================================
+# Human-in-the-Loop Reviews
+# ============================================================================
+
+class HumanReview(BaseModel):
+    """Human review request"""
+    review_id: str
+    session_id: str
+    phase: str
+    timestamp: str
+    summary: str
+    artifacts: List[str]
+    status: str  # AWAITING_APPROVAL, APPROVED, REJECTED
+
+
+class ApproveReviewRequest(BaseModel):
+    """Request to approve a review"""
+    approved_by: str
+
+
+class RejectReviewRequest(BaseModel):
+    """Request to reject a review"""
+    rejected_by: str
+    rejection_reason: str
+
+
+@app.get("/api/reviews/pending")
+async def get_pending_reviews():
+    """Get all pending reviews awaiting human approval"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT review_id, session_id, phase, timestamp, summary, artifacts, status
+        FROM human_reviews
+        WHERE status = 'AWAITING_APPROVAL'
+        ORDER BY timestamp DESC
+    """)
+
+    reviews = []
+    for row in cursor.fetchall():
+        reviews.append({
+            "review_id": row[0],
+            "session_id": row[1],
+            "phase": row[2],
+            "timestamp": row[3],
+            "summary": row[4],
+            "artifacts": json.loads(row[5]) if row[5] else [],
+            "status": row[6]
+        })
+
+    conn.close()
+    return reviews
+
+
+@app.post("/api/reviews/{review_id}/approve")
+async def approve_review(review_id: str, request: ApproveReviewRequest):
+    """Approve a human review checkpoint"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Check if review exists
+    cursor.execute(
+        "SELECT status FROM human_reviews WHERE review_id = ?",
+        (review_id,)
+    )
+    row = cursor.fetchone()
+
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=404, detail=f"Review {review_id} not found")
+
+    if row[0] != "AWAITING_APPROVAL":
+        conn.close()
+        raise HTTPException(
+            status_code=400,
+            detail=f"Review {review_id} is already {row[0]}"
+        )
+
+    # Update status to APPROVED
+    cursor.execute("""
+        UPDATE human_reviews
+        SET status = 'APPROVED',
+            approved_by = ?,
+            approved_at = datetime('now')
+        WHERE review_id = ?
+    """, (request.approved_by, review_id))
+
+    conn.commit()
+    conn.close()
+
+    # Log approval event
+    log_event(
+        event_type="human_review_approved",
+        squad="MetaOrchestrator",
+        message=f"✅ Review {review_id} approved by {request.approved_by}",
+        metadata={"review_id": review_id, "approved_by": request.approved_by}
+    )
+
+    return {
+        "status": "success",
+        "message": f"Review {review_id} approved successfully",
+        "review_id": review_id
+    }
+
+
+@app.post("/api/reviews/{review_id}/reject")
+async def reject_review(review_id: str, request: RejectReviewRequest):
+    """Reject a human review checkpoint"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Check if review exists
+    cursor.execute(
+        "SELECT status FROM human_reviews WHERE review_id = ?",
+        (review_id,)
+    )
+    row = cursor.fetchone()
+
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=404, detail=f"Review {review_id} not found")
+
+    if row[0] != "AWAITING_APPROVAL":
+        conn.close()
+        raise HTTPException(
+            status_code=400,
+            detail=f"Review {review_id} is already {row[0]}"
+        )
+
+    # Update status to REJECTED
+    cursor.execute("""
+        UPDATE human_reviews
+        SET status = 'REJECTED',
+            approved_by = ?,
+            approved_at = datetime('now'),
+            rejection_reason = ?
+        WHERE review_id = ?
+    """, (request.rejected_by, request.rejection_reason, review_id))
+
+    conn.commit()
+    conn.close()
+
+    # Log rejection event
+    log_event(
+        event_type="human_review_rejected",
+        squad="MetaOrchestrator",
+        message=f"❌ Review {review_id} rejected by {request.rejected_by}: {request.rejection_reason}",
+        metadata={
+            "review_id": review_id,
+            "rejected_by": request.rejected_by,
+            "rejection_reason": request.rejection_reason
+        }
+    )
+
+    return {
+        "status": "success",
+        "message": f"Review {review_id} rejected",
+        "review_id": review_id,
+        "rejection_reason": request.rejection_reason
+    }
+
+
+@app.get("/api/reviews/history")
+async def get_review_history(limit: int = 50):
+    """Get review history (all reviews, paginated)"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT review_id, session_id, phase, timestamp, summary, artifacts, status,
+               approved_by, approved_at, rejection_reason
+        FROM human_reviews
+        ORDER BY timestamp DESC
+        LIMIT ?
+    """, (limit,))
+
+    reviews = []
+    for row in cursor.fetchall():
+        reviews.append({
+            "review_id": row[0],
+            "session_id": row[1],
+            "phase": row[2],
+            "timestamp": row[3],
+            "summary": row[4],
+            "artifacts": json.loads(row[5]) if row[5] else [],
+            "status": row[6],
+            "approved_by": row[7],
+            "approved_at": row[8],
+            "rejection_reason": row[9]
+        })
+
+    conn.close()
+    return reviews
 
 
 # ============================================================================

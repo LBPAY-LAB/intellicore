@@ -1,9 +1,3896 @@
 {
   "project": "SuperCore v2.0",
-  "cards": [],
+  "updated_at": "2025-12-26T20:30:32.853099",
+  "cards": [
+    {
+      "card_id": "EPIC-001",
+      "title": "Product Owner - Complete Documentation Analysis & Backlog Generation",
+      "description": "\n**CRITICAL TASK**: Product Owner Agent must autonomously:\n\n1. **Read ALL Documentation**:\n   - documentation-base/requisitos_funcionais_v2.0.md\n   - documentation-base/arquitetura_supercore_v2.0.md\n   - documentation-base/stack_supercore_v2.0.md\n\n2. **Deep Analysis with LLM**:\n   - Analyze ALL functional requirements (RF001-RF039+)\n   - Extract features, epics, user stories\n   - Map dependencies between requirements\n   - Prioritize using MoSCoW framework\n\n3. **Generate Comprehensive Product Backlog**:\n   - MINIMUM 50 cards (expected 50-80+)\n   - Each card MUST have:\n     - User story: \"As a [user], I want [action], so that [benefit]\"\n     - 3-5 testable acceptance criteria\n     - Effort estimate (S, M, L, XL)\n     - Business value\n     - Dependencies\n   - Cover ALL 39+ functional requirements\n\n4. **Create Artifacts**:\n   - backlog_produto_completo.json (complete backlog)\n   - MVP_Features.md (prioritized features)\n   - User_Stories_Completo.md (all user stories)\n   - Success_Metrics.md (KPIs and metrics)\n   - ux-designs/wireframes/ (wireframe descriptions)\n   - ux-designs/user-flows/ (user flow diagrams)\n\n5. **Validate Outputs**:\n   - Verify minimum 50 cards generated\n   - Ensure all cards have required fields\n   - Check all artifacts created\n\n**Agent**: `agents/product_owner_agent.py`\n**Execution**: Via Celery task `execute_product_owner_card()`\n**Output**: Cards saved to `state/backlog_master.json` + artifacts in `app-artefacts/produto/`\n\n**THIS IS THE FOUNDATION OF THE ENTIRE PROJECT.**\nAll subsequent squads (Arquitetura, Engenharia, QA, Deploy) depend on these cards.\n            ",
+      "type": "epic",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "priority": "CRITICAL",
+      "created_at": "2025-12-26T19:38:13.062497",
+      "updated_at": "2025-12-26T19:38:13.062498",
+      "assigned_to": null,
+      "parent_card": null,
+      "child_cards": [],
+      "depends_on": [],
+      "blocks": [],
+      "acceptance_criteria": [
+        "✅ Product Owner Agent successfully executed",
+        "✅ Minimum 50 product cards generated",
+        "✅ All 39+ functional requirements covered by cards",
+        "✅ Each card has user story and acceptance criteria",
+        "✅ backlog_produto_completo.json created",
+        "✅ MVP_Features.md created",
+        "✅ User_Stories_Completo.md created",
+        "✅ Success_Metrics.md created",
+        "✅ Wireframes index created",
+        "✅ All cards saved to state/backlog_master.json"
+      ],
+      "deliverables": [],
+      "tags": [],
+      "story_points": 0,
+      "created_by": "meta-orchestrator",
+      "started_at": null,
+      "completed_at": null,
+      "state_history": [],
+      "comments": [],
+      "qa_cycles": 0,
+      "blocked_reason": null,
+      "blocked_since": null,
+      "celery_task_id": "c5a629d0-5dbc-4f0d-845d-7b8f3464801f"
+    },
+    {
+      "card_id": "PROD-001",
+      "title": "RF001 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Gerenciamento de Oráculos. **Descrição**: Criar, editar, deletar, listar, clonar Oráculos com tipagem (Frontend vs Backend)\n\n**Tipos de Oráculos**:\n\n1. **Oráculo Backend** (`type: \"backend\"`):\n   - Gera APIs REST/GraphQL para g",
+      "user_story": "As a Tech Lead, I want to design the architecture for Gerenciamento de Oráculos, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF001"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Ensures Gerenciamento de Oráculos is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF001.md",
+        "diagram-RF001.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849502",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "22904762-8d92-4b07-8bd3-ce61563f5223"
+    },
+    {
+      "card_id": "PROD-002",
+      "title": "RF001 - Backend Implementation",
+      "description": "Implement backend for Gerenciamento de Oráculos. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Gerenciamento de Oráculos, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF001"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "XL",
+      "business_value": "Delivers core functionality for Gerenciamento de Oráculos",
+      "dependencies": [
+        "PROD-001"
+      ],
+      "deliverables": [
+        "api-RF001.py",
+        "tests-RF001.py",
+        "migration-RF001.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849508",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "142008ba-fa0c-4fc3-99c9-28927b624cae"
+    },
+    {
+      "card_id": "PROD-003",
+      "title": "RF001 - Frontend Implementation",
+      "description": "Implement UI for Gerenciamento de Oráculos. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Gerenciamento de Oráculos through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF001"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Gerenciamento de Oráculos",
+      "dependencies": [
+        "PROD-002"
+      ],
+      "deliverables": [
+        "component-RF001.tsx",
+        "e2e-RF001.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849512",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "f3423d14-23c5-4545-8b76-3ba1b2417099"
+    },
+    {
+      "card_id": "PROD-004",
+      "title": "RF002 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Ingestão Multimodal de Conhecimento. **Descrição**: Sistema aceita múltiplos formatos de documentos para alimentar cada Oráculo\n\n- PDFs de regulações (BACEN, legislação, políticas)\n- Documentos Word/Google Docs (documentação, políticas i",
+      "user_story": "As a Tech Lead, I want to design the architecture for Ingestão Multimodal de Conhecimento, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF002"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Ensures Ingestão Multimodal de Conhecimento is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF002.md",
+        "diagram-RF002.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849521",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "8a96e774-3439-4205-affe-544418fef336"
+    },
+    {
+      "card_id": "PROD-005",
+      "title": "RF002 - Backend Implementation",
+      "description": "Implement backend for Ingestão Multimodal de Conhecimento. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Ingestão Multimodal de Conhecimento, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF002"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "XL",
+      "business_value": "Delivers core functionality for Ingestão Multimodal de Conhecimento",
+      "dependencies": [
+        "PROD-004"
+      ],
+      "deliverables": [
+        "api-RF002.py",
+        "tests-RF002.py",
+        "migration-RF002.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849523",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "706bf3ac-cd9f-456e-bd4c-03d2e18259fc"
+    },
+    {
+      "card_id": "PROD-006",
+      "title": "RF002 - Frontend Implementation",
+      "description": "Implement UI for Ingestão Multimodal de Conhecimento. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Ingestão Multimodal de Conhecimento through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF002"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Ingestão Multimodal de Conhecimento",
+      "dependencies": [
+        "PROD-005"
+      ],
+      "deliverables": [
+        "component-RF002.tsx",
+        "e2e-RF002.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849525",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "fdc2265f-7d7d-4379-915f-901a9d4a5074"
+    },
+    {
+      "card_id": "PROD-007",
+      "title": "RF003 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Processamento e Enriquecimento de Documentos. **Descrição**: Documentos ingeridos passam por pipeline de processamento por Oráculo\n\n- Extração de texto e imagens\n- Chunking semântico (divisão lógica, não por caracteres)\n- Embedding em vetores num",
+      "user_story": "As a Tech Lead, I want to design the architecture for Processamento e Enriquecimento de Documentos, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF003"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Ensures Processamento e Enriquecimento de Documentos is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF003.md",
+        "diagram-RF003.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849526",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "989767cd-97b7-4756-b309-39d0cc068ead"
+    },
+    {
+      "card_id": "PROD-008",
+      "title": "RF003 - Backend Implementation",
+      "description": "Implement backend for Processamento e Enriquecimento de Documentos. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Processamento e Enriquecimento de Documentos, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF003"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "XL",
+      "business_value": "Delivers core functionality for Processamento e Enriquecimento de Documentos",
+      "dependencies": [
+        "PROD-007"
+      ],
+      "deliverables": [
+        "api-RF003.py",
+        "tests-RF003.py",
+        "migration-RF003.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849528",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "bf448a89-2c97-43d7-b160-48309caa3ea5"
+    },
+    {
+      "card_id": "PROD-009",
+      "title": "RF003 - Frontend Implementation",
+      "description": "Implement UI for Processamento e Enriquecimento de Documentos. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Processamento e Enriquecimento de Documentos through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF003"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Processamento e Enriquecimento de Documentos",
+      "dependencies": [
+        "PROD-008"
+      ],
+      "deliverables": [
+        "component-RF003.tsx",
+        "e2e-RF003.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849529",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "78458dbc-a947-438a-abda-1ef140e5c905"
+    },
+    {
+      "card_id": "PROD-010",
+      "title": "RF004 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Knowledge Graph do Oráculo. **Descrição**: Conhecimento processado armazenado em grafo semântico por Oráculo\n\n- Nós: entidades (Conta, Cliente, Transação, Resolução BACEN, Lead, Contact, Deal, Patient, etc)\n- Arestas: relações d",
+      "user_story": "As a Tech Lead, I want to design the architecture for Knowledge Graph do Oráculo, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF004"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Ensures Knowledge Graph do Oráculo is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF004.md",
+        "diagram-RF004.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849531",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "631d4241-8015-4f2f-9788-aa9fbde04d06"
+    },
+    {
+      "card_id": "PROD-011",
+      "title": "RF004 - Backend Implementation",
+      "description": "Implement backend for Knowledge Graph do Oráculo. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Knowledge Graph do Oráculo, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF004"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "XL",
+      "business_value": "Delivers core functionality for Knowledge Graph do Oráculo",
+      "dependencies": [
+        "PROD-010"
+      ],
+      "deliverables": [
+        "api-RF004.py",
+        "tests-RF004.py",
+        "migration-RF004.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849533",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "6dd56f84-90d8-45de-b5c1-d64fa115adf1"
+    },
+    {
+      "card_id": "PROD-012",
+      "title": "RF004 - Frontend Implementation",
+      "description": "Implement UI for Knowledge Graph do Oráculo. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Knowledge Graph do Oráculo through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF004"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Knowledge Graph do Oráculo",
+      "dependencies": [
+        "PROD-011"
+      ],
+      "deliverables": [
+        "component-RF004.tsx",
+        "e2e-RF004.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849534",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "74257b8d-9403-44cc-bcf9-7728f6077f43"
+    },
+    {
+      "card_id": "PROD-013",
+      "title": "RF005 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Consulta ao Conhecimento via RAG Trimodal. **Descrição**: LLM consulta Oráculo usando 3 modalidades de busca\n\n- **SQL**: Queries estruturadas em PostgreSQL\n- **Graph**: Navegação de relacionamentos em NebulaGraph\n- **Vector**: Busca semântica ",
+      "user_story": "As a Tech Lead, I want to design the architecture for Consulta ao Conhecimento via RAG Trimodal, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF005"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Ensures Consulta ao Conhecimento via RAG Trimodal is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF005.md",
+        "diagram-RF005.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849536",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "1b19a305-4414-4716-843e-183b812f8a0d"
+    },
+    {
+      "card_id": "PROD-014",
+      "title": "RF005 - Backend Implementation",
+      "description": "Implement backend for Consulta ao Conhecimento via RAG Trimodal. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Consulta ao Conhecimento via RAG Trimodal, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF005"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "XL",
+      "business_value": "Delivers core functionality for Consulta ao Conhecimento via RAG Trimodal",
+      "dependencies": [
+        "PROD-013"
+      ],
+      "deliverables": [
+        "api-RF005.py",
+        "tests-RF005.py",
+        "migration-RF005.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849537",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "51dd2c6f-2ad0-463c-8366-a31ea9acdab7"
+    },
+    {
+      "card_id": "PROD-015",
+      "title": "RF005 - Frontend Implementation",
+      "description": "Implement UI for Consulta ao Conhecimento via RAG Trimodal. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Consulta ao Conhecimento via RAG Trimodal through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF005"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Consulta ao Conhecimento via RAG Trimodal",
+      "dependencies": [
+        "PROD-014"
+      ],
+      "deliverables": [
+        "component-RF005.tsx",
+        "e2e-RF005.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849539",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "26787151-0443-43b5-8f1b-4aa2e1077268"
+    },
+    {
+      "card_id": "PROD-016",
+      "title": "RF006 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Identidade e Configuração do Oráculo. **Descrição**: Oráculo conhece identidade completa e configuração do domínio\n\n**Configuração**:\n- CNPJ/CPF da Instituição (se aplicável)\n- Nome, descrição, domínio (Banking, CRM, Healthcare, etc)\n- Li",
+      "user_story": "As a Tech Lead, I want to design the architecture for Identidade e Configuração do Oráculo, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF006"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Ensures Identidade e Configuração do Oráculo is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF006.md",
+        "diagram-RF006.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849540",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "90c5a85e-d3d4-4936-b0af-50fe30f1c9a8"
+    },
+    {
+      "card_id": "PROD-017",
+      "title": "RF006 - Backend Implementation",
+      "description": "Implement backend for Identidade e Configuração do Oráculo. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Identidade e Configuração do Oráculo, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF006"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "XL",
+      "business_value": "Delivers core functionality for Identidade e Configuração do Oráculo",
+      "dependencies": [
+        "PROD-016"
+      ],
+      "deliverables": [
+        "api-RF006.py",
+        "tests-RF006.py",
+        "migration-RF006.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849542",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "d2fd9464-33aa-47fd-b651-66e48c17e9b5"
+    },
+    {
+      "card_id": "PROD-018",
+      "title": "RF006 - Frontend Implementation",
+      "description": "Implement UI for Identidade e Configuração do Oráculo. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Identidade e Configuração do Oráculo through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF006"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Identidade e Configuração do Oráculo",
+      "dependencies": [
+        "PROD-017"
+      ],
+      "deliverables": [
+        "component-RF006.tsx",
+        "e2e-RF006.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849543",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "cff951d8-c3c7-4c56-aa98-48c88b2e0473"
+    },
+    {
+      "card_id": "PROD-019",
+      "title": "RF010 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Gerenciamento de Object Definitions. **Descrição**: Visualizar, editar, versionar, deletar object_definitions dentro de um Oráculo\n\n**Funcionalidades**:\n- Listar todas as object_definitions do Oráculo\n- Visualizar definição (fields, vali",
+      "user_story": "As a Tech Lead, I want to design the architecture for Gerenciamento de Object Definitions, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF010"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Ensures Gerenciamento de Object Definitions is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF010.md",
+        "diagram-RF010.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849545",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "2e121849-b4e3-4280-8619-87ada6dc314e"
+    },
+    {
+      "card_id": "PROD-020",
+      "title": "RF010 - Backend Implementation",
+      "description": "Implement backend for Gerenciamento de Object Definitions. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Gerenciamento de Object Definitions, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF010"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "XL",
+      "business_value": "Delivers core functionality for Gerenciamento de Object Definitions",
+      "dependencies": [
+        "PROD-019"
+      ],
+      "deliverables": [
+        "api-RF010.py",
+        "tests-RF010.py",
+        "migration-RF010.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849546",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "74033df9-7b44-4379-a6d2-fbe8ddb6564f"
+    },
+    {
+      "card_id": "PROD-021",
+      "title": "RF010 - Frontend Implementation",
+      "description": "Implement UI for Gerenciamento de Object Definitions. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Gerenciamento de Object Definitions through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF010"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Gerenciamento de Object Definitions",
+      "dependencies": [
+        "PROD-020"
+      ],
+      "deliverables": [
+        "component-RF010.tsx",
+        "e2e-RF010.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849548",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "1258f487-93e2-46e2-b04e-9fd2c55d1c9b"
+    },
+    {
+      "card_id": "PROD-022",
+      "title": "RF011 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Geração Automática de Object Definitions via IA. **Descrição**: IA gera object_definitions automaticamente a partir do conhecimento no Oráculo\n\n**Fluxo**:\n1. Usuário descreve entidade: \"Preciso de um objeto para representar uma Conta Bancária\"\n2. IA",
+      "user_story": "As a Tech Lead, I want to design the architecture for Geração Automática de Object Definitions via IA, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF011"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Ensures Geração Automática de Object Definitions via IA is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF011.md",
+        "diagram-RF011.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849549",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "f498e895-c539-4183-9533-f48b56d94d1d"
+    },
+    {
+      "card_id": "PROD-023",
+      "title": "RF011 - Backend Implementation",
+      "description": "Implement backend for Geração Automática de Object Definitions via IA. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Geração Automática de Object Definitions via IA, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF011"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "XL",
+      "business_value": "Delivers core functionality for Geração Automática de Object Definitions via IA",
+      "dependencies": [
+        "PROD-022"
+      ],
+      "deliverables": [
+        "api-RF011.py",
+        "tests-RF011.py",
+        "migration-RF011.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849551",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "c16b4f6f-cd6d-44f6-8ee6-b3b660869e7e"
+    },
+    {
+      "card_id": "PROD-024",
+      "title": "RF011 - Frontend Implementation",
+      "description": "Implement UI for Geração Automática de Object Definitions via IA. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Geração Automática de Object Definitions via IA through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF011"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Geração Automática de Object Definitions via IA",
+      "dependencies": [
+        "PROD-023"
+      ],
+      "deliverables": [
+        "component-RF011.tsx",
+        "e2e-RF011.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849552",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "c00bf90f-3c90-464d-b0b4-c17e7fb17019"
+    },
+    {
+      "card_id": "PROD-025",
+      "title": "RF012 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Criação Dinâmica de Instâncias. **Descrição**: Usuários criam instâncias de objetos sem código via formulários auto-gerados\n\n**Funcionalidades**:\n- Formulários gerados 100% automaticamente\n- Validação client-side sincronizada com se",
+      "user_story": "As a Tech Lead, I want to design the architecture for Criação Dinâmica de Instâncias, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF012"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Ensures Criação Dinâmica de Instâncias is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF012.md",
+        "diagram-RF012.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849554",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "32535faf-25d1-44d5-958f-dcda3980e6b3"
+    },
+    {
+      "card_id": "PROD-026",
+      "title": "RF012 - Backend Implementation",
+      "description": "Implement backend for Criação Dinâmica de Instâncias. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Criação Dinâmica de Instâncias, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF012"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "XL",
+      "business_value": "Delivers core functionality for Criação Dinâmica de Instâncias",
+      "dependencies": [
+        "PROD-025"
+      ],
+      "deliverables": [
+        "api-RF012.py",
+        "tests-RF012.py",
+        "migration-RF012.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849555",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "0071c387-85c8-4619-9c9d-e905dc371fa2"
+    },
+    {
+      "card_id": "PROD-027",
+      "title": "RF012 - Frontend Implementation",
+      "description": "Implement UI for Criação Dinâmica de Instâncias. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Criação Dinâmica de Instâncias through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF012"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Criação Dinâmica de Instâncias",
+      "dependencies": [
+        "PROD-026"
+      ],
+      "deliverables": [
+        "component-RF012.tsx",
+        "e2e-RF012.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849557",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "7374e3f6-e13c-48aa-bdbd-a4ff8f67f134"
+    },
+    {
+      "card_id": "PROD-028",
+      "title": "RF013 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Biblioteca Central de Validações. **Descrição**: Validações armazenadas centralmente e interpretadas em runtime (sem recompile)\n\n**Tipos de Validação**:\n- Estruturais (tipo, tamanho, formato)\n- Negócio (CPF válido, saldo suficiente, h",
+      "user_story": "As a Tech Lead, I want to design the architecture for Biblioteca Central de Validações, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF013"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Ensures Biblioteca Central de Validações is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF013.md",
+        "diagram-RF013.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849559",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "462e0e79-1a83-4054-8291-e6677502d901"
+    },
+    {
+      "card_id": "PROD-029",
+      "title": "RF013 - Backend Implementation",
+      "description": "Implement backend for Biblioteca Central de Validações. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Biblioteca Central de Validações, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF013"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "XL",
+      "business_value": "Delivers core functionality for Biblioteca Central de Validações",
+      "dependencies": [
+        "PROD-028"
+      ],
+      "deliverables": [
+        "api-RF013.py",
+        "tests-RF013.py",
+        "migration-RF013.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849564",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "a68d86a1-2446-42b1-9982-89f12513de4b"
+    },
+    {
+      "card_id": "PROD-030",
+      "title": "RF013 - Frontend Implementation",
+      "description": "Implement UI for Biblioteca Central de Validações. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Biblioteca Central de Validações through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF013"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Biblioteca Central de Validações",
+      "dependencies": [
+        "PROD-029"
+      ],
+      "deliverables": [
+        "component-RF013.tsx",
+        "e2e-RF013.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849566",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "e2f1e15c-5ecc-4229-9ae1-99a8466d1e87"
+    },
+    {
+      "card_id": "PROD-031",
+      "title": "RF014 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Máquina de Estados (FSM) por Objeto. **Descrição**: Cada object_definition tem ciclo de vida (estados + transições)\n\n**Exemplo**:\n- Account: `PENDING` → `ACTIVE` → `SUSPENDED` → `CLOSED`\n- Transições com validações (não pode ir de PENDIN",
+      "user_story": "As a Tech Lead, I want to design the architecture for Máquina de Estados (FSM) por Objeto, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF014"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Ensures Máquina de Estados (FSM) por Objeto is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF014.md",
+        "diagram-RF014.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849567",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "4862def9-f49c-44f0-931a-6767365b4f45"
+    },
+    {
+      "card_id": "PROD-032",
+      "title": "RF014 - Backend Implementation",
+      "description": "Implement backend for Máquina de Estados (FSM) por Objeto. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Máquina de Estados (FSM) por Objeto, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF014"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "XL",
+      "business_value": "Delivers core functionality for Máquina de Estados (FSM) por Objeto",
+      "dependencies": [
+        "PROD-031"
+      ],
+      "deliverables": [
+        "api-RF014.py",
+        "tests-RF014.py",
+        "migration-RF014.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849569",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "c89ee80c-6424-4a5a-a780-4158bfc1285e"
+    },
+    {
+      "card_id": "PROD-033",
+      "title": "RF014 - Frontend Implementation",
+      "description": "Implement UI for Máquina de Estados (FSM) por Objeto. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Máquina de Estados (FSM) por Objeto through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF014"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Máquina de Estados (FSM) por Objeto",
+      "dependencies": [
+        "PROD-032"
+      ],
+      "deliverables": [
+        "component-RF014.tsx",
+        "e2e-RF014.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849570",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "e78c9d0c-087d-479d-b0ed-fc3bed1a11c0"
+    },
+    {
+      "card_id": "PROD-034",
+      "title": "RF015 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Relacionamentos Semânticos Entre Objetos. **Descrição**: Objetos se relacionam entre si, criando grafo de entidades\n\n**Exemplos**:\n- Customer -possui-> Account\n- Account -está_sujeita_a-> RegulacaoBACEN\n- Pagamento -refere_se_a-> Transacao\n\n*",
+      "user_story": "As a Tech Lead, I want to design the architecture for Relacionamentos Semânticos Entre Objetos, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF015"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Ensures Relacionamentos Semânticos Entre Objetos is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF015.md",
+        "diagram-RF015.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849572",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "9f832e57-b564-4793-aa80-f989c502a08f"
+    },
+    {
+      "card_id": "PROD-035",
+      "title": "RF015 - Backend Implementation",
+      "description": "Implement backend for Relacionamentos Semânticos Entre Objetos. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Relacionamentos Semânticos Entre Objetos, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF015"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "XL",
+      "business_value": "Delivers core functionality for Relacionamentos Semânticos Entre Objetos",
+      "dependencies": [
+        "PROD-034"
+      ],
+      "deliverables": [
+        "api-RF015.py",
+        "tests-RF015.py",
+        "migration-RF015.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849574",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "836da44e-0dda-485b-a35c-158af5a45dd5"
+    },
+    {
+      "card_id": "PROD-036",
+      "title": "RF015 - Frontend Implementation",
+      "description": "Implement UI for Relacionamentos Semânticos Entre Objetos. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Relacionamentos Semânticos Entre Objetos through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF015"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Relacionamentos Semânticos Entre Objetos",
+      "dependencies": [
+        "PROD-035"
+      ],
+      "deliverables": [
+        "component-RF015.tsx",
+        "e2e-RF015.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849575",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "adc11390-6897-449b-94ca-cec9c49f0efa"
+    },
+    {
+      "card_id": "PROD-037",
+      "title": "RF016 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Integrações Externas Configuráveis. **Descrição**: Conectores encapsulados para sistemas externos, agnósticos ao domínio\n\n**Padrão**:\n- Oráculo Banking: BACEN SPI, Receita Federal, CIP, TigerBeetle\n- Oráculo CRM: Salesforce, HubSpot, RD",
+      "user_story": "As a Tech Lead, I want to design the architecture for Integrações Externas Configuráveis, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF016"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Ensures Integrações Externas Configuráveis is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF016.md",
+        "diagram-RF016.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849577",
+      "created_by": "product-owner-agent",
+      "celery_task_id": "82342846-293b-42d4-a2ef-2ceaa090c444"
+    },
+    {
+      "card_id": "PROD-038",
+      "title": "RF016 - Backend Implementation",
+      "description": "Implement backend for Integrações Externas Configuráveis. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Integrações Externas Configuráveis, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF016"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "XL",
+      "business_value": "Delivers core functionality for Integrações Externas Configuráveis",
+      "dependencies": [
+        "PROD-037"
+      ],
+      "deliverables": [
+        "api-RF016.py",
+        "tests-RF016.py",
+        "migration-RF016.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849578",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-039",
+      "title": "RF016 - Frontend Implementation",
+      "description": "Implement UI for Integrações Externas Configuráveis. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Integrações Externas Configuráveis through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF016"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Integrações Externas Configuráveis",
+      "dependencies": [
+        "PROD-038"
+      ],
+      "deliverables": [
+        "component-RF016.tsx",
+        "e2e-RF016.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849580",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-040",
+      "title": "RF017 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Componentes de UI Reutilizáveis. **Descrição**: Peças de interface reutilizáveis geradas automaticamente\n\n**Tipos**:\n- Forms (create, edit, detail)\n- Listas (com paginação, filtros, busca)\n- Wizards (multi-step forms)\n- Approval flow",
+      "user_story": "As a Tech Lead, I want to design the architecture for Componentes de UI Reutilizáveis, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF017"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Ensures Componentes de UI Reutilizáveis is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF017.md",
+        "diagram-RF017.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849581",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-041",
+      "title": "RF017 - Backend Implementation",
+      "description": "Implement backend for Componentes de UI Reutilizáveis. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Componentes de UI Reutilizáveis, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF017"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "XL",
+      "business_value": "Delivers core functionality for Componentes de UI Reutilizáveis",
+      "dependencies": [
+        "PROD-040"
+      ],
+      "deliverables": [
+        "api-RF017.py",
+        "tests-RF017.py",
+        "migration-RF017.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849583",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-042",
+      "title": "RF017 - Frontend Implementation",
+      "description": "Implement UI for Componentes de UI Reutilizáveis. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Componentes de UI Reutilizáveis through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF017"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Componentes de UI Reutilizáveis",
+      "dependencies": [
+        "PROD-041"
+      ],
+      "deliverables": [
+        "component-RF017.tsx",
+        "e2e-RF017.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849585",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-043",
+      "title": "RF018 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Workflows/Processos de Negócio por Oráculo. **Descrição**: Orquestração de passos para completar tarefas no domínio\n\n**Exemplos**:\n- Banking: OnboardingWorkflow (receber dados → validar → criar conta)\n- CRM: LeadConversionWorkflow (lead → conta",
+      "user_story": "As a Tech Lead, I want to design the architecture for Workflows/Processos de Negócio por Oráculo, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF018"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Ensures Workflows/Processos de Negócio por Oráculo is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF018.md",
+        "diagram-RF018.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849586",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-044",
+      "title": "RF018 - Backend Implementation",
+      "description": "Implement backend for Workflows/Processos de Negócio por Oráculo. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Workflows/Processos de Negócio por Oráculo, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF018"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "XL",
+      "business_value": "Delivers core functionality for Workflows/Processos de Negócio por Oráculo",
+      "dependencies": [
+        "PROD-043"
+      ],
+      "deliverables": [
+        "api-RF018.py",
+        "tests-RF018.py",
+        "migration-RF018.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849588",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-045",
+      "title": "RF018 - Frontend Implementation",
+      "description": "Implement UI for Workflows/Processos de Negócio por Oráculo. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Workflows/Processos de Negócio por Oráculo through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF018"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Workflows/Processos de Negócio por Oráculo",
+      "dependencies": [
+        "PROD-044"
+      ],
+      "deliverables": [
+        "component-RF018.tsx",
+        "e2e-RF018.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849589",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-046",
+      "title": "RF019 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Geração Automática de Workflows LangFlow pela IA. **Descrição**: IA gera workflows visuais automaticamente e exporta para LangFlow, permitindo que usuário apenas faça ajustes ou use como base de trabalho\n\n**Fluxo**:\n1. Usuário descreve processo de ne",
+      "user_story": "As a Tech Lead, I want to design the architecture for Geração Automática de Workflows LangFlow pela IA, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF019"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Ensures Geração Automática de Workflows LangFlow pela IA is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF019.md",
+        "diagram-RF019.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849591",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-047",
+      "title": "RF019 - Backend Implementation",
+      "description": "Implement backend for Geração Automática de Workflows LangFlow pela IA. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Geração Automática de Workflows LangFlow pela IA, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF019"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "XL",
+      "business_value": "Delivers core functionality for Geração Automática de Workflows LangFlow pela IA",
+      "dependencies": [
+        "PROD-046"
+      ],
+      "deliverables": [
+        "api-RF019.py",
+        "tests-RF019.py",
+        "migration-RF019.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849592",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-048",
+      "title": "RF019 - Frontend Implementation",
+      "description": "Implement UI for Geração Automática de Workflows LangFlow pela IA. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Geração Automática de Workflows LangFlow pela IA through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF019"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Geração Automática de Workflows LangFlow pela IA",
+      "dependencies": [
+        "PROD-047"
+      ],
+      "deliverables": [
+        "component-RF019.tsx",
+        "e2e-RF019.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849594",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-049",
+      "title": "RF020 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Gerenciamento de Agentes por Oráculo. **Descrição**: Visualizar, editar, criar, deletar agentes dentro de um Oráculo\n\n**Funcionalidades**:\n- Listar agentes do Oráculo\n- Visualizar role, responsabilidades, ferramentas\n- Editar prompt syste",
+      "user_story": "As a Tech Lead, I want to design the architecture for Gerenciamento de Agentes por Oráculo, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF020"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Ensures Gerenciamento de Agentes por Oráculo is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF020.md",
+        "diagram-RF020.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849595",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-050",
+      "title": "RF020 - Backend Implementation",
+      "description": "Implement backend for Gerenciamento de Agentes por Oráculo. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Gerenciamento de Agentes por Oráculo, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF020"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "XL",
+      "business_value": "Delivers core functionality for Gerenciamento de Agentes por Oráculo",
+      "dependencies": [
+        "PROD-049"
+      ],
+      "deliverables": [
+        "api-RF020.py",
+        "tests-RF020.py",
+        "migration-RF020.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849597",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-051",
+      "title": "RF020 - Frontend Implementation",
+      "description": "Implement UI for Gerenciamento de Agentes por Oráculo. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Gerenciamento de Agentes por Oráculo through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF020"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Gerenciamento de Agentes por Oráculo",
+      "dependencies": [
+        "PROD-050"
+      ],
+      "deliverables": [
+        "component-RF020.tsx",
+        "e2e-RF020.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849598",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-052",
+      "title": "RF021 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Geração Automática de Agentes via IA. **Descrição**: IA gera agentes especializados automaticamente a partir do conhecimento no Oráculo\n\n**Fluxo**:\n1. Usuário descreve: \"Preciso de um agente para validar conformidade de transações\"\n2. IA ",
+      "user_story": "As a Tech Lead, I want to design the architecture for Geração Automática de Agentes via IA, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF021"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Ensures Geração Automática de Agentes via IA is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF021.md",
+        "diagram-RF021.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849600",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-053",
+      "title": "RF021 - Backend Implementation",
+      "description": "Implement backend for Geração Automática de Agentes via IA. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Geração Automática de Agentes via IA, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF021"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "XL",
+      "business_value": "Delivers core functionality for Geração Automática de Agentes via IA",
+      "dependencies": [
+        "PROD-052"
+      ],
+      "deliverables": [
+        "api-RF021.py",
+        "tests-RF021.py",
+        "migration-RF021.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849601",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-054",
+      "title": "RF021 - Frontend Implementation",
+      "description": "Implement UI for Geração Automática de Agentes via IA. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Geração Automática de Agentes via IA through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF021"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Geração Automática de Agentes via IA",
+      "dependencies": [
+        "PROD-053"
+      ],
+      "deliverables": [
+        "component-RF021.tsx",
+        "e2e-RF021.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849610",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-055",
+      "title": "RF022 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Orquestração de Agentes (CrewAI). **Descrição**: Múltiplos agentes colaboram em um time para resolver problemas complexos\n\n**Padrão**:\n- Agentes tem papéis diferentes\n- Se comunicam automaticamente\n- Compartilham contexto\n- Resolvem p",
+      "user_story": "As a Tech Lead, I want to design the architecture for Orquestração de Agentes (CrewAI), so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF022"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "M",
+      "business_value": "Ensures Orquestração de Agentes (CrewAI) is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF022.md",
+        "diagram-RF022.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849611",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-056",
+      "title": "RF022 - Backend Implementation",
+      "description": "Implement backend for Orquestração de Agentes (CrewAI). Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Orquestração de Agentes (CrewAI), so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF022"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Delivers core functionality for Orquestração de Agentes (CrewAI)",
+      "dependencies": [
+        "PROD-055"
+      ],
+      "deliverables": [
+        "api-RF022.py",
+        "tests-RF022.py",
+        "migration-RF022.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849613",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-057",
+      "title": "RF022 - Frontend Implementation",
+      "description": "Implement UI for Orquestração de Agentes (CrewAI). Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Orquestração de Agentes (CrewAI) through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF022"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Orquestração de Agentes (CrewAI)",
+      "dependencies": [
+        "PROD-056"
+      ],
+      "deliverables": [
+        "component-RF022.tsx",
+        "e2e-RF022.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849614",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-058",
+      "title": "RF023 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Execução de Agentes. **Descrição**: Agentes são executáveis via múltiplos canais\n\n**Canais**:\n- API REST: `POST /api/v1/agents/{agent_id}/execute`\n- MCP: Ferramenta para Claude Desktop/Claude.ai\n- Workflow: Nó em um workf",
+      "user_story": "As a Tech Lead, I want to design the architecture for Execução de Agentes, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF023"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "M",
+      "business_value": "Ensures Execução de Agentes is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF023.md",
+        "diagram-RF023.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849616",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-059",
+      "title": "RF023 - Backend Implementation",
+      "description": "Implement backend for Execução de Agentes. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Execução de Agentes, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF023"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Delivers core functionality for Execução de Agentes",
+      "dependencies": [
+        "PROD-058"
+      ],
+      "deliverables": [
+        "api-RF023.py",
+        "tests-RF023.py",
+        "migration-RF023.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849617",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-060",
+      "title": "RF023 - Frontend Implementation",
+      "description": "Implement UI for Execução de Agentes. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Execução de Agentes through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF023"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Execução de Agentes",
+      "dependencies": [
+        "PROD-059"
+      ],
+      "deliverables": [
+        "component-RF023.tsx",
+        "e2e-RF023.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849619",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-061",
+      "title": "RF030 - Technical Design & Architecture",
+      "description": "Create detailed technical design for MCP Server do SuperCore. **Descrição**: Servidor MCP exposing recursos e ferramentas\n\n**Protocolos**:\n- stdio (para Claude Desktop)\n- HTTP SSE (para Claude.ai, browsers)\n- Websocket (para tempo real)\n\n**Critérios de Aceitação",
+      "user_story": "As a Tech Lead, I want to design the architecture for MCP Server do SuperCore, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF030"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "M",
+      "business_value": "Ensures MCP Server do SuperCore is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF030.md",
+        "diagram-RF030.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849620",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-062",
+      "title": "RF030 - Backend Implementation",
+      "description": "Implement backend for MCP Server do SuperCore. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for MCP Server do SuperCore, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF030"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Delivers core functionality for MCP Server do SuperCore",
+      "dependencies": [
+        "PROD-061"
+      ],
+      "deliverables": [
+        "api-RF030.py",
+        "tests-RF030.py",
+        "migration-RF030.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849622",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-063",
+      "title": "RF030 - Frontend Implementation",
+      "description": "Implement UI for MCP Server do SuperCore. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with MCP Server do SuperCore through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF030"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for MCP Server do SuperCore",
+      "dependencies": [
+        "PROD-062"
+      ],
+      "deliverables": [
+        "component-RF030.tsx",
+        "e2e-RF030.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849623",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-064",
+      "title": "RF031 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Recursos MCP - Dados Estruturados. **Descrição**: Recursos expondo dados estruturados do Oráculo\n\n**Exemplos**:\n- `oracle://config` - Configuração completa\n- `instances://{object_type}` - Instâncias de um tipo\n- `object-definitions://a",
+      "user_story": "As a Tech Lead, I want to design the architecture for Recursos MCP - Dados Estruturados, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF031"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "M",
+      "business_value": "Ensures Recursos MCP - Dados Estruturados is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF031.md",
+        "diagram-RF031.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849625",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-065",
+      "title": "RF031 - Backend Implementation",
+      "description": "Implement backend for Recursos MCP - Dados Estruturados. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Recursos MCP - Dados Estruturados, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF031"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Delivers core functionality for Recursos MCP - Dados Estruturados",
+      "dependencies": [
+        "PROD-064"
+      ],
+      "deliverables": [
+        "api-RF031.py",
+        "tests-RF031.py",
+        "migration-RF031.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849626",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-066",
+      "title": "RF031 - Frontend Implementation",
+      "description": "Implement UI for Recursos MCP - Dados Estruturados. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Recursos MCP - Dados Estruturados through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF031"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Recursos MCP - Dados Estruturados",
+      "dependencies": [
+        "PROD-065"
+      ],
+      "deliverables": [
+        "component-RF031.tsx",
+        "e2e-RF031.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849628",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-067",
+      "title": "RF032 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Ferramentas MCP - Operações Executáveis. **Descrição**: Operações que podem ser invocadas via MCP\n\n**Exemplos**:\n- `create_oracle()` - Criar novo Oráculo\n- `upload_context()` - Upload de documentos\n- `generate_object_definition()` - Gerar ob",
+      "user_story": "As a Tech Lead, I want to design the architecture for Ferramentas MCP - Operações Executáveis, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF032"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "M",
+      "business_value": "Ensures Ferramentas MCP - Operações Executáveis is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF032.md",
+        "diagram-RF032.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849630",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-068",
+      "title": "RF032 - Backend Implementation",
+      "description": "Implement backend for Ferramentas MCP - Operações Executáveis. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Ferramentas MCP - Operações Executáveis, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF032"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Delivers core functionality for Ferramentas MCP - Operações Executáveis",
+      "dependencies": [
+        "PROD-067"
+      ],
+      "deliverables": [
+        "api-RF032.py",
+        "tests-RF032.py",
+        "migration-RF032.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849631",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-069",
+      "title": "RF032 - Frontend Implementation",
+      "description": "Implement UI for Ferramentas MCP - Operações Executáveis. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Ferramentas MCP - Operações Executáveis through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF032"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Ferramentas MCP - Operações Executáveis",
+      "dependencies": [
+        "PROD-068"
+      ],
+      "deliverables": [
+        "component-RF032.tsx",
+        "e2e-RF032.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849633",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-070",
+      "title": "RF033 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Prompts MCP Reutilizáveis. **Descrição**: Prompts que podem ser invocados por múltiplos clientes\n\n**Exemplos**:\n- `architect` - Analisar requisitos e gerar especificação\n- `compliance-check` - Validar conformidade de solução\n- ",
+      "user_story": "As a Tech Lead, I want to design the architecture for Prompts MCP Reutilizáveis, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF033"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "M",
+      "business_value": "Ensures Prompts MCP Reutilizáveis is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF033.md",
+        "diagram-RF033.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849635",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-071",
+      "title": "RF033 - Backend Implementation",
+      "description": "Implement backend for Prompts MCP Reutilizáveis. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Prompts MCP Reutilizáveis, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF033"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Delivers core functionality for Prompts MCP Reutilizáveis",
+      "dependencies": [
+        "PROD-070"
+      ],
+      "deliverables": [
+        "api-RF033.py",
+        "tests-RF033.py",
+        "migration-RF033.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849636",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-072",
+      "title": "RF033 - Frontend Implementation",
+      "description": "Implement UI for Prompts MCP Reutilizáveis. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Prompts MCP Reutilizáveis through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF033"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Prompts MCP Reutilizáveis",
+      "dependencies": [
+        "PROD-071"
+      ],
+      "deliverables": [
+        "component-RF033.tsx",
+        "e2e-RF033.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849638",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-073",
+      "title": "RF034 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Comunicação Assíncrona via MCP e Pulsar. **Descrição**: Publicação de mensagens em tópicos via Pulsar\n\n**Padrão**:\n- Portal envia `mcp.agent.execution.request` com dados\n- SuperCore processa\n- Publica `mcp.agent.execution.status` com progres",
+      "user_story": "As a Tech Lead, I want to design the architecture for Comunicação Assíncrona via MCP e Pulsar, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF034"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "M",
+      "business_value": "Ensures Comunicação Assíncrona via MCP e Pulsar is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF034.md",
+        "diagram-RF034.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849639",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-074",
+      "title": "RF034 - Backend Implementation",
+      "description": "Implement backend for Comunicação Assíncrona via MCP e Pulsar. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Comunicação Assíncrona via MCP e Pulsar, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF034"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Delivers core functionality for Comunicação Assíncrona via MCP e Pulsar",
+      "dependencies": [
+        "PROD-073"
+      ],
+      "deliverables": [
+        "api-RF034.py",
+        "tests-RF034.py",
+        "migration-RF034.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849641",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-075",
+      "title": "RF034 - Frontend Implementation",
+      "description": "Implement UI for Comunicação Assíncrona via MCP e Pulsar. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Comunicação Assíncrona via MCP e Pulsar through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF034"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Comunicação Assíncrona via MCP e Pulsar",
+      "dependencies": [
+        "PROD-074"
+      ],
+      "deliverables": [
+        "component-RF034.tsx",
+        "e2e-RF034.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849642",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-076",
+      "title": "RF040 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Fase 0 - Setup do Oráculo. **Descrição**: Configuração inicial de identidade e contexto do Oráculo\n\n**Configuração**:\n- Nome e descrição do Oráculo\n- Domínio/setor (Banking, CRM, Healthcare, Logística, etc)\n- CNPJ/CPF (se aplic",
+      "user_story": "As a Tech Lead, I want to design the architecture for Fase 0 - Setup do Oráculo, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF040"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "M",
+      "business_value": "Ensures Fase 0 - Setup do Oráculo is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF040.md",
+        "diagram-RF040.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849644",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-077",
+      "title": "RF040 - Backend Implementation",
+      "description": "Implement backend for Fase 0 - Setup do Oráculo. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Fase 0 - Setup do Oráculo, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF040"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Delivers core functionality for Fase 0 - Setup do Oráculo",
+      "dependencies": [
+        "PROD-076"
+      ],
+      "deliverables": [
+        "api-RF040.py",
+        "tests-RF040.py",
+        "migration-RF040.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849645",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-078",
+      "title": "RF040 - Frontend Implementation",
+      "description": "Implement UI for Fase 0 - Setup do Oráculo. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Fase 0 - Setup do Oráculo through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF040"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Fase 0 - Setup do Oráculo",
+      "dependencies": [
+        "PROD-077"
+      ],
+      "deliverables": [
+        "component-RF040.tsx",
+        "e2e-RF040.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849647",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-079",
+      "title": "RF041 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Fase 1 - Upload de Contexto Multimodal. **Descrição**: Usuário faz upload de documentação em múltiplos formatos\n\n**Aceita**:\n- PDFs de regulações/documentação\n- Diagramas (Mermaid, Whimsical, JSON schemas)\n- Documentação de produto (descriç",
+      "user_story": "As a Tech Lead, I want to design the architecture for Fase 1 - Upload de Contexto Multimodal, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF041"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "M",
+      "business_value": "Ensures Fase 1 - Upload de Contexto Multimodal is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF041.md",
+        "diagram-RF041.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849655",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-080",
+      "title": "RF041 - Backend Implementation",
+      "description": "Implement backend for Fase 1 - Upload de Contexto Multimodal. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Fase 1 - Upload de Contexto Multimodal, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF041"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Delivers core functionality for Fase 1 - Upload de Contexto Multimodal",
+      "dependencies": [
+        "PROD-079"
+      ],
+      "deliverables": [
+        "api-RF041.py",
+        "tests-RF041.py",
+        "migration-RF041.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849657",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-081",
+      "title": "RF041 - Frontend Implementation",
+      "description": "Implement UI for Fase 1 - Upload de Contexto Multimodal. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Fase 1 - Upload de Contexto Multimodal through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF041"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Fase 1 - Upload de Contexto Multimodal",
+      "dependencies": [
+        "PROD-080"
+      ],
+      "deliverables": [
+        "component-RF041.tsx",
+        "e2e-RF041.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849658",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-082",
+      "title": "RF042 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Fase 2 - Especificação Gerada e Refinamento Iterativo. **Descrição**: IA lê contexto e gera especificação editável, com iterações usuário ↔ IA\n\n**Processo**:\n1. IA gera especificação inicial em Markdown (requirements, objects, workflows, agents)\n2. Usuári",
+      "user_story": "As a Tech Lead, I want to design the architecture for Fase 2 - Especificação Gerada e Refinamento Iterativo, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF042"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "M",
+      "business_value": "Ensures Fase 2 - Especificação Gerada e Refinamento Iterativo is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF042.md",
+        "diagram-RF042.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849660",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-083",
+      "title": "RF042 - Backend Implementation",
+      "description": "Implement backend for Fase 2 - Especificação Gerada e Refinamento Iterativo. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Fase 2 - Especificação Gerada e Refinamento Iterativo, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF042"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Delivers core functionality for Fase 2 - Especificação Gerada e Refinamento Iterativo",
+      "dependencies": [
+        "PROD-082"
+      ],
+      "deliverables": [
+        "api-RF042.py",
+        "tests-RF042.py",
+        "migration-RF042.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849661",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-084",
+      "title": "RF042 - Frontend Implementation",
+      "description": "Implement UI for Fase 2 - Especificação Gerada e Refinamento Iterativo. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Fase 2 - Especificação Gerada e Refinamento Iterativo through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF042"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Fase 2 - Especificação Gerada e Refinamento Iterativo",
+      "dependencies": [
+        "PROD-083"
+      ],
+      "deliverables": [
+        "component-RF042.tsx",
+        "e2e-RF042.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849663",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-085",
+      "title": "RF043 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Fase 3 - Geração Automática de Modelo Executável. **Descrição**: IA transforma spec aprovada em modelo executável completo\n\n**Gera automaticamente**:\n1. **Object Definitions**: 100% dos objetos com fields, validações, FSM\n2. **Validation Rules**: Tod",
+      "user_story": "As a Tech Lead, I want to design the architecture for Fase 3 - Geração Automática de Modelo Executável, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF043"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "M",
+      "business_value": "Ensures Fase 3 - Geração Automática de Modelo Executável is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF043.md",
+        "diagram-RF043.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849664",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-086",
+      "title": "RF043 - Backend Implementation",
+      "description": "Implement backend for Fase 3 - Geração Automática de Modelo Executável. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Fase 3 - Geração Automática de Modelo Executável, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF043"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Delivers core functionality for Fase 3 - Geração Automática de Modelo Executável",
+      "dependencies": [
+        "PROD-085"
+      ],
+      "deliverables": [
+        "api-RF043.py",
+        "tests-RF043.py",
+        "migration-RF043.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849666",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-087",
+      "title": "RF043 - Frontend Implementation",
+      "description": "Implement UI for Fase 3 - Geração Automática de Modelo Executável. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Fase 3 - Geração Automática de Modelo Executável through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF043"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Fase 3 - Geração Automática de Modelo Executável",
+      "dependencies": [
+        "PROD-086"
+      ],
+      "deliverables": [
+        "component-RF043.tsx",
+        "e2e-RF043.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849667",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-088",
+      "title": "RF044 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Fase 4 - Preview, Teste e Aprovação. **Descrição**: Usuário revisa, testa e aprova modelo gerado antes de ativar\n\n**Funcionalidades**:\n- Visualização de object graph (React Flow)\n- Teste de workflows (simular fluxos)\n- Teste de agentes (",
+      "user_story": "As a Tech Lead, I want to design the architecture for Fase 4 - Preview, Teste e Aprovação, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF044"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "M",
+      "business_value": "Ensures Fase 4 - Preview, Teste e Aprovação is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF044.md",
+        "diagram-RF044.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849669",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-089",
+      "title": "RF044 - Backend Implementation",
+      "description": "Implement backend for Fase 4 - Preview, Teste e Aprovação. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Fase 4 - Preview, Teste e Aprovação, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF044"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Delivers core functionality for Fase 4 - Preview, Teste e Aprovação",
+      "dependencies": [
+        "PROD-088"
+      ],
+      "deliverables": [
+        "api-RF044.py",
+        "tests-RF044.py",
+        "migration-RF044.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849671",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-090",
+      "title": "RF044 - Frontend Implementation",
+      "description": "Implement UI for Fase 4 - Preview, Teste e Aprovação. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Fase 4 - Preview, Teste e Aprovação through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF044"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Fase 4 - Preview, Teste e Aprovação",
+      "dependencies": [
+        "PROD-089"
+      ],
+      "deliverables": [
+        "component-RF044.tsx",
+        "e2e-RF044.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849672",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-091",
+      "title": "RF045 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Fase 5 - \"Play\" - Ativação e Geração de Solução Completa. **Descrição**: Modelo aprovado fica ativo e gera solução COMPLETA executável\n\n**O que é gerado**:\n1. **Middleware** (FastAPI/Gin)\n   - APIs REST para CRUD de todos os objetos\n   - Validações automátic",
+      "user_story": "As a Tech Lead, I want to design the architecture for Fase 5 - \"Play\" - Ativação e Geração de Solução Completa, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF045"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "M",
+      "business_value": "Ensures Fase 5 - \"Play\" - Ativação e Geração de Solução Completa is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF045.md",
+        "diagram-RF045.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849674",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-092",
+      "title": "RF045 - Backend Implementation",
+      "description": "Implement backend for Fase 5 - \"Play\" - Ativação e Geração de Solução Completa. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Fase 5 - \"Play\" - Ativação e Geração de Solução Completa, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF045"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Delivers core functionality for Fase 5 - \"Play\" - Ativação e Geração de Solução Completa",
+      "dependencies": [
+        "PROD-091"
+      ],
+      "deliverables": [
+        "api-RF045.py",
+        "tests-RF045.py",
+        "migration-RF045.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849675",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-093",
+      "title": "RF045 - Frontend Implementation",
+      "description": "Implement UI for Fase 5 - \"Play\" - Ativação e Geração de Solução Completa. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Fase 5 - \"Play\" - Ativação e Geração de Solução Completa through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF045"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Fase 5 - \"Play\" - Ativação e Geração de Solução Completa",
+      "dependencies": [
+        "PROD-092"
+      ],
+      "deliverables": [
+        "component-RF045.tsx",
+        "e2e-RF045.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849677",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-094",
+      "title": "RF046 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Versionamento e Evolução de Modelos. **Descrição**: Histórico e rollback de versões do modelo, zero downtime updates\n\n**Funcionalidades**:\n- Cada mudança em object_definition gera nova versão\n- Instâncias antigas continuam funcionando\n- ",
+      "user_story": "As a Tech Lead, I want to design the architecture for Versionamento e Evolução de Modelos, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF046"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "M",
+      "business_value": "Ensures Versionamento e Evolução de Modelos is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF046.md",
+        "diagram-RF046.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849682",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-095",
+      "title": "RF046 - Backend Implementation",
+      "description": "Implement backend for Versionamento e Evolução de Modelos. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Versionamento e Evolução de Modelos, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF046"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Delivers core functionality for Versionamento e Evolução de Modelos",
+      "dependencies": [
+        "PROD-094"
+      ],
+      "deliverables": [
+        "api-RF046.py",
+        "tests-RF046.py",
+        "migration-RF046.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849683",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-096",
+      "title": "RF046 - Frontend Implementation",
+      "description": "Implement UI for Versionamento e Evolução de Modelos. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Versionamento e Evolução de Modelos through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF046"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Versionamento e Evolução de Modelos",
+      "dependencies": [
+        "PROD-095"
+      ],
+      "deliverables": [
+        "component-RF046.tsx",
+        "e2e-RF046.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849685",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-097",
+      "title": "RF050 - Technical Design & Architecture",
+      "description": "Create detailed technical design for FormGenerator Pillar. **Descrição**: Gerar formulários a partir de object_definition\n\n**Tipos de Forms**:\n- Create forms (campos obrigatórios + required fields)\n- Edit forms (todos os campos editáveis)\n- Detail views (read",
+      "user_story": "As a Tech Lead, I want to design the architecture for FormGenerator Pillar, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF050"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "M",
+      "business_value": "Ensures FormGenerator Pillar is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF050.md",
+        "diagram-RF050.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849686",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-098",
+      "title": "RF050 - Backend Implementation",
+      "description": "Implement backend for FormGenerator Pillar. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for FormGenerator Pillar, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF050"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Delivers core functionality for FormGenerator Pillar",
+      "dependencies": [
+        "PROD-097"
+      ],
+      "deliverables": [
+        "api-RF050.py",
+        "tests-RF050.py",
+        "migration-RF050.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849688",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-099",
+      "title": "RF050 - Frontend Implementation",
+      "description": "Implement UI for FormGenerator Pillar. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with FormGenerator Pillar through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF050"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for FormGenerator Pillar",
+      "dependencies": [
+        "PROD-098"
+      ],
+      "deliverables": [
+        "component-RF050.tsx",
+        "e2e-RF050.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849689",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-100",
+      "title": "RF051 - Technical Design & Architecture",
+      "description": "Create detailed technical design for ProcessFlowVisualization Pillar. **Descrição**: Renderizar workflows como diagramas interativos executáveis\n\n**Funcionalidades**:\n- React Flow com nodes (operações) e edges (fluxo)\n- Histórico de execução do workflow\n- Debug visual (",
+      "user_story": "As a Tech Lead, I want to design the architecture for ProcessFlowVisualization Pillar, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF051"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "M",
+      "business_value": "Ensures ProcessFlowVisualization Pillar is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF051.md",
+        "diagram-RF051.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849691",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-101",
+      "title": "RF051 - Backend Implementation",
+      "description": "Implement backend for ProcessFlowVisualization Pillar. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for ProcessFlowVisualization Pillar, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF051"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Delivers core functionality for ProcessFlowVisualization Pillar",
+      "dependencies": [
+        "PROD-100"
+      ],
+      "deliverables": [
+        "api-RF051.py",
+        "tests-RF051.py",
+        "migration-RF051.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849692",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-102",
+      "title": "RF051 - Frontend Implementation",
+      "description": "Implement UI for ProcessFlowVisualization Pillar. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with ProcessFlowVisualization Pillar through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF051"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for ProcessFlowVisualization Pillar",
+      "dependencies": [
+        "PROD-101"
+      ],
+      "deliverables": [
+        "component-RF051.tsx",
+        "e2e-RF051.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849694",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-103",
+      "title": "RF052 - Technical Design & Architecture",
+      "description": "Create detailed technical design for BacenValidationEngine Pillar (Agnóstico). **Descrição**: Mostrar fundamentação legal/regulatória para validações (agnóstico ao domínio)\n\n**Padrão**:\n- Banking: Link para manual/resolução BACEN\n- CRM: Link para melhor prática CRM/SaaS\n- Health",
+      "user_story": "As a Tech Lead, I want to design the architecture for BacenValidationEngine Pillar (Agnóstico), so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF052"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "M",
+      "business_value": "Ensures BacenValidationEngine Pillar (Agnóstico) is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF052.md",
+        "diagram-RF052.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849695",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-104",
+      "title": "RF052 - Backend Implementation",
+      "description": "Implement backend for BacenValidationEngine Pillar (Agnóstico). Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for BacenValidationEngine Pillar (Agnóstico), so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF052"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Delivers core functionality for BacenValidationEngine Pillar (Agnóstico)",
+      "dependencies": [
+        "PROD-103"
+      ],
+      "deliverables": [
+        "api-RF052.py",
+        "tests-RF052.py",
+        "migration-RF052.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849699",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-105",
+      "title": "RF052 - Frontend Implementation",
+      "description": "Implement UI for BacenValidationEngine Pillar (Agnóstico). Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with BacenValidationEngine Pillar (Agnóstico) through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF052"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for BacenValidationEngine Pillar (Agnóstico)",
+      "dependencies": [
+        "PROD-104"
+      ],
+      "deliverables": [
+        "component-RF052.tsx",
+        "e2e-RF052.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849701",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-106",
+      "title": "RF053 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Screen Type Conductor - IA Escolhe Melhor Widget. **Descrição**: IA escolhe widget ideal para cada campo\n\n**Lógica**:\n- TextField para strings simples\n- NumberInput para números\n- DatePicker para datas\n- Select para enums\n- Autocomplete para foreign ",
+      "user_story": "As a Tech Lead, I want to design the architecture for Screen Type Conductor - IA Escolhe Melhor Widget, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF053"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "M",
+      "business_value": "Ensures Screen Type Conductor - IA Escolhe Melhor Widget is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF053.md",
+        "diagram-RF053.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849702",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-107",
+      "title": "RF053 - Backend Implementation",
+      "description": "Implement backend for Screen Type Conductor - IA Escolhe Melhor Widget. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Screen Type Conductor - IA Escolhe Melhor Widget, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF053"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Delivers core functionality for Screen Type Conductor - IA Escolhe Melhor Widget",
+      "dependencies": [
+        "PROD-106"
+      ],
+      "deliverables": [
+        "api-RF053.py",
+        "tests-RF053.py",
+        "migration-RF053.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849704",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-108",
+      "title": "RF053 - Frontend Implementation",
+      "description": "Implement UI for Screen Type Conductor - IA Escolhe Melhor Widget. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Screen Type Conductor - IA Escolhe Melhor Widget through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF053"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Screen Type Conductor - IA Escolhe Melhor Widget",
+      "dependencies": [
+        "PROD-107"
+      ],
+      "deliverables": [
+        "component-RF053.tsx",
+        "e2e-RF053.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849706",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-109",
+      "title": "RF060 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Agnósticismo Completo de Domínio. **Descrição**: SuperCore não assume domínio específico até ser configurado\n\n**Princípio**:\n- SuperCore core é 100% agnóstico\n- Não \"sabe\" de Banking, CRM, ERP, Healthcare até criar um Oráculo\n- Lógica",
+      "user_story": "As a Tech Lead, I want to design the architecture for Agnósticismo Completo de Domínio, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF060"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "M",
+      "business_value": "Ensures Agnósticismo Completo de Domínio is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF060.md",
+        "diagram-RF060.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849707",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-110",
+      "title": "RF060 - Backend Implementation",
+      "description": "Implement backend for Agnósticismo Completo de Domínio. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Agnósticismo Completo de Domínio, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF060"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Delivers core functionality for Agnósticismo Completo de Domínio",
+      "dependencies": [
+        "PROD-109"
+      ],
+      "deliverables": [
+        "api-RF060.py",
+        "tests-RF060.py",
+        "migration-RF060.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849709",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-111",
+      "title": "RF060 - Frontend Implementation",
+      "description": "Implement UI for Agnósticismo Completo de Domínio. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Agnósticismo Completo de Domínio through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF060"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Agnósticismo Completo de Domínio",
+      "dependencies": [
+        "PROD-110"
+      ],
+      "deliverables": [
+        "component-RF060.tsx",
+        "e2e-RF060.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849711",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-112",
+      "title": "RF061 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Zero Código Manual Após SuperCore Implementado. **Descrição**: Depois de SuperCore estar em produção, 100% de novas soluções são geradas por IA\n\n**Princípio**:\n- object_definitions geradas por IA\n- Workflows gerados por IA\n- UI geradas por IA\n- Val",
+      "user_story": "As a Tech Lead, I want to design the architecture for Zero Código Manual Após SuperCore Implementado, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF061"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "M",
+      "business_value": "Ensures Zero Código Manual Após SuperCore Implementado is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF061.md",
+        "diagram-RF061.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849712",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-113",
+      "title": "RF061 - Backend Implementation",
+      "description": "Implement backend for Zero Código Manual Após SuperCore Implementado. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Zero Código Manual Após SuperCore Implementado, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF061"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Delivers core functionality for Zero Código Manual Após SuperCore Implementado",
+      "dependencies": [
+        "PROD-112"
+      ],
+      "deliverables": [
+        "api-RF061.py",
+        "tests-RF061.py",
+        "migration-RF061.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849714",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-114",
+      "title": "RF061 - Frontend Implementation",
+      "description": "Implement UI for Zero Código Manual Após SuperCore Implementado. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Zero Código Manual Após SuperCore Implementado through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "LOW",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF061"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Zero Código Manual Após SuperCore Implementado",
+      "dependencies": [
+        "PROD-113"
+      ],
+      "deliverables": [
+        "component-RF061.tsx",
+        "e2e-RF061.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849715",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-115",
+      "title": "RF062 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Production-Grade desde o Dia 1. **Descrição**: Código gerado é production-ready imediatamente\n\n**Requisitos**:\n- Type-safe (Go, TypeScript, Python)\n- Error handling completo\n- Logging e observability (estruturado, rastreável)\n- Perf",
+      "user_story": "As a Tech Lead, I want to design the architecture for Production-Grade desde o Dia 1, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "MEDIUM",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF062"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 5 - Interfaces",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "M",
+      "business_value": "Ensures Production-Grade desde o Dia 1 is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF062.md",
+        "diagram-RF062.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849717",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-116",
+      "title": "RF062 - Backend Implementation",
+      "description": "Implement backend for Production-Grade desde o Dia 1. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Production-Grade desde o Dia 1, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "MEDIUM",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF062"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Delivers core functionality for Production-Grade desde o Dia 1",
+      "dependencies": [
+        "PROD-115"
+      ],
+      "deliverables": [
+        "api-RF062.py",
+        "tests-RF062.py",
+        "migration-RF062.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849718",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-117",
+      "title": "RF062 - Frontend Implementation",
+      "description": "Implement UI for Production-Grade desde o Dia 1. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Production-Grade desde o Dia 1 through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "MEDIUM",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF062"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Production-Grade desde o Dia 1",
+      "dependencies": [
+        "PROD-116"
+      ],
+      "deliverables": [
+        "component-RF062.tsx",
+        "e2e-RF062.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849720",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-118",
+      "title": "RF063 - Technical Design & Architecture",
+      "description": "Create detailed technical design for Gestão de Deploy de Oráculos. **Descrição**: Portal SuperCore gerencia deploy completo de Oráculos em Kubernetes com 1-click deployment, monitoramento de status, e rollback automático.\n\n**Funcionalidades**:\n\n**1. Deploy Configurat",
+      "user_story": "As a Tech Lead, I want to design the architecture for Gestão de Deploy de Oráculos, so that the implementation follows best practices and integrates with existing layers.",
+      "type": "design",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF063"
+      ],
+      "acceptance_criteria": [
+        "Technical design document created covering Camada 1 - Oráculo",
+        "Architecture diagrams (Mermaid) created",
+        "API contracts defined",
+        "Database schema designed",
+        "Integration points identified"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Ensures Gestão de Deploy de Oráculos is built correctly and maintainable",
+      "dependencies": [],
+      "deliverables": [
+        "design-RF063.md",
+        "diagram-RF063.mermaid"
+      ],
+      "created_at": "2025-12-26T20:30:32.849721",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-119",
+      "title": "RF063 - Backend Implementation",
+      "description": "Implement backend for Gestão de Deploy de Oráculos. Technologies: PostgreSQL, Redis, NebulaGraph",
+      "user_story": "As a Backend Developer, I want to implement the server-side logic for Gestão de Deploy de Oráculos, so that the feature works correctly with the database and APIs.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF063"
+      ],
+      "acceptance_criteria": [
+        "Backend APIs implemented (FastAPI/Go)",
+        "Database migrations created",
+        "Unit tests written (coverage ≥80%)",
+        "Integration tests passing",
+        "API documentation (OpenAPI) complete"
+      ],
+      "effort_estimate": "XL",
+      "business_value": "Delivers core functionality for Gestão de Deploy de Oráculos",
+      "dependencies": [
+        "PROD-118"
+      ],
+      "deliverables": [
+        "api-RF063.py",
+        "tests-RF063.py",
+        "migration-RF063.sql"
+      ],
+      "created_at": "2025-12-26T20:30:32.849723",
+      "created_by": "product-owner-agent"
+    },
+    {
+      "card_id": "PROD-120",
+      "title": "RF063 - Frontend Implementation",
+      "description": "Implement UI for Gestão de Deploy de Oráculos. Create responsive, accessible interface using React/Next.js.",
+      "user_story": "As a User, I want to interact with Gestão de Deploy de Oráculos through an intuitive UI, so that I can accomplish my tasks efficiently.",
+      "type": "feature",
+      "priority": "CRITICAL",
+      "squad": "produto",
+      "phase": 1,
+      "status": "TODO",
+      "requirement_ids": [
+        "RF063"
+      ],
+      "acceptance_criteria": [
+        "UI components created (React/TypeScript)",
+        "Wireframes implemented pixel-perfect",
+        "Responsive design (mobile, tablet, desktop)",
+        "Accessibility WCAG 2.1 AA compliant",
+        "E2E tests passing (Playwright)"
+      ],
+      "effort_estimate": "L",
+      "business_value": "Provides user interface for Gestão de Deploy de Oráculos",
+      "dependencies": [
+        "PROD-119"
+      ],
+      "deliverables": [
+        "component-RF063.tsx",
+        "e2e-RF063.spec.ts"
+      ],
+      "created_at": "2025-12-26T20:30:32.849724",
+      "created_by": "product-owner-agent"
+    }
+  ],
   "journal": [],
+  "last_updated": "2025-12-26T20:48:44.770584",
   "metadata": {
-    "total_cards": 0,
-    "last_updated": ""
+    "total_cards": 121,
+    "by_status": {
+      "TODO": 121,
+      "IN_PROGRESS": 0,
+      "BLOCKED": 0,
+      "IN_REVIEW": 0,
+      "DONE": 0
+    }
   }
 }

@@ -205,8 +205,13 @@ def _execute_product_owner_agent(self, card_id: str, card: Dict[str, Any]) -> Di
         self.log_message(card_id, 'INFO', "📋 Agent will generate 50-80+ product cards")
 
         # Execute (this is a long-running operation - 5-10 minutes expected)
-        self.update_progress(card_id, 20, "Agent analyzing documentation...")
-        result = execute_product_owner_card(card_id, card)
+        self.update_progress(card_id, 20, "Starting Product Owner Agent...")
+
+        # Create progress callback to report progress from agent
+        def progress_callback(progress_pct, message):
+            self.update_progress(card_id, progress_pct, message)
+
+        result = execute_product_owner_card(card_id, card, progress_callback=progress_callback)
 
         # Check result
         if result.get('success'):

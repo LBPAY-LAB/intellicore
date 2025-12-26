@@ -13,6 +13,7 @@ import ProjectJournal from './components/ProjectJournal'
 import SquadActivityFeed from './components/SquadActivityFeed'
 import SquadOrganization from './components/SquadOrganization'
 import SolutionExplorer from './components/SolutionExplorer'
+import HumanReviewPanel from './components/HumanReviewPanel'
 import Tabs from './components/Tabs'
 
 function App() {
@@ -305,6 +306,13 @@ function App() {
               badge: squads.length > 0 ? squads.length : null,
               content: (
                 <SquadOrganization />
+              )
+            },
+            {
+              icon: '⏸️',
+              label: 'Human Reviews',
+              content: (
+                <HumanReviewPanel />
               )
             },
             {

@@ -1,0 +1,77 @@
+{
+  "name": "Architecture Compliance",
+  "version": "1.0.0",
+  "description": "Evaluation rubric for architecture compliance (SuperCore v2.0)",
+  "card_types": ["architecture", "ARCH"],
+  "scale": "1-10",
+  "passing_threshold": 8.0,
+  "criteria": [
+    {
+      "name": "Layering",
+      "weight": 0.4,
+      "description": "Correct layer placement (Layers 0-5), proper dependencies",
+      "levels": {
+        "10": "Perfect layer placement, no circular dependencies, clean separation",
+        "8-9": "Correct layer placement, minor dependency issues",
+        "6-7": "Mostly correct layering, some violations",
+        "4-5": "Layer violations, circular dependencies",
+        "1-3": "No layering concept, spaghetti architecture"
+      },
+      "examples": {
+        "excellent": "Layer 1 (Oráculo) only depends on Layer 0 (Dados), Layer 2 (Objetos) depends on 0-1",
+        "poor": "Layer 5 (Frontend) directly accessing Layer 0 (Database), skipping layers"
+      },
+      "reference": "app-generation/documentation-base/arquitetura_supercore_v2.0.md (Layers 0-5)"
+    },
+    {
+      "name": "ADR Compliance",
+      "weight": 0.3,
+      "description": "Follows existing ADRs, justifies deviations",
+      "levels": {
+        "10": "Perfect ADR compliance, no deviations",
+        "8-9": "Mostly compliant, minor deviations with justification",
+        "6-7": "Some compliance, deviations without clear justification",
+        "4-5": "Major violations, ignored ADRs",
+        "1-3": "No ADR awareness"
+      },
+      "examples": {
+        "excellent": "Uses PostgreSQL as primary DB (ADR-002), FastAPI for APIs (ADR-003)",
+        "poor": "Introduces MongoDB without ADR, uses custom auth instead of Keycloak (ADR-005)"
+      },
+      "reference": "app-generation/documentation-base/arquitetura_supercore_v2.0.md (ADRs 001-007)"
+    },
+    {
+      "name": "Stack Compliance",
+      "weight": 0.2,
+      "description": "Uses approved technologies from stack_supercore_v2.0.md",
+      "levels": {
+        "10": "Only uses approved stack technologies",
+        "8-9": "Mostly uses approved stack, minor additions justified",
+        "6-7": "Some unapproved technologies",
+        "4-5": "Major unapproved technologies without justification",
+        "1-3": "Ignores approved stack"
+      },
+      "examples": {
+        "excellent": "Go/Python backend, React/Next.js frontend, PostgreSQL, Redis, NebulaGraph",
+        "poor": "Introduces Java/Spring Boot, MySQL, Angular without discussion"
+      },
+      "reference": "app-generation/documentation-base/stack_supercore_v2.0.md"
+    },
+    {
+      "name": "Documentation",
+      "weight": 0.1,
+      "description": "ADRs, diagrams (Mermaid), design docs",
+      "levels": {
+        "10": "Comprehensive ADRs, detailed diagrams, complete design docs",
+        "8-9": "Good ADRs, adequate diagrams, basic design docs",
+        "6-7": "Some documentation, minimal diagrams",
+        "4-5": "Sparse documentation",
+        "1-3": "No documentation"
+      },
+      "examples": {
+        "excellent": "ADR with Context/Decision/Consequences, C4 diagrams, sequence diagrams",
+        "poor": "No ADR, whiteboard photo, no design doc"
+      }
+    }
+  ]
+}

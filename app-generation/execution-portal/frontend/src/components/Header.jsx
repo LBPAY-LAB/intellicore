@@ -61,9 +61,14 @@ export default function Header({ sessionId, connected, uptime, projectName, solu
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-              Portal de Monitoração de Projeto
-            </h1>
+            <div className="flex flex-col">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                SquadOS
+              </h1>
+              <p className="text-xs text-slate-400 -mt-1">
+                Where Documentation Becomes Software, Autonomously
+              </p>
+            </div>
           </div>
 
           <div className="flex items-center space-x-6">
