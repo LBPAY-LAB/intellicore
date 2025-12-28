@@ -233,7 +233,14 @@ Example for Go:
     def _detect_language_from_card(self, card_data: Dict[str, Any]) -> str:
         """Detect language from card metadata"""
         title = card_data.get('title', '').lower()
-        criteria = card_data.get('acceptance_criteria', '').lower()
+
+        # Handle acceptance_criteria as both list and string
+        criteria_raw = card_data.get('acceptance_criteria', '')
+        if isinstance(criteria_raw, list):
+            criteria = ' '.join(criteria_raw).lower()
+        else:
+            criteria = criteria_raw.lower() if criteria_raw else ''
+
         card_type = card_data.get('type', '').lower()
         combined = f"{title} {criteria}"
 

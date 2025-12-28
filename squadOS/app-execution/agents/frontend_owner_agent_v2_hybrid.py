@@ -186,7 +186,14 @@ class FrontendOwnerAgentV2:
             Component type ('page', 'component', or 'layout')
         """
         title = card_data.get('title', '').lower()
-        criteria = card_data.get('acceptance_criteria', '').lower()
+
+        # Handle acceptance_criteria as both list and string
+        criteria_raw = card_data.get('acceptance_criteria', '')
+        if isinstance(criteria_raw, list):
+            criteria = ' '.join(criteria_raw).lower()
+        else:
+            criteria = criteria_raw.lower() if criteria_raw else ''
+
         combined = f"{title} {criteria}"
 
         # Page keywords
