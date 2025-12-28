@@ -49,8 +49,9 @@ logger = logging.getLogger(__name__)
 
 # Paths
 PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
-DOCS_BASE = PROJECT_ROOT / "app-generation" / "documentation-base"
-ARTIFACTS_DIR = PROJECT_ROOT / "app-generation" / "app-artefacts" / "produto"
+SQUADOS_ROOT = PROJECT_ROOT / "squadOS"
+DOCS_BASE = SQUADOS_ROOT / "app-generation" / "documentation-base"
+ARTIFACTS_DIR = SQUADOS_ROOT / "app-artefacts" / "produto"
 STATE_DIR = Path(__file__).parent.parent / "state"
 CHECKPOINT_DIR = STATE_DIR / "checkpoints"
 
