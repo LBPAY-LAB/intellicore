@@ -93,12 +93,13 @@ class QAOwnerAgentV2:
         """Initialize QA Owner Agent v2.0"""
         # Paths
         self.base_dir = Path(__file__).parent.parent
-        self.project_root = self.base_dir.parent  # squadOS/
+        # Go up to supercore/ root, then into squadOS/
+        self.project_root = self.base_dir.parent.parent / "squadOS"
 
-        # Documentation at app-generation/documentation-base
+        # Documentation at squadOS/app-generation/documentation-base
         self.docs_dir = self.project_root / "app-generation" / "documentation-base"
 
-        # Artifacts at app-generation/app-artefacts
+        # Artifacts at squadOS/app-artefacts
         self.artifacts_dir = self.project_root / "app-artefacts"
         self.checkpoints_dir = self.base_dir / "state" / "checkpoints"
 

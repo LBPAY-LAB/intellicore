@@ -92,13 +92,14 @@ class BackendOwnerAgentV2:
         if project_root:
             self.project_root = Path(project_root)
         else:
-            self.project_root = self.base_dir.parent
+            # Go up to supercore/ root, then into squadOS/
+            self.project_root = self.base_dir.parent.parent / "squadOS"
 
-        # Documentation base (correct path: app-generation/documentation-base)
+        # Documentation base (correct path: squadOS/app-generation/documentation-base)
         self.docs_dir = self.project_root / "app-generation" / "documentation-base"
 
-        # Artifacts
-        self.artifacts_dir = self.base_dir / "app-artefacts"
+        # Artifacts (correct path: squadOS/app-artefacts)
+        self.artifacts_dir = self.project_root / "app-artefacts"
         self.backend_dir = self.artifacts_dir / "engenharia" / "backend"
         self.checkpoints_dir = self.base_dir / "state" / "checkpoints"
 
