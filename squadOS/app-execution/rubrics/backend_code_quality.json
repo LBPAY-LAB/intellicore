@@ -1,0 +1,69 @@
+{
+  "name": "Backend Code Quality Rubric",
+  "version": "1.0.0",
+  "description": "Evaluates backend code quality across correctness, style, performance, and documentation dimensions.",
+  "scale": "0-10 (0=poor, 5=acceptable, 8=good, 10=excellent)",
+  "passing_threshold": 8.0,
+  "criteria": [
+    {
+      "name": "Correctness",
+      "weight": 0.4,
+      "description": "Code implements requirements correctly, handles edge cases, and has no bugs.",
+      "levels": {
+        "0-2 (Poor)": "Multiple bugs, missing requirements, incorrect logic",
+        "3-5 (Acceptable)": "Core requirements met, some edge cases missing",
+        "6-7 (Good)": "All requirements met, most edge cases handled",
+        "8-10 (Excellent)": "All requirements met, comprehensive edge case handling, robust error management"
+      },
+      "examples": {
+        "poor": "Missing input validation, SQL injection vulnerabilities",
+        "good": "Comprehensive validation, parameterized queries, proper error codes"
+      }
+    },
+    {
+      "name": "Code Style",
+      "weight": 0.2,
+      "description": "Code follows language conventions, is readable, and maintainable.",
+      "levels": {
+        "0-2 (Poor)": "Inconsistent style, poor naming, spaghetti code",
+        "3-5 (Acceptable)": "Basic conventions followed, some inconsistencies",
+        "6-7 (Good)": "Consistent style, clear naming, logical structure",
+        "8-10 (Excellent)": "Exemplary style, self-documenting code, excellent separation of concerns"
+      },
+      "examples": {
+        "poor": "Single-letter variables, 200-line functions, no error handling",
+        "good": "Clear variable names, functions <50 lines, proper abstractions"
+      }
+    },
+    {
+      "name": "Performance",
+      "weight": 0.2,
+      "description": "Code is efficient, scalable, and optimized for the problem domain.",
+      "levels": {
+        "0-2 (Poor)": "Obvious performance issues, N+1 queries, memory leaks",
+        "3-5 (Acceptable)": "Acceptable performance, no major bottlenecks",
+        "6-7 (Good)": "Optimized algorithms, proper indexing, caching where needed",
+        "8-10 (Excellent)": "Highly optimized, scalable design, comprehensive performance testing"
+      },
+      "examples": {
+        "poor": "O(n²) where O(n) possible, missing database indexes",
+        "good": "O(n log n) algorithms, indexed queries, connection pooling"
+      }
+    },
+    {
+      "name": "Documentation",
+      "weight": 0.2,
+      "description": "Code is well-documented with clear API docs, README, and comments where needed.",
+      "levels": {
+        "0-2 (Poor)": "No documentation, missing README, uncommented complex logic",
+        "3-5 (Acceptable)": "Basic README, some comments, minimal API docs",
+        "6-7 (Good)": "Comprehensive README, API docs, comments for complex logic",
+        "8-10 (Excellent)": "Complete documentation, API examples, architecture diagrams, setup guides"
+      },
+      "examples": {
+        "poor": "No README, no docstrings, magic numbers without explanation",
+        "good": "README with setup, OpenAPI spec, docstrings on all public functions"
+      }
+    }
+  ]
+}

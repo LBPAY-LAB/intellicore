@@ -1,0 +1,11 @@
+{
+  "card_id": "PROD-002",
+  "stage": "language_determined",
+  "progress": 15,
+  "data": {
+    "language": "python",
+    "skill": "fastapi-pro"
+  },
+  "timestamp": "2025-12-28T12:20:32.192299",
+  "total_cost": 0.0
+}

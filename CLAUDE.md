@@ -1,11 +1,70 @@
 # 🤖 CLAUDE.md - Documento Mestre do SquadOS
 
-**Versão**: 3.3.0 - SquadOS + Hybrid Skills Architecture (Complete)
+**Versão**: 3.3.1 - SquadOS Structure Cleanup (squadOS-Only Enforcement)
 **Data**: 2025-12-28
 **Status**: 🟢 ATIVO E ATUALIZADO
 
 > **Este é o documento de referência central para todos os agentes AI que trabalham no SquadOS.**
 > **Sempre consulte este arquivo antes de tomar decisões importantes.**
+
+---
+
+## ⚠️ CRITICAL: squadOS Directory Structure (MANDATORY)
+
+**ATENÇÃO ESPECIAL PARA TODOS OS AGENTES AI E CLAUDE CLI**:
+
+### Estrutura Única Obrigatória
+
+**TODA a implementação do SquadOS DEVE existir dentro do diretório `squadOS/`.**
+
+### ❌ NUNCA Crie Estas Estruturas na Raiz
+
+**PROIBIDO** criar qualquer destes diretórios em `/Users/jose.silva.lb/LBPay/supercore/`:
+- ❌ `app-generation/` (ERRADO - confusão garantida)
+- ❌ `app-artefacts/` (ERRADO - confusão garantida)
+- ❌ `app-execution/` (ERRADO - confusão garantida)
+- ❌ `app-solution/` (ERRADO - confusão garantida)
+- ❌ `execution-portal/` (ERRADO - confusão garantida)
+
+### ✅ SEMPRE Use a Estrutura squadOS
+
+**CORRETO** - Todos os componentes dentro de `squadOS/`:
+- ✅ `squadOS/app-generation/` (CORRETO)
+- ✅ `squadOS/app-artefacts/` (CORRETO)
+- ✅ `squadOS/app-execution/` (CORRETO)
+- ✅ `squadOS/execution-portal/` (CORRETO)
+- ✅ `squadOS/project_requisits/` (CORRETO)
+- ✅ `squadOS/agent-coordination/` (CORRETO)
+
+### 📍 Regra de Ouro para Paths
+
+**ANTES de criar/escrever qualquer arquivo**:
+1. Verifique se o path começa com `squadOS/`
+2. Se NÃO começar com `squadOS/`, você está NO LUGAR ERRADO
+3. Corrija o path para incluir `squadOS/` no início
+
+**Exemplo**:
+```bash
+# ❌ ERRADO
+mkdir -p app-generation/documentation-base/
+# ✅ CORRETO
+mkdir -p squadOS/app-generation/documentation-base/
+
+# ❌ ERRADO
+cd app-execution/agents/
+# ✅ CORRETO
+cd squadOS/app-execution/agents/
+```
+
+### 🚨 Por Que Isto É Crítico
+
+**Histórico**: Agentes criaram duplicação de estruturas (raiz + squadOS), causando:
+- Confusão sobre qual diretório usar
+- Arquivos em locais errados
+- Commits incorretos
+- Perda de trabalho
+
+**Solução**: **UMA** estrutura apenas - `squadOS/` é a fonte única da verdade.
 
 ---
 
@@ -104,11 +163,11 @@ SquadOS é 100% independente de domínio:
 ## 📚 Documentação Base (LEITURA OBRIGATÓRIA)
 
 ### Localização
-Toda documentação fundamental está em: **`app-generation/documentation-base/`**
+Toda documentação fundamental está em: **`squadOS/app-generation/documentation-base/`**
 
 ### Documentos Base
 
-#### 1️⃣ [requisitos_funcionais_v2.0.md](app-generation/documentation-base/requisitos_funcionais_v2.0.md)
+#### 1️⃣ [requisitos_funcionais_v2.0.md](squadOS/app-generation/documentation-base/requisitos_funcionais_v2.0.md)
 **O QUE construir**
 - 37 Requisitos Consolidados (RF001-RF062)
 - 4 Casos de Uso com ROI quantificado
@@ -119,7 +178,7 @@ Toda documentação fundamental está em: **`app-generation/documentation-base/`
 - Ao definir user stories
 - Ao validar escopo de features
 
-#### 2️⃣ [arquitetura_supercore_v2.0.md](app-generation/documentation-base/arquitetura_supercore_v2.0.md)
+#### 2️⃣ [arquitetura_supercore_v2.0.md](squadOS/app-generation/documentation-base/arquitetura_supercore_v2.0.md)
 **COMO construir - Arquitetura**
 - 6 Camadas: Dados, Oráculo, Objetos, Agentes, MCPs, Interfaces
 - 7 ADRs (Decisões Arquiteturais)
@@ -131,7 +190,7 @@ Toda documentação fundamental está em: **`app-generation/documentation-base/`
 - Ao decidir em qual camada implementar
 - Ao criar novos ADRs
 
-#### 3️⃣ [stack_supercore_v2.0.md](app-generation/documentation-base/stack_supercore_v2.0.md)
+#### 3️⃣ [stack_supercore_v2.0.md](squadOS/app-generation/documentation-base/stack_supercore_v2.0.md)
 **COMO construir - Tecnologias**
 - 50+ Tecnologias catalogadas
 - Stack: Go, Python, TypeScript, PostgreSQL, Redis, NebulaGraph
@@ -147,62 +206,135 @@ Toda documentação fundamental está em: **`app-generation/documentation-base/`
 
 ## 📂 Estrutura de Diretórios
 
-**IMPORTANTE**: A estrutura foi reorganizada em 2024-12-22 para separar claramente a MÁQUINA DE GERAÇÃO do CÓDIGO GERADO.
+**CRÍTICO**: Toda a implementação do SquadOS está dentro do diretório `squadOS/`.
+
+**REGRA OBRIGATÓRIA**: NUNCA crie diretórios `app-generation/`, `app-artefacts/`, `app-execution/` ou `execution-portal/` na raiz do projeto. Eles DEVEM estar dentro de `squadOS/`.
 
 ```
 supercore/
-├── CLAUDE.md                                    ← VOCÊ ESTÁ AQUI
+├── CLAUDE.md                                                    ← VOCÊ ESTÁ AQUI
+├── CHANGELOG.md                                                 ← Histórico de versões
+├── README.md                                                    ← Documentação do projeto
 │
-├── app-generation/                              ← MÁQUINA DE GERAÇÃO (FACTORY)
-│   ├── app-data.md                              ← Metadados do projeto (configurável)
-│   │
-│   ├── documentation-base/                      ← DOCUMENTAÇÃO BASE (READ-ONLY)
-│   │   ├── COMECE_AQUI.md
-│   │   ├── requisitos_funcionais_v2.0.md
-│   │   ├── arquitetura_supercore_v2.0.md
-│   │   └── stack_supercore_v2.0.md
-│   │
-│   ├── app-execution/                           ← ORQUESTRAÇÃO
-│   │   ├── autonomous_meta_orchestrator.py      ← Orchestrador principal
-│   │   ├── meta-squad-config.json               ← Config das squads
-│   │   ├── tasks.py                             ← Celery tasks
-│   │   ├── state/                               ← Estado da execução
-│   │   │   ├── backlog_master.json
-│   │   │   └── .bootstrap_status
-│   │   ├── logs/                                ← Logs do orchestrador
-│   │   └── reset-completo.sh                    ← Script de reset total
-│   │
-│   ├── app-artefacts/                           ← OUTPUTS DAS SQUADS (limpo a cada "Iniciar Projeto")
-│   │   ├── produto/                             ← Cards, user stories, backlog
-│   │   ├── arquitetura/                         ← Designs, ADRs, diagramas
-│   │   ├── engenharia/
-│   │   │   ├── frontend/                        ← Artefatos frontend
-│   │   │   └── backend/                         ← Artefatos backend
-│   │   ├── qa/                                  ← Testes, reports
-│   │   └── deploy/                              ← Terraform, CI/CD
-│   │
-│   └── execution-portal/                        ← PORTAL WEB DE MONITORAMENTO
-│       ├── frontend/                            ← React + Vite + Tailwind
-│       │   ├── src/
-│       │   │   ├── App.jsx
-│       │   │   └── components/
-│       │   │       ├── BootstrapControl.jsx     ← Botão "Iniciar Projeto"
-│       │   │       ├── Header.jsx               ← Header com nome do projeto
-│       │   │       ├── SquadGrid.jsx
-│       │   │       └── ...
-│       │   └── package.json
-│       └── backend/                             ← FastAPI + SQLite
-│           ├── server.py                        ← API principal (port 3000)
-│           ├── data/
-│           │   └── monitoring.db                ← SQLite database
-│           └── config/
-│
-└── app-solution/                                ← CÓDIGO GERADO (limpo a cada "Iniciar Projeto")
-    ├── frontend/                                ← UI gerada (Next.js/React)
-    ├── backend/                                 ← APIs geradas (Go/Python)
-    ├── database/                                ← Migrations geradas
-    └── infrastructure/                          ← Terraform gerado
+└── squadOS/                                                     ← ⚠️ ÚNICA ESTRUTURA (MANDATORY)
+    │
+    ├── app-generation/                                          ← MÁQUINA DE GERAÇÃO (FACTORY)
+    │   │
+    │   ├── documentation-base/                                  ← DOCUMENTAÇÃO BASE (READ-ONLY)
+    │   │   ├── COMECE_AQUI.md                                   ← Guia de início
+    │   │   ├── requisitos_funcionais_v2.0.md                    ← 37 RFs consolidados
+    │   │   ├── arquitetura_supercore_v2.0.md                    ← 6 camadas + ADRs
+    │   │   └── stack_supercore_v2.0.md                          ← 50+ tecnologias
+    │   │
+    │   └── app-data.md                                          ← Metadados do projeto
+    │
+    ├── app-execution/                                           ← ORQUESTRAÇÃO + AGENTS
+    │   ├── autonomous_meta_orchestrator.py                      ← Orchestrador principal
+    │   ├── celery_app.py                                        ← Celery configuration
+    │   ├── tasks.py                                             ← Celery tasks
+    │   ├── meta-squad-config.json                               ← Config das squads
+    │   │
+    │   ├── agents/                                              ← AGENT OWNERS (v2.0 Hybrid)
+    │   │   ├── product_owner_agent.py                           ← Phase 0-1 (Agent-First)
+    │   │   ├── architecture_owner_agent.py                      ← Phase 1 (Agent-First)
+    │   │   ├── backend_owner_agent_v2_hybrid.py                 ← Phase 3 (CLI + Skills)
+    │   │   ├── frontend_owner_agent_v2_hybrid.py                ← Phase 2 (CLI + Skills)
+    │   │   ├── qa_owner_agent_v2_skills.py                      ← Phase 4 (Skills-Only)
+    │   │   ├── verification_agent.py                            ← obra ow-002 enforcement
+    │   │   ├── llm_judge_agent.py                               ← QA automation
+    │   │   └── debugging_agent.py                               ← obra ow-006 enforcement
+    │   │
+    │   ├── utils/                                               ← UTILITIES
+    │   │   ├── cached_llm_client.py                             ← Prompt caching (90% savings)
+    │   │   └── hybrid_delegator.py                              ← CLI + Skills delegation
+    │   │
+    │   ├── state/                                               ← ESTADO DA EXECUÇÃO
+    │   │   ├── backlog_master.json                              ← Backlog central (121 cards)
+    │   │   ├── project_journal.json                             ← Journal de eventos
+    │   │   └── .bootstrap_status                                ← Status do bootstrap
+    │   │
+    │   ├── logs/                                                ← LOGS DO ORCHESTRADOR
+    │   │   ├── orchestrator.log
+    │   │   ├── celery.log
+    │   │   └── agents/
+    │   │
+    │   └── rubrics/                                             ← LLM-AS-JUDGE RUBRICS
+    │       ├── backend_code_quality.json
+    │       ├── frontend_code_quality.json
+    │       └── architecture_compliance.json
+    │
+    ├── app-artefacts/                                           ← OUTPUTS DAS SQUADS
+    │   ├── produto/                                             ← Squad Produto
+    │   │   ├── User_Stories_Completo.md                         ← 120 user stories
+    │   │   ├── backlog/                                         ← Backlog priorizado
+    │   │   └── ux-designs/                                      ← Wireframes, flows
+    │   │       ├── wireframes/                                  ← Back-office + Front-office
+    │   │       ├── user-flows/                                  ← Mermaid diagrams
+    │   │       ├── design-system/                               ← Tokens, componentes
+    │   │       └── prototypes/                                  ← Links protótipos
+    │   │
+    │   ├── arquitetura/                                         ← Squad Arquitetura
+    │   │   ├── designs/                                         ← Designs técnicos
+    │   │   ├── diagrams/                                        ← C4, ERD, Sequence
+    │   │   ├── api-contracts/                                   ← OpenAPI specs
+    │   │   └── schemas/                                         ← DB schemas
+    │   │
+    │   ├── engenharia/                                          ← Squad Engenharia
+    │   │   ├── frontend/                                        ← Artefatos frontend
+    │   │   │   ├── components/                                  ← React components
+    │   │   │   ├── pages/                                       ← Next.js pages
+    │   │   │   ├── tests/                                       ← Jest + Playwright
+    │   │   │   └── README.md                                    ← Component docs
+    │   │   │
+    │   │   └── backend/                                         ← Artefatos backend
+    │   │       ├── api/                                         ← Go/Python APIs
+    │   │       ├── migrations/                                  ← DB migrations
+    │   │       ├── tests/                                       ← Unit + Integration
+    │   │       └── README.md                                    ← API docs
+    │   │
+    │   ├── qa/                                                  ← Squad QA
+    │   │   ├── test-reports/                                    ← Test execution reports
+    │   │   ├── security-reports/                                ← Trivy, TruffleHog
+    │   │   ├── performance-reports/                             ← Load test results
+    │   │   └── bug-reports/                                     ← Bug tracking
+    │   │
+    │   └── deploy/                                              ← Squad Deploy
+    │       ├── terraform/                                       ← IaC modules
+    │       ├── github-actions/                                  ← CI/CD workflows
+    │       └── runbooks/                                        ← Operational docs
+    │
+    ├── execution-portal/                                        ← PORTAL WEB DE MONITORAMENTO
+    │   ├── frontend/                                            ← React + Vite + Tailwind
+    │   │   ├── src/
+    │   │   │   ├── App.jsx                                      ← Main app component
+    │   │   │   └── components/
+    │   │   │       ├── BootstrapControl.jsx                     ← "Iniciar Projeto" button
+    │   │   │       ├── Header.jsx                               ← Header (project name)
+    │   │   │       ├── SquadGrid.jsx                            ← Squad status grid
+    │   │   │       ├── ProgressFlow.jsx                         ← Progress visualization
+    │   │   │       └── EventsFeed.jsx                           ← Real-time events
+    │   │   ├── package.json
+    │   │   └── vite.config.js
+    │   │
+    │   └── backend/                                             ← FastAPI + SQLite
+    │       ├── server.py                                        ← API principal (port 3000)
+    │       ├── data/
+    │       │   └── monitoring.db                                ← SQLite database
+    │       └── requirements.txt
+    │
+    ├── project_requisits/                                       ← REQUISITOS DO PROJETO
+    │   └── ...                                                  ← Docs de requisitos
+    │
+    └── agent-coordination/                                      ← COORDENAÇÃO DE AGENTES
+        └── ...                                                  ← Scripts de coordenação
 ```
+
+**Paths Absolutos Comuns**:
+- Documentação Base: `/Users/jose.silva.lb/LBPay/supercore/squadOS/app-generation/documentation-base/`
+- Agentes: `/Users/jose.silva.lb/LBPay/supercore/squadOS/app-execution/agents/`
+- Artefatos: `/Users/jose.silva.lb/LBPay/supercore/squadOS/app-artefacts/`
+- Portal Backend: `/Users/jose.silva.lb/LBPay/supercore/squadOS/execution-portal/backend/`
+- Portal Frontend: `/Users/jose.silva.lb/LBPay/supercore/squadOS/execution-portal/frontend/`
 
 ---
 
@@ -212,13 +344,13 @@ supercore/
 **Agentes**: product-owner, business-analyst, ux-designer
 
 **Inputs**:
-- `app-generation/documentation-base/requisitos_funcionais_v2.0.md`
-- `app-generation/documentation-base/arquitetura_supercore_v2.0.md`
-- `app-generation/documentation-base/stack_supercore_v2.0.md`
-- `app-generation/app-data.md` (metadados do projeto)
+- `squadOS/app-generation/documentation-base/requisitos_funcionais_v2.0.md`
+- `squadOS/app-generation/documentation-base/arquitetura_supercore_v2.0.md`
+- `squadOS/app-generation/documentation-base/stack_supercore_v2.0.md`
+- `squadOS/app-generation/app-data.md` (metadados do projeto)
 
 **Outputs**:
-- `app-generation/app-artefacts/produto/`
+- `squadOS/app-artefacts/produto/`
   - Cards de features
   - User stories
   - Backlog priorizado
@@ -248,8 +380,8 @@ supercore/
 - **Front-office**: Interfaces geradas dinamicamente pelos Oráculos
 
 **Permissões**:
-- ✅ **READ**: `app-generation/documentation-base/` (todos arquivos), `CLAUDE.md`, `app-generation/app-data.md`
-- ✅ **WRITE**: `app-generation/app-artefacts/produto/`
+- ✅ **READ**: `squadOS/app-generation/documentation-base/` (todos arquivos), `CLAUDE.md`, `squadOS/app-generation/app-data.md`
+- ✅ **WRITE**: `squadOS/app-artefacts/produto/`
 - ❌ **NÃO PODE** modificar documentação base ou `CLAUDE.md`
 
 ---
@@ -258,12 +390,12 @@ supercore/
 **Agentes**: tech-lead, solution-architect, security-architect
 
 **Inputs**:
-- `app-generation/app-artefacts/produto/` (cards)
-- `app-generation/documentation-base/arquitetura_supercore_v2.0.md`
-- `app-generation/documentation-base/stack_supercore_v2.0.md`
+- `squadOS/app-artefacts/produto/` (cards)
+- `squadOS/app-generation/documentation-base/arquitetura_supercore_v2.0.md`
+- `squadOS/app-generation/documentation-base/stack_supercore_v2.0.md`
 
 **Outputs**:
-- `app-generation/app-artefacts/arquitetura/`
+- `squadOS/app-artefacts/arquitetura/`
   - Designs técnicos detalhados
   - ADRs (Architecture Decision Records)
   - Diagramas (Mermaid, C4, etc.)
@@ -278,8 +410,8 @@ supercore/
 - **Atualizar CLAUDE.md** em mudanças significativas
 
 **Permissões**:
-- ✅ **READ**: `app-generation/documentation-base/`, `app-generation/app-artefacts/produto/`
-- ✅ **WRITE**: `app-generation/app-artefacts/arquitetura/`, `CLAUDE.md`
+- ✅ **READ**: `squadOS/app-generation/documentation-base/`, `squadOS/app-artefacts/produto/`
+- ✅ **WRITE**: `squadOS/app-artefacts/arquitetura/`, `CLAUDE.md`
 - ❌ **NÃO PODE** modificar documentação base
 
 ---
@@ -288,11 +420,11 @@ supercore/
 **Agentes**: frontend-lead, react-developer, ui-ux-designer
 
 **Inputs**:
-- `app-generation/app-artefacts/arquitetura/` (designs técnicos)
-- `app-generation/documentation-base/stack_supercore_v2.0.md`
+- `squadOS/app-artefacts/arquitetura/` (designs técnicos)
+- `squadOS/app-generation/documentation-base/stack_supercore_v2.0.md`
 
 **Outputs**:
-- `app-generation/app-artefacts/engenharia/frontend/`
+- `squadOS/app-artefacts/engenharia/frontend/`
   - Código React/TypeScript
   - Componentes UI
   - Testes (unit, integration, E2E)
@@ -305,8 +437,8 @@ supercore/
 - Documentar componentes e APIs frontend
 
 **Permissões**:
-- ✅ **READ**: `app-generation/documentation-base/`, `app-generation/app-artefacts/arquitetura/`
-- ✅ **WRITE**: `app-generation/app-artefacts/engenharia/frontend/`, `/frontend/`, `/src/`
+- ✅ **READ**: `squadOS/app-generation/documentation-base/`, `squadOS/app-artefacts/arquitetura/`
+- ✅ **WRITE**: `squadOS/app-artefacts/engenharia/frontend/`, `/frontend/`, `/src/`
 - ✅ **RUN**: `npm test`, `npm run lint`, `npm run build`
 - ✅ **COMMIT**: Código frontend após aprovação
 
@@ -316,11 +448,11 @@ supercore/
 **Agentes**: backend-lead, golang-developer, python-developer, data-modeling-specialist, rag-specialist, vector-db-specialist, graph-db-specialist
 
 **Inputs**:
-- `app-generation/app-artefacts/arquitetura/` (designs técnicos)
-- `app-generation/documentation-base/stack_supercore_v2.0.md`
+- `squadOS/app-artefacts/arquitetura/` (designs técnicos)
+- `squadOS/app-generation/documentation-base/stack_supercore_v2.0.md`
 
 **Outputs**:
-- `app-generation/app-artefacts/engenharia/backend/`
+- `squadOS/app-artefacts/engenharia/backend/`
   - Código Go/Python
   - APIs (FastAPI, Gin)
   - Migrations de BD
@@ -392,8 +524,8 @@ supercore/
   - Performance: <2s end-to-end (p95)
 
 **Permissões**:
-- ✅ **READ**: `app-generation/documentation-base/`, `app-generation/app-artefacts/arquitetura/`
-- ✅ **WRITE**: `app-generation/app-artefacts/engenharia/backend/`, `/backend/`, `/services/`, `/api/`, `/migrations/`
+- ✅ **READ**: `squadOS/app-generation/documentation-base/`, `squadOS/app-artefacts/arquitetura/`
+- ✅ **WRITE**: `squadOS/app-artefacts/engenharia/backend/`, `/backend/`, `/services/`, `/api/`, `/migrations/`
 - ✅ **RUN**: `go test ./...`, `pytest`, `docker build`
 - ✅ **COMMIT**: Código backend após aprovação
 
@@ -403,11 +535,11 @@ supercore/
 **Agentes**: qa-lead, test-engineer, security-auditor
 
 **Inputs**:
-- `app-generation/app-artefacts/engenharia/` (código frontend + backend)
-- `app-generation/documentation-base/requisitos_funcionais_v2.0.md`
+- `squadOS/app-artefacts/engenharia/` (código frontend + backend)
+- `squadOS/app-generation/documentation-base/requisitos_funcionais_v2.0.md`
 
 **Outputs**:
-- `app-generation/app-artefacts/qa/`
+- `squadOS/app-artefacts/qa/`
   - Casos de teste
   - Test reports
   - Bug reports
@@ -424,7 +556,7 @@ supercore/
 
 **Permissões**:
 - ✅ **READ**: Todos os artefactos + Documentação base
-- ✅ **WRITE**: `app-generation/app-artefacts/qa/`, `/tests/`, `/docs/qa/`
+- ✅ **WRITE**: `squadOS/app-artefacts/qa/`, `/tests/`, `/docs/qa/`
 - ✅ **RUN**: `npm test`, `pytest`, `cypress run`, `playwright test`
 - ✅ **APPROVE/REJECT**: Cards com feedback detalhado
 
@@ -434,11 +566,11 @@ supercore/
 **Agentes**: deploy-lead
 
 **Inputs**:
-- `app-generation/app-artefacts/qa/` (outputs aprovados)
-- `app-generation/documentation-base/stack_supercore_v2.0.md`
+- `squadOS/app-artefacts/qa/` (outputs aprovados)
+- `squadOS/app-generation/documentation-base/stack_supercore_v2.0.md`
 
 **Outputs**:
-- `app-generation/app-artefacts/deploy/`
+- `squadOS/app-artefacts/deploy/`
   - Terraform modules e environments
   - GitHub Actions workflows
   - Runbooks operacionais
@@ -452,8 +584,8 @@ supercore/
 - Monitorar deploys e performance
 
 **Permissões**:
-- ✅ **READ**: `app-generation/documentation-base/`, `app-generation/app-artefacts/qa/`
-- ✅ **WRITE**: `app-generation/app-artefacts/deploy/`, `/infrastructure/`, `/.github/workflows/`
+- ✅ **READ**: `squadOS/app-generation/documentation-base/`, `squadOS/app-artefacts/qa/`
+- ✅ **WRITE**: `squadOS/app-artefacts/deploy/`, `/infrastructure/`, `/.github/workflows/`
 - ✅ **RUN**: `terraform init/plan/apply`, security scans (tfsec, checkov)
 - ✅ **DEPLOY**:
   - QA: Auto-deploy (após testes)
@@ -731,16 +863,16 @@ graph TD
 ## 🔗 Links Rápidos
 
 ### Documentação Base:
-- [COMECE AQUI](app-generation/documentation-base/COMECE_AQUI.md)
-- [Requisitos Funcionais](app-generation/documentation-base/requisitos_funcionais_v2.0.md)
-- [Arquitetura](app-generation/documentation-base/arquitetura_supercore_v2.0.md)
-- [Stack Tecnológica](app-generation/documentation-base/stack_supercore_v2.0.md)
+- [COMECE AQUI](squadOS/app-generation/documentation-base/COMECE_AQUI.md)
+- [Requisitos Funcionais](squadOS/app-generation/documentation-base/requisitos_funcionais_v2.0.md)
+- [Arquitetura](squadOS/app-generation/documentation-base/arquitetura_supercore_v2.0.md)
+- [Stack Tecnológica](squadOS/app-generation/documentation-base/stack_supercore_v2.0.md)
 
 ### Sistema de Orquestração:
-- [Config Squads](app-generation/app-execution/meta-squad-config.json)
+- [Config Squads](squadOS/app-execution/meta-squad-config.json)
 - [Portal Backend](http://localhost:3000) - FastAPI + SQLite
 - [Portal Frontend](http://localhost:3003) - React + Vite
-- [Reset Completo](app-generation/app-execution/reset-completo.sh)
+- [Reset Completo](squadOS/app-execution/reset-completo.sh)
 
 ### Infraestrutura:
 - [Terraform Modules](infrastructure/terraform/modules/)
@@ -766,6 +898,35 @@ graph TD
 ---
 
 ## 🔄 Histórico de Mudanças
+
+### 2025-12-28 - v3.3.1 (Structure Cleanup - squadOS Enforcement)
+- 🧹 **Directory Structure Cleanup**: Eliminated duplicate structures and enforced squadOS-only architecture
+  - **Problem**: Duplicate app-generation/, app-artefacts/, app-execution/ at root level causing confusion
+  - **Solution**: Removed all root-level duplicates, kept ONLY squadOS/ structure
+  - **Cleaned Up**:
+    - ✅ Removed `/supercore/app-generation/` (moved to squadOS/app-generation/)
+    - ✅ Removed `/supercore/app-artefacts/` (already in squadOS/app-artefacts/)
+    - ✅ Removed `/supercore/app-solution/` (unnecessary directory)
+    - ✅ Removed `/supercore/old/` (backup clutter)
+    - ✅ Removed `squadOS/app-execution/agents/backups/` (confuses agents)
+    - ✅ Removed `squadOS/execution-portal/backend/server.py.backup` (backup clutter)
+  - **Documentation Updated**:
+    - ✅ Added ⚠️ CRITICAL warning section at top of CLAUDE.md
+    - ✅ Updated "Estrutura de Diretórios" with explicit squadOS-only diagram
+    - ✅ Updated ALL squad paths from `app-generation/` to `squadOS/app-generation/`
+    - ✅ Updated ALL permissions sections with correct paths
+    - ✅ Updated "Links Rápidos" section with squadOS/ prefix
+    - ✅ Added "Paths Absolutos Comuns" for quick reference
+  - **Rules Enforced**:
+    - ❌ **NEVER** create app-generation/, app-artefacts/, app-execution/ at root
+    - ✅ **ALWAYS** use squadOS/ prefix for all paths
+    - ✅ **BEFORE** creating files: verify path starts with squadOS/
+  - **Rationale**: Prevent AI agents and Claude CLI from creating duplicate structures
+  - **Impact**: Single source of truth, eliminates path confusion, prevents future mistakes
+- 📝 **CLAUDE.md Version**: Updated to v3.3.1
+  - Explicit squadOS structure warnings
+  - Examples of correct vs incorrect paths
+  - Historical context explaining why this matters
 
 ### 2025-12-28 - v3.3.0 (Hybrid Skills Architecture - Migration Complete)
 - 🚀 **Hybrid Skills Architecture**: Complete migration from template generation to skills orchestration
@@ -1095,6 +1256,6 @@ graph TD
 
 ---
 
-**Versão**: 3.2.0 - SquadOS + Phase-Based Agent Owners
-**Última Atualização**: 2025-12-27
+**Versão**: 3.3.1 - SquadOS Structure Cleanup (squadOS-Only Enforcement)
+**Última Atualização**: 2025-12-28
 **Mantido por**: Squad Arquitetura (aprovação Tech Lead)
