@@ -1,0 +1,52 @@
+# Squad Orchestrator - Git Ignore
+
+# Session state files
+state/*/
+!state/.gitkeep
+
+# Log files
+logs/*/
+*.log
+!logs/.gitkeep
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Process ID files
+*.pid
+
+# Checkpoint files
+checkpoints/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.sublime-*
+
+# Local configuration overrides
+local-config.json
+*-local.json
+
+# Backup files
+*.bak
+*.backup
+
+# Monitoring system
+monitoring/data/
+monitoring/backend/venv/
+monitoring/backend/__pycache__/
+monitoring/backend/*.pyc
+monitoring/frontend/node_modules/
+monitoring/frontend/dist/
+monitoring/frontend/.vite/
+*.db
+*.db-wal
+*.db-shm

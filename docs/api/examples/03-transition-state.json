@@ -1,6 +1,0 @@
-{
-  "_comment": "Transition the conta instance to ACTIVE state",
-  "_note": "POST to /api/v1/instances/{instance_id}/transition",
-  "to_state": "PENDING_APPROVAL",
-  "reason": "Cliente completou cadastro inicial"
-}

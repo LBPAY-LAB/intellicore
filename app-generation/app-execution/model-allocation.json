@@ -1,0 +1,101 @@
+{
+  "version": "1.0.0",
+  "description": "Model allocation strategy: Opus 4.5 for critical architecture/dev, Sonnet 4.5 for management/docs",
+  "models": {
+    "opus": {
+      "id": "claude-opus-4-5-20251101",
+      "cost_per_mtok_input": 15.0,
+      "cost_per_mtok_output": 75.0,
+      "use_cases": [
+        "Critical architecture decisions",
+        "Complex code implementation",
+        "Security-sensitive work",
+        "Performance-critical optimization",
+        "Complex problem solving"
+      ]
+    },
+    "sonnet": {
+      "id": "claude-sonnet-4-5-20250929",
+      "cost_per_mtok_input": 3.0,
+      "cost_per_mtok_output": 15.0,
+      "use_cases": [
+        "Project management",
+        "Documentation writing",
+        "Code review",
+        "Testing coordination",
+        "Communication between squads"
+      ]
+    },
+    "haiku": {
+      "id": "claude-haiku-3-5-20241022",
+      "cost_per_mtok_input": 0.8,
+      "cost_per_mtok_output": 4.0,
+      "use_cases": [
+        "Simple tasks",
+        "Status updates",
+        "Log parsing",
+        "Quick checks"
+      ]
+    }
+  },
+  "agent_model_mapping": {
+    "architecture_squad": {
+      "tech-lead": "opus",
+      "solution-architect": "opus",
+      "security-architect": "opus"
+    },
+    "engineering_squad": {
+      "frontend_subsquad": {
+        "frontend-lead": "opus",
+        "react-developer": "opus",
+        "ui-ux-designer": "sonnet"
+      },
+      "backend_subsquad": {
+        "backend-lead": "opus",
+        "golang-developer": "opus",
+        "python-developer": "opus",
+        "database-specialist": "opus"
+      }
+    },
+    "product_squad": {
+      "product-owner": "sonnet",
+      "business-analyst": "sonnet"
+    },
+    "qa_squad": {
+      "qa-lead": "sonnet",
+      "test-engineer": "sonnet",
+      "security-auditor": "opus"
+    },
+    "management": {
+      "meta-orchestrator": "sonnet",
+      "scrum-master": "sonnet"
+    }
+  },
+  "task_type_model_override": {
+    "security_review": "opus",
+    "architecture_design": "opus",
+    "performance_optimization": "opus",
+    "complex_algorithm": "opus",
+    "api_design": "opus",
+    "database_schema_design": "opus",
+    "documentation": "sonnet",
+    "meeting_notes": "sonnet",
+    "status_report": "sonnet",
+    "card_management": "sonnet",
+    "simple_refactor": "sonnet",
+    "log_analysis": "haiku",
+    "health_check": "haiku"
+  },
+  "cost_optimization": {
+    "enabled": true,
+    "fallback_to_cheaper_model": false,
+    "budget_alert_threshold_usd_per_day": 100,
+    "auto_switch_to_sonnet_when_budget_exceeded": false
+  },
+  "reasoning": {
+    "opus_for_architecture": "Critical decisions need deepest reasoning and accuracy. Opus 4.5 provides best quality for architecture, security, and complex implementation.",
+    "sonnet_for_management": "Management tasks benefit from speed and cost-effectiveness. Sonnet 4.5 is excellent for coordination, documentation, and communication.",
+    "haiku_for_simple": "Simple health checks and status updates don't need expensive models. Haiku 3.5 is fast and cheap for these tasks.",
+    "security_always_opus": "Security is non-negotiable. Always use Opus even for QA security audits to catch all vulnerabilities."
+  }
+}

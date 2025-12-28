@@ -1,0 +1,597 @@
+[
+  {
+    "id": 1,
+    "timestamp": "2025-12-22T10:20:56.223493",
+    "category": "project",
+    "event_type": "project_started",
+    "title": "🚀 Projeto Iniciado",
+    "description": "SuperCore v2.0 - Fase 1 - Sessão session_1766398856",
+    "metadata": {
+      "phase": 1,
+      "session_id": "session_1766398856"
+    },
+    "tags": [
+      "project",
+      "start",
+      "phase-1"
+    ]
+  },
+  {
+    "id": 2,
+    "timestamp": "2025-12-22T10:20:56.224222",
+    "category": "agent",
+    "event_type": "agent_initialized",
+    "title": "🤖 Agente Inicializado: backlog-manager",
+    "description": "Agente de gestão backlog-manager foi inicializado e está pronto",
+    "metadata": {
+      "agent": "backlog-manager",
+      "squad": "management"
+    },
+    "tags": [
+      "agent",
+      "management",
+      "backlog-manager"
+    ]
+  },
+  {
+    "id": 3,
+    "timestamp": "2025-12-22T10:20:56.224427",
+    "category": "agent",
+    "event_type": "agent_initialized",
+    "title": "🤖 Agente Inicializado: work-item-tracker",
+    "description": "Agente de gestão work-item-tracker foi inicializado e está pronto",
+    "metadata": {
+      "agent": "work-item-tracker",
+      "squad": "management"
+    },
+    "tags": [
+      "agent",
+      "management",
+      "work-item-tracker"
+    ]
+  },
+  {
+    "id": 4,
+    "timestamp": "2025-12-22T10:20:56.224652",
+    "category": "agent",
+    "event_type": "agent_initialized",
+    "title": "🤖 Agente Inicializado: dependency-orchestrator",
+    "description": "Agente de gestão dependency-orchestrator foi inicializado e está pronto",
+    "metadata": {
+      "agent": "dependency-orchestrator",
+      "squad": "management"
+    },
+    "tags": [
+      "agent",
+      "management",
+      "dependency-orchestrator"
+    ]
+  },
+  {
+    "id": 5,
+    "timestamp": "2025-12-22T10:20:56.224869",
+    "category": "agent",
+    "event_type": "agent_initialized",
+    "title": "🤖 Agente Inicializado: scrum-master",
+    "description": "Agente de gestão scrum-master foi inicializado e está pronto",
+    "metadata": {
+      "agent": "scrum-master",
+      "squad": "management"
+    },
+    "tags": [
+      "agent",
+      "management",
+      "scrum-master"
+    ]
+  },
+  {
+    "id": 6,
+    "timestamp": "2025-12-22T10:20:56.225207",
+    "category": "agent",
+    "event_type": "agent_initialized",
+    "title": "🤖 Agente Inicializado: product-owner",
+    "description": "Agente product-owner da squad produto está pronto",
+    "metadata": {
+      "agent": "product-owner",
+      "squad": "produto"
+    },
+    "tags": [
+      "agent",
+      "produto",
+      "product-owner"
+    ]
+  },
+  {
+    "id": 7,
+    "timestamp": "2025-12-22T10:20:56.225441",
+    "category": "agent",
+    "event_type": "agent_initialized",
+    "title": "🤖 Agente Inicializado: business-analyst",
+    "description": "Agente business-analyst da squad produto está pronto",
+    "metadata": {
+      "agent": "business-analyst",
+      "squad": "produto"
+    },
+    "tags": [
+      "agent",
+      "produto",
+      "business-analyst"
+    ]
+  },
+  {
+    "id": 8,
+    "timestamp": "2025-12-22T10:20:56.225740",
+    "category": "agent",
+    "event_type": "agent_initialized",
+    "title": "🤖 Agente Inicializado: ux-designer",
+    "description": "Agente ux-designer da squad produto está pronto",
+    "metadata": {
+      "agent": "ux-designer",
+      "squad": "produto"
+    },
+    "tags": [
+      "agent",
+      "produto",
+      "ux-designer"
+    ]
+  },
+  {
+    "id": 9,
+    "timestamp": "2025-12-22T10:20:56.226042",
+    "category": "agent",
+    "event_type": "agent_initialized",
+    "title": "🤖 Agente Inicializado: tech-lead",
+    "description": "Agente tech-lead da squad arquitetura está pronto",
+    "metadata": {
+      "agent": "tech-lead",
+      "squad": "arquitetura"
+    },
+    "tags": [
+      "agent",
+      "arquitetura",
+      "tech-lead"
+    ]
+  },
+  {
+    "id": 10,
+    "timestamp": "2025-12-22T10:20:56.226306",
+    "category": "agent",
+    "event_type": "agent_initialized",
+    "title": "🤖 Agente Inicializado: solution-architect",
+    "description": "Agente solution-architect da squad arquitetura está pronto",
+    "metadata": {
+      "agent": "solution-architect",
+      "squad": "arquitetura"
+    },
+    "tags": [
+      "agent",
+      "arquitetura",
+      "solution-architect"
+    ]
+  },
+  {
+    "id": 11,
+    "timestamp": "2025-12-22T10:20:56.226679",
+    "category": "agent",
+    "event_type": "agent_initialized",
+    "title": "🤖 Agente Inicializado: security-architect",
+    "description": "Agente security-architect da squad arquitetura está pronto",
+    "metadata": {
+      "agent": "security-architect",
+      "squad": "arquitetura"
+    },
+    "tags": [
+      "agent",
+      "arquitetura",
+      "security-architect"
+    ]
+  },
+  {
+    "id": 12,
+    "timestamp": "2025-12-22T10:20:56.227112",
+    "category": "agent",
+    "event_type": "agent_initialized",
+    "title": "🤖 Agente Inicializado: frontend-developer",
+    "description": "Agente frontend-developer do sub-squad frontend está pronto",
+    "metadata": {
+      "agent": "frontend-developer",
+      "squad": "engenharia",
+      "sub_squad": "frontend"
+    },
+    "tags": [
+      "agent",
+      "engenharia",
+      "frontend",
+      "frontend-developer"
+    ]
+  },
+  {
+    "id": 13,
+    "timestamp": "2025-12-22T10:20:56.227516",
+    "category": "agent",
+    "event_type": "agent_initialized",
+    "title": "🤖 Agente Inicializado: backend-developer",
+    "description": "Agente backend-developer do sub-squad backend está pronto",
+    "metadata": {
+      "agent": "backend-developer",
+      "squad": "engenharia",
+      "sub_squad": "backend"
+    },
+    "tags": [
+      "agent",
+      "engenharia",
+      "backend",
+      "backend-developer"
+    ]
+  },
+  {
+    "id": 14,
+    "timestamp": "2025-12-22T10:20:56.227946",
+    "category": "agent",
+    "event_type": "agent_initialized",
+    "title": "🤖 Agente Inicializado: data-engineer",
+    "description": "Agente data-engineer do sub-squad data está pronto",
+    "metadata": {
+      "agent": "data-engineer",
+      "squad": "engenharia",
+      "sub_squad": "data"
+    },
+    "tags": [
+      "agent",
+      "engenharia",
+      "data",
+      "data-engineer"
+    ]
+  },
+  {
+    "id": 15,
+    "timestamp": "2025-12-22T10:20:56.228390",
+    "category": "agent",
+    "event_type": "agent_initialized",
+    "title": "🤖 Agente Inicializado: fullstack-integrator",
+    "description": "Agente fullstack-integrator do sub-squad fullstack está pronto",
+    "metadata": {
+      "agent": "fullstack-integrator",
+      "squad": "engenharia",
+      "sub_squad": "fullstack"
+    },
+    "tags": [
+      "agent",
+      "engenharia",
+      "fullstack",
+      "fullstack-integrator"
+    ]
+  },
+  {
+    "id": 16,
+    "timestamp": "2025-12-22T10:20:56.228882",
+    "category": "agent",
+    "event_type": "agent_initialized",
+    "title": "🤖 Agente Inicializado: qa-lead",
+    "description": "Agente qa-lead da squad qa está pronto",
+    "metadata": {
+      "agent": "qa-lead",
+      "squad": "qa"
+    },
+    "tags": [
+      "agent",
+      "qa",
+      "qa-lead"
+    ]
+  },
+  {
+    "id": 17,
+    "timestamp": "2025-12-22T10:20:56.229324",
+    "category": "agent",
+    "event_type": "agent_initialized",
+    "title": "🤖 Agente Inicializado: test-engineer",
+    "description": "Agente test-engineer da squad qa está pronto",
+    "metadata": {
+      "agent": "test-engineer",
+      "squad": "qa"
+    },
+    "tags": [
+      "agent",
+      "qa",
+      "test-engineer"
+    ]
+  },
+  {
+    "id": 18,
+    "timestamp": "2025-12-22T10:20:56.229768",
+    "category": "agent",
+    "event_type": "agent_initialized",
+    "title": "🤖 Agente Inicializado: security-auditor",
+    "description": "Agente security-auditor da squad qa está pronto",
+    "metadata": {
+      "agent": "security-auditor",
+      "squad": "qa"
+    },
+    "tags": [
+      "agent",
+      "qa",
+      "security-auditor"
+    ]
+  },
+  {
+    "id": 19,
+    "timestamp": "2025-12-22T10:20:56.230266",
+    "category": "agent",
+    "event_type": "agent_initialized",
+    "title": "🤖 Agente Inicializado: deploy-lead",
+    "description": "Agente deploy-lead da squad deploy está pronto",
+    "metadata": {
+      "agent": "deploy-lead",
+      "squad": "deploy"
+    },
+    "tags": [
+      "agent",
+      "deploy",
+      "deploy-lead"
+    ]
+  },
+  {
+    "id": 20,
+    "timestamp": "2025-12-22T10:20:56.230811",
+    "category": "project",
+    "event_type": "meta_orchestrator_started",
+    "title": "🎯 Meta-Orchestrator Ativado",
+    "description": "Meta-Orchestrator iniciado para coordenar todas as squads",
+    "metadata": {
+      "total_agents": 18
+    },
+    "tags": [
+      "meta-orchestrator",
+      "coordination"
+    ]
+  },
+  {
+    "id": 21,
+    "timestamp": "2025-12-22T10:20:56.234630",
+    "category": "agent",
+    "event_type": "agent_spawned",
+    "title": "🤖 Meta-Orchestrator Spawned",
+    "description": "Meta-Orchestrator agent running autonomously (PID: 20974)",
+    "metadata": {
+      "agent": "meta-orchestrator",
+      "pid": 20974,
+      "phase": 1,
+      "session_id": "session_1766398856"
+    },
+    "tags": [
+      "agent",
+      "meta-orchestrator",
+      "autonomous"
+    ]
+  },
+  {
+    "id": 22,
+    "timestamp": "2025-12-22T10:20:56.302325",
+    "title": "🚀 Meta-Orchestrator Started",
+    "description": "Session session_1766398856 - Beginning autonomous project orchestration",
+    "type": "orchestrator_started",
+    "session_id": "session_1766398856"
+  },
+  {
+    "id": 23,
+    "timestamp": "2025-12-22T10:20:56.302905",
+    "title": "📖 Meta-Orchestrator: Reading Documentation",
+    "description": "Analyzing all files in Supercore_v2.0/DOCUMENTACAO_BASE/",
+    "type": "orchestrator_action",
+    "session_id": "session_1766398856"
+  },
+  {
+    "id": 24,
+    "timestamp": "2025-12-22T10:20:56.304934",
+    "title": "🎯 Meta-Orchestrator: Creating Initial Cards",
+    "description": "Generating Phase 1 (Produto) work items from documentation",
+    "type": "orchestrator_action",
+    "session_id": "session_1766398856"
+  },
+  {
+    "id": 25,
+    "timestamp": "2025-12-22T10:20:56.310051",
+    "title": "📋 Card Created: EPIC-001",
+    "description": "Product Discovery & Requirements Analysis (Squad: produto, Priority: CRITICAL)",
+    "type": "card_created",
+    "session_id": "session_1766398856"
+  },
+  {
+    "id": 26,
+    "timestamp": "2025-12-22T10:20:56.311778",
+    "title": "📋 Card Created: PROD-001",
+    "description": "Define MVP Features from Requirements (Squad: produto, Priority: CRITICAL)",
+    "type": "card_created",
+    "session_id": "session_1766398856"
+  },
+  {
+    "id": 27,
+    "timestamp": "2025-12-22T10:20:56.313426",
+    "title": "📋 Card Created: PROD-002",
+    "description": "Create User Flows & Journey Maps (Squad: produto, Priority: HIGH)",
+    "type": "card_created",
+    "session_id": "session_1766398856"
+  },
+  {
+    "id": 28,
+    "timestamp": "2025-12-22T10:20:56.315370",
+    "title": "📋 Card Created: PROD-003",
+    "description": "Design UI Wireframes & Mockups (Squad: produto, Priority: HIGH)",
+    "type": "card_created",
+    "session_id": "session_1766398856"
+  },
+  {
+    "id": 29,
+    "timestamp": "2025-12-22T10:20:56.316944",
+    "title": "📋 Card Created: PROD-004",
+    "description": "Define Success Metrics & KPIs (Squad: produto, Priority: MEDIUM)",
+    "type": "card_created",
+    "session_id": "session_1766398856"
+  },
+  {
+    "id": 30,
+    "timestamp": "2025-12-22T10:20:56.317494",
+    "title": "✅ Initial Cards Created",
+    "description": "Created 10 cards for Phase 1 (Produto Squad)",
+    "type": "milestone_progress",
+    "session_id": "session_1766398856"
+  },
+  {
+    "id": 31,
+    "timestamp": "2025-12-22T10:20:56.318049",
+    "title": "🤖 Meta-Orchestrator: Starting Autonomous Monitoring",
+    "description": "Continuously monitoring progress and coordinating squads",
+    "type": "orchestrator_action",
+    "session_id": "session_1766398856"
+  },
+  {
+    "id": 32,
+    "timestamp": "2025-12-22T10:20:56.380599",
+    "category": "execution",
+    "event_type": "card_started",
+    "title": "Started card EPIC-001: Product Discovery & Requirements Analysis",
+    "description": "Started card EPIC-001: Product Discovery & Requirements Analysis",
+    "metadata": {
+      "card_id": "EPIC-001"
+    },
+    "tags": [
+      "agent-executor",
+      "card_started"
+    ]
+  },
+  {
+    "id": 33,
+    "timestamp": "2025-12-22T10:26:12.428723",
+    "category": "execution",
+    "event_type": "card_completed",
+    "title": "Completed card EPIC-001: Product Discovery & Requirements Analysis",
+    "description": "Completed card EPIC-001: Product Discovery & Requirements Analysis",
+    "metadata": {
+      "card_id": "EPIC-001"
+    },
+    "tags": [
+      "agent-executor",
+      "card_completed"
+    ]
+  },
+  {
+    "id": 34,
+    "timestamp": "2025-12-22T10:26:12.430154",
+    "category": "execution",
+    "event_type": "card_started",
+    "title": "Started card EPIC-001: Product Discovery & Requirements Analysis",
+    "description": "Started card EPIC-001: Product Discovery & Requirements Analysis",
+    "metadata": {
+      "card_id": "EPIC-001"
+    },
+    "tags": [
+      "agent-executor",
+      "card_started"
+    ]
+  },
+  {
+    "id": 35,
+    "timestamp": "2025-12-22T10:27:46.420916",
+    "category": "execution",
+    "event_type": "card_completed",
+    "title": "Completed card PROD-001: Define MVP Features from Requirements",
+    "description": "Completed card PROD-001: Define MVP Features from Requirements",
+    "metadata": {
+      "card_id": "PROD-001"
+    },
+    "tags": [
+      "agent-executor",
+      "card_completed"
+    ]
+  },
+  {
+    "id": 36,
+    "timestamp": "2025-12-22T10:28:16.520121",
+    "category": "execution",
+    "event_type": "card_started",
+    "title": "Started card PROD-002: Create User Flows & Journey Maps",
+    "description": "Started card PROD-002: Create User Flows & Journey Maps",
+    "metadata": {
+      "card_id": "PROD-002"
+    },
+    "tags": [
+      "agent-executor",
+      "card_started"
+    ]
+  },
+  {
+    "id": 37,
+    "timestamp": "2025-12-22T10:34:10.305581",
+    "category": "execution",
+    "event_type": "card_completed",
+    "title": "Completed card EPIC-001: Product Discovery & Requirements Analysis",
+    "description": "Completed card EPIC-001: Product Discovery & Requirements Analysis",
+    "metadata": {
+      "card_id": "EPIC-001"
+    },
+    "tags": [
+      "agent-executor",
+      "card_completed"
+    ]
+  },
+  {
+    "id": 38,
+    "timestamp": "2025-12-22T10:34:40.404867",
+    "category": "execution",
+    "event_type": "card_started",
+    "title": "Started card PROD-004: Define Success Metrics & KPIs",
+    "description": "Started card PROD-004: Define Success Metrics & KPIs",
+    "metadata": {
+      "card_id": "PROD-004"
+    },
+    "tags": [
+      "agent-executor",
+      "card_started"
+    ]
+  },
+  {
+    "id": 39,
+    "timestamp": "2025-12-22T10:35:50.755966",
+    "category": "execution",
+    "event_type": "card_completed",
+    "title": "Completed card PROD-002: Create User Flows & Journey Maps",
+    "description": "Completed card PROD-002: Create User Flows & Journey Maps",
+    "metadata": {
+      "card_id": "PROD-002"
+    },
+    "tags": [
+      "agent-executor",
+      "card_completed"
+    ]
+  },
+  {
+    "id": 40,
+    "timestamp": "2025-12-22T10:35:50.757578",
+    "category": "execution",
+    "event_type": "card_started",
+    "title": "Started card PROD-002: Create User Flows & Journey Maps",
+    "description": "Started card PROD-002: Create User Flows & Journey Maps",
+    "metadata": {
+      "card_id": "PROD-002"
+    },
+    "tags": [
+      "agent-executor",
+      "card_started"
+    ]
+  },
+  {
+    "id": 41,
+    "timestamp": "2025-12-22T10:37:29.665332",
+    "category": "execution",
+    "event_type": "card_started",
+    "title": "Started card EPIC-001: Product Discovery & Requirements Analysis",
+    "description": "Started card EPIC-001: Product Discovery & Requirements Analysis",
+    "metadata": {
+      "card_id": "EPIC-001"
+    },
+    "tags": [
+      "agent-executor",
+      "card_started"
+    ]
+  }
+]

@@ -1,0 +1,22 @@
+graph TB
+    subgraph "SuperCore v2.0"
+        User[User/Admin]
+        Portal[Super Portal<br/>Next.js 14]
+        API[API Gateway<br/>FastAPI]
+        Service[RF002 Service<br/>Business Logic]
+        DB[(PostgreSQL)]
+        Graph[(NebulaGraph)]
+    end
+
+    User -->|Interacts| Portal
+    Portal -->|REST API| API
+    API -->|Calls| Service
+    Service -->|Reads/Writes| DB
+    Service -->|Queries| Graph
+
+    style User fill:#e1f5ff
+    style Portal fill:#fff3cd
+    style API fill:#d1ecf1
+    style Service fill:#d4edda
+    style DB fill:#f8d7da
+    style Graph fill:#f8d7da
