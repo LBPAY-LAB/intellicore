@@ -1,0 +1,187 @@
+# ==============================================================================
+# Temporal Server Dynamic Configuration
+# ==============================================================================
+# This file controls runtime behavior of Temporal Server
+# Reloadable without restart via tctl command tools
+#
+# Reference: https://docs.temporal.io/references/dynamic-config
+# ==============================================================================
+
+version: "1"
+
+# ==============================================================================
+# Persistence Configuration
+# ==============================================================================
+persistence:
+  defaultStore: postgres
+  visibilityStore: elasticsearch
+  numHistoryShards: 4
+
+  # Stores configuration
+  stores:
+    postgres:
+      driver: "postgres"
+
+    elasticsearch:
+      driver: "elasticsearch"
+
+# ==============================================================================
+# Server Configuration
+# ==============================================================================
+server:
+  # Graceful shutdown timeout
+  gracefulShutdownTimeout: 5s
+
+  # Performance tuning
+  metrics:
+    prometheus:
+      # Prometheus metrics endpoint
+      framework: prometheus
+
+# ==============================================================================
+# Frontend Service Configuration
+# ==============================================================================
+frontend:
+  # Maximum workflow execution + decision + visibility timeout
+  maxDecisionStartToCloseTimeout: 3m
+  maxExecutionTimeout: 24h
+  maxWorkflowTaskStartToCloseTimeout: 10m
+
+  # Rate limiting
+  rps:
+    enabled: false
+    # maxRequestPerSecond: 10000
+
+# ==============================================================================
+# History Service Configuration
+# ==============================================================================
+history:
+  # History service specific timeouts
+  transactionLimitForVisibility: 4000
+
+  # Performance tuning
+  numHistoryHosts: 3
+
+  # Event history pruning (retention policy)
+  eventLivenessTtlBuffer: 120s
+
+# ==============================================================================
+# Matching Service Configuration
+# ==============================================================================
+matching:
+  # Tuning parameters
+  maxTaskBatchSize: 100
+  numTaskProcessors: 4
+
+# ==============================================================================
+# Archival Configuration (Event History)
+# ==============================================================================
+# Note: Archival is optional for development. Set to empty for no archival.
+archival:
+  history:
+    state: "enabled"
+    enableRead: true
+    provider:
+      filestore:
+        fileMode: "0666"
+        dirMode: "0777"
+        outputDirectory: "/temporal-archival"
+
+  visibility:
+    state: "disabled"
+
+# ==============================================================================
+# Cluster Configuration
+# ==============================================================================
+# For single-node development setup
+clusterMetadata:
+  enabled: true
+  failoverVersionIncrement: 10
+  membershipChangeChunkSize: 8
+  clusterName: supercore-temporal
+
+  # This node's configuration
+  thisClusterName: supercore-temporal
+  clusterInformation:
+    supercore-temporal:
+      enabled: true
+      initialFailoverVersion: 1
+      # For multi-node, list all nodes here
+      rpcAddress: temporal:7233
+
+# ==============================================================================
+# Elasticsearch Configuration (Visibility)
+# ==============================================================================
+elasticsearch:
+  url:
+    scheme: "http"
+    host: "temporal-elasticsearch"
+    port: 9200
+  version: "v8"
+
+  # Search attributes - these are indexed fields for visibility queries
+  # Full list: https://docs.temporal.io/references/visibility-search-attributes
+
+  # Logging and index configuration
+  logLevel: "info"
+
+  # Index settings
+  numberOfShards: 1
+  numberOfReplicas: 0
+
+  # Bulk processor settings
+  bulkProcessor:
+    numOfWorkers: 1
+    bulkActions: 1000
+    bulkSize: 5242880  # 5MB
+    flushInterval: 1s
+
+# ==============================================================================
+# Service Limits and Quotas
+# ==============================================================================
+limits:
+  # Maximum number of workflows per namespace
+  workflowCountLimitError: 200000
+  workflowCountLimitWarn: 150000
+
+  # Visibility query settings
+  visibilityMaxPageSize: 10000
+
+  # Task queue settings
+  taskQueueCountLimitError: 4000
+  taskQueueCountLimitWarn: 2000
+
+# ==============================================================================
+# Namespace Configuration
+# ==============================================================================
+# Default namespace is created automatically during server startup
+# Additional namespaces can be registered via Temporal CLI
+#
+# Key namespaces for SuperCore:
+#   - default: Development and testing
+#   - production: Production workflows
+#   - system: Internal Temporal workflows
+
+# ==============================================================================
+# Logging Configuration
+# ==============================================================================
+log:
+  level: "info"
+  format: "json"  # Use JSON for structured logging (ELK integration ready)
+
+# ==============================================================================
+# Metrics Configuration (Prometheus)
+# ==============================================================================
+metrics:
+  prometheus:
+    framework: "prometheus"
+    # Exposed on http://temporal:9090/metrics
+    listenerPort: 9090
+
+# ==============================================================================
+# Development Mode Settings
+# ==============================================================================
+# These are optimized for development, not production
+development:
+  # Enable strict mode for validation
+  strictMode: false
