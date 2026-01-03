@@ -1,9 +1,9 @@
-# RAG Pipeline Architecture - SuperCore v2.0
-## Orquestração de Pipelines RAG por Oráculo
+# Agentic RAG Pipeline Architecture - SuperCore v2.0
+## Orquestração Multi-Agent de Pipelines RAG por Oráculo
 
-**Versão**: 1.0.0
-**Data**: 2024-12-23
-**Status**: Documento Técnico - Arquitetura RAG
+**Versão**: 2.0.0 (Agentic RAG)
+**Data**: 2026-01-01
+**Status**: Documento Técnico - Arquitetura Agentic RAG
 
 ---
 
@@ -11,10 +11,10 @@
 
 1. [Visão Geral](#1-visão-geral)
 2. [Pipeline RAG Completo](#2-pipeline-rag-completo)
-3. [Orquestração com LangFlow](#3-orquestração-com-langflow)
-4. [Execução com LangGraph](#4-execução-com-langgraph)
-5. [RAG Trimodal](#5-rag-trimodal)
-6. [Comparação: LangFlow vs Dagster/Airflow](#6-comparação-langflow-vs-dagsterairflow)
+3. [Orquestração Multi-Agent com CrewAI](#3-orquestração-multi-agent-com-crewai)
+4. [Execução com Temporal Workflows](#4-execução-com-temporal-workflows)
+5. [Agentic RAG Trimodal](#5-agentic-rag-trimodal)
+6. [Padrões Agentic RAG](#6-padrões-agentic-rag)
 7. [Exemplos Práticos](#7-exemplos-práticos)
 8. [Performance e Escalabilidade](#8-performance-e-escalabilidade)
 
@@ -22,15 +22,20 @@
 
 ## 1. VISÃO GERAL
 
-### 1.1 O que é RAG Pipeline no SuperCore?
+### 1.1 O que é Agentic RAG Pipeline no SuperCore?
 
-**RAG (Retrieval-Augmented Generation)** no SuperCore é um sistema **multi-etapas** que:
+**Agentic RAG (Retrieval-Augmented Generation)** no SuperCore é um sistema **multi-agent** e **multi-etapas** que:
 
 1. **Ingere** documentos de múltiplos formatos (30+)
 2. **Processa** e enriquece o conteúdo
 3. **Embebe** em vetores semânticos
 4. **Armazena** em 3 modalidades (SQL + Graph + Vector)
-5. **Recupera** conhecimento contextual para LLMs
+5. **Rota Inteligentemente** queries via Router Agent (CrewAI)
+6. **Recupera** conhecimento de múltiplas fontes em paralelo via Retrieval Agents (CrewAI)
+7. **Combina** resultados via Fusion Agent (CrewAI) com CRAG (Corrective RAG)
+8. **Gera** respostas via Generator Agent (CrewAI)
+9. **Valida** e auto-corrige via Reflector Agent (CrewAI) com Self-RAG
+10. **Orquestra** todo pipeline via Temporal Workflows (durable execution)
 
 ### 1.2 Pipeline por Oráculo
 
@@ -374,15 +379,18 @@ class TrimodalStoragePipeline:
 
 ---
 
-### 2.6 Etapa 5: Retrieval (Consulta)
+### 2.6 Etapa 5: Retrieval (Consulta Multi-Agent)
 
-**RAG Trimodal Query**:
+**Agentic RAG Trimodal Query com CrewAI + Temporal**:
 ```python
-# retrieval_pipeline.py
+# agentic_retrieval_pipeline.py
+from crewai import Agent, Task, Crew
+from temporalio import workflow
 
-class TrimodalRetriever:
+class AgenticTrimodalRetriever:
     """
-    Consulta conhecimento usando 3 modalidades em paralelo
+    Consulta conhecimento usando 6 agentes CrewAI orquestrados via Temporal Workflow
+    Padrões: Routing, CRAG, Self-RAG, Multi-Source Fusion, Iterative Refinement
     """
 
     async def retrieve(

@@ -69,7 +69,7 @@ O SuperCore v2.0 adota uma filosofia de **"Polyglot Architecture with AI-First A
 6. **Meta-Plataforma: Geração, Não Implementação**
    - Stack contém ferramentas para GERAR soluções
    - LLMs, templates, AST manipulation para code generation
-   - RAG 3D para consulta de conhecimento multimodal
+   - Agentic RAG Trimodal para consulta de conhecimento multimodal com multi-agent orchestration (CrewAI + Temporal)
    - Abstração total de domínio no core
 
 ### 1.2 Evolução v1 → v2.0
@@ -91,7 +91,7 @@ O SuperCore v2.0 adota uma filosofia de **"Polyglot Architecture with AI-First A
 **Limitações v1**:
 - Criação manual de object_definitions
 - Sem orquestração de agentes
-- RAG básico (sem trimodal híbrido)
+- RAG básico (sem Agentic RAG Trimodal multi-agent)
 - Frontend estático (geração limitada)
 - Sem MCP completo
 - Sem Super Portal de gerenciamento
@@ -229,15 +229,17 @@ O SuperCore v2.0 adota uma filosofia de **"Polyglot Architecture with AI-First A
                               ↕ Consome
 ┌──────────────────────────────────────────────────────────────────┐
 │ CAMADA 1: FUNDAÇÃO (Oráculo)                                    │
-│ RAG 3D: PostgreSQL + NebulaGraph + pgvector                     │
+│ Agentic RAG Trimodal: PostgreSQL + NebulaGraph + Qdrant        │
+│ Multi-Agent Orchestration: CrewAI + Temporal Workflows         │
 │ LLMs: vLLM (prod) / Ollama (dev) / Claude / GPT-4              │
 │ Knowledge Graph + Embeddings + Code Generation                  │
 └──────────────────────────────────────────────────────────────────┘
                               ↕ Persiste
 ┌──────────────────────────────────────────────────────────────────┐
 │ CAMADA 0: DADOS                                                 │
-│ PostgreSQL 16 (JSONB + Row-Level Security)                      │
+│ PostgreSQL 16 (JSONB + Row-Level Security + pgvector)          │
 │ NebulaGraph 3.8 (Graph DB)                                      │
+│ Qdrant v1.7.0 (Vector DB)                                       │
 │ Redis 7 (Cache) + MinIO (Object Storage)                       │
 └──────────────────────────────────────────────────────────────────┘
 ```
@@ -833,7 +835,7 @@ from langchain.document_loaders import PyPDFLoader
 import asyncpg
 
 class RAGEngine:
-    """RAG 3D: SQL + Graph + Vector (agnóstico de domínio)"""
+    """Agentic RAG Trimodal: SQL + Graph + Vector com CrewAI multi-agent orchestration (agnóstico de domínio)"""
 
     def __init__(self, oracle_id: str):
         self.oracle_id = oracle_id
@@ -1480,10 +1482,10 @@ WITH (lists = 100);
 - EnsembleRetriever (hybrid: vector + keyword)
 - ContextualCompressionRetriever
 
-**Custom RAG 3D** (SQL + Graph + Vector):
+**Custom Agentic RAG Trimodal** (SQL + Graph + Vector com CrewAI + Temporal):
 ```python
-class RAG3D:
-    """Busca híbrida em 3 modalidades"""
+class AgenticRAGTrimodal:
+    """Busca híbrida multi-agent em 3 modalidades com Agentic RAG patterns"""
 
     async def retrieve(self, query: str, oracle_id: str) -> dict:
         # 1. Vector search (semântico)
@@ -3494,7 +3496,7 @@ const tools: MCPTool[] = [
   },
   {
     name: "rag_query",
-    description: "Query oracle knowledge using RAG 3D",
+    description: "Query oracle knowledge using Agentic RAG Trimodal (multi-agent SQL + Graph + Vector)",
     inputSchema: {
       type: "object",
       properties: {
@@ -7765,28 +7767,44 @@ Precisamos de message broker com:
 
 ---
 
-### ADR-003: RAG 3D (PostgreSQL + NebulaGraph + pgvector)
+### ADR-003: Agentic RAG Trimodal (PostgreSQL + NebulaGraph + Qdrant com CrewAI + Temporal)
 
-**Status**: Aceito
+**Status**: Aceito (Atualizado para Agentic RAG em 2026-01-01)
 
 **Contexto**:
-RAG tradicional usa apenas vector search. Queremos busca híbrida:
-- **SQL**: Queries estruturadas
-- **Graph**: Navegação de relacionamentos
-- **Vector**: Busca semântica
+RAG tradicional usa apenas vector search linear (query → retrieve → generate). Queremos busca híbrida **multi-agent** com Agentic RAG patterns:
+- **Router Agent (CrewAI)**: Decide dinamicamente quais fontes consultar (SQL/Graph/Vector)
+- **SQL Agent (CrewAI)**: Queries estruturadas em PostgreSQL + pgvector (hybrid search)
+- **Graph Agent (CrewAI)**: Navegação de relacionamentos em NebulaGraph (multi-hop reasoning)
+- **Vector Agent (CrewAI)**: Busca semântica em Qdrant (dedicated vector DB)
+- **Fusion Agent (CrewAI)**: Combina resultados multi-source, resolve conflitos
+- **Reflector Agent (CrewAI)**: Valida grounding, detecta hallucinations (Self-RAG)
+- **Temporal Workflow**: Orquestra pipeline durable com checkpoints, retry logic, CRAG loops
 
-**Decisão**: RAG 3D (SQL + Graph + Vector)
+**Decisão**: Agentic RAG Trimodal (SQL + Graph + Vector) com CrewAI multi-agent orchestration + Temporal Workflows
+
+**Padrões Agentic RAG Implementados**:
+1. **Routing Pattern**: Router Agent escolhe fontes dinamicamente
+2. **CRAG (Corrective RAG)**: Fusion Agent avalia qualidade, triggers re-query se insuficiente
+3. **Self-RAG**: Reflector Agent verifica grounding, auto-corrige hallucinations
+4. **Multi-Source Fusion**: Combina SQL (structured) + Graph (relations) + Vector (semantic)
+5. **Iterative Refinement**: Temporal Workflow gerencia retry loops (max 3 tentativas)
 
 **Alternativas Consideradas**:
-- Vector-only: Perde contexto relacional
-- SQL-only: Perde semântica
-- Graph-only: Perde dados estruturados
+- Vector-only: Perde contexto relacional e dados estruturados
+- SQL-only: Perde semântica e relações complexas
+- Graph-only: Perde dados estruturados e busca semântica
+- Traditional RAG (linear): Sem routing inteligente, sem error correction, sem multi-source fusion
+- LlamaIndex Agentic RAG: Adiciona dependência desnecessária (CrewAI + Temporal já fornecem tudo)
 
 **Consequências**:
-- Busca mais completa (3 modalidades)
-- Maior qualidade de respostas
-- Rastreabilidade de fontes
-- Complexidade maior (3 DBs)
+- ✅ Busca mais completa (3 modalidades com routing inteligente)
+- ✅ Maior qualidade de respostas (multi-agent collaboration, CRAG, Self-RAG)
+- ✅ Auto-correção de erros (hallucination detection, iterative refinement)
+- ✅ Rastreabilidade de fontes (SQL vs Graph vs Vector attribution)
+- ✅ Durable execution (Temporal Workflow com checkpoints, resiliente a falhas)
+- ⚠️ Complexidade maior (3 DBs + 6 agents + Temporal, mas vale o ROI)
+- ⚠️ Latência adicional (<3s p95, aceitável para qualidade superior)
 
 ---
 
@@ -10782,8 +10800,10 @@ curl http://localhost:3000/pt/oracles | grep "Oráculos"
 
 - **8 Camadas Arquiteturais**: Dados → Fundação → Abstração → Orquestração → Interface → Apresentação → Deployment → Super Portal
 - **3 Linguagens Core**: Go, Python, TypeScript
-- **4 Bancos de Dados**: PostgreSQL, NebulaGraph, Redis, MinIO
-- **3 Modalidades RAG**: SQL + Graph + Vector
+- **5 Bancos de Dados**: PostgreSQL + pgvector, NebulaGraph, Qdrant, Redis, MinIO
+- **3 Modalidades RAG**: SQL + Graph + Vector (Agentic RAG Trimodal com CrewAI + Temporal)
+- **6 Agentic RAG Agents**: Router, SQL Agent, Graph Agent, Vector Agent, Fusion Agent, Reflector Agent
+- **5 Agentic RAG Patterns**: Routing, CRAG, Self-RAG, Multi-Source Fusion, Iterative Refinement
 - **10+ Idiomas Suportados**: Português, inglês, espanhol, francês, alemão, italiano, japonês, chinês, russo, árabe
 - **4 LLM Providers**: OpenAI GPT-4, Claude Opus, vLLM (local), Ollama (dev)
 - **Zero Lock-in**: 100% open source, vendor agnostic
@@ -10805,14 +10825,19 @@ curl http://localhost:3000/pt/oracles | grep "Oráculos"
    - Zero downtime deployments
    - Auto-scaling e observability nativa
 
-4. **RAG 3D Híbrido**:
-   - SQL (estruturado) + Graph (relacionamentos) + Vector (semântico)
-   - Qualidade de respostas superior
+4. **Agentic RAG Trimodal**:
+   - 6 Agentes Especializados (Router, SQL, Graph, Vector, Fusion, Reflector)
+   - 5 Padrões Agentic RAG (Routing, CRAG, Self-RAG, Multi-Source Fusion, Iterative Refinement)
+   - Orquestração Temporal Workflow com checkpoints e retry logic
+   - SQL (estruturado) + Graph (relacionamentos) + Vector (semântico) com routing inteligente
+   - Auto-correção de hallucinations e iterative refinement
+   - Qualidade de respostas superior com validação de grounding
 
 5. **Multi-Agente Colaborativo**:
-   - CrewAI + LangGraph
-   - Agentes especializados colaboram
-   - Problemas complexos resolvidos automaticamente
+   - CrewAI + LangGraph + Temporal Workflows
+   - Agentes especializados colaboram com delegation automática
+   - CRAG (Corrective RAG) e Self-RAG para error correction
+   - Problemas complexos resolvidos automaticamente com durable execution
 
 6. **Agnóstico de Domínio TOTAL**:
    - Zero exemplos Banking/PIX/BACEN no core

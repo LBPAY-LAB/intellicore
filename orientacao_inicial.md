@@ -1,0 +1,27 @@
+para a implementação deste projeto tem que seguir as seguintes premissas:
+-> O escopo do projeto está definido no folder documentation-base;
+-> A definição dos skills e dos agentes estão abaixo do folder .claude
+-> deve ser criado do zero, mantido e atualizado um claude.md como referência para os agentes que irão gerenciar, documentar e implementar o projeto.
+-> todos os agentes técnicos: arquitetos, desenvolvedores, especialista de tecnologia, terão que sermpre o OPUS 4.5;
+-> a folder fases é a folder onde terá que ser criada a documentação do projeto e de todas as fases;
+-> a implementação do projeto (codificação) deverá ficar em folders diferentes abaixo da raiz do projeto (requisito fundamental) para que não se misture com a documentação que está sendo criada nas folders abaixo de /fases;
+-> Agora o inicio do projeto:
+    - Inicie um agente orquestrador e um agente scrum master devem criar uma primeira squad de agentes com os skills necessários para analisarem os documentos do documentation-base, para criar a organização de fases, dentro de cada fase quais as sprints, e por sprint qual a squad (que team de agentes especialistas deverá existir);
+    - Crie na raiz ou dentro do .claude o documento claude.md (o que for melhor para que todos agentes usem como referência)
+    - Crie na raiz um documento de backlog de projeto para garantir o máximo de sincronismo na implementação do projeto. Planeamento, execução, dependências entre outras informações;
+    - Revise o documento proposta_fases.md abaixo da folder fases;
+        - Entendeu como deve estar organizado a folder fases? fase-1 (todas as pastas que deverão ter que existir); fase-2...
+    - Abaixo da folder fases/fase-1/ux-ui/mockups/ tem já um conjunto de mockups de telas já criadas. Valide se esses mockups podem ser reutilzados. Valide e atualize caso considere necessários essas telas de mockups.
+        - as telas de mockups são peças fundamentais para a implementação do portal de gestão do SuperCore;
+    - não crie codigo temporário;
+    - não crie versões demo mais simples;
+    - os agentes arquitectos, orquestrador e scrum master deverão sempre fazer análise "think harder" garantindo que a implementação tem a melhor fundação;
+    - implemente soluções 100% completas usando o Opus 4.5, com alta qualidade e rigor. Meticulosamente implementado;
+    - fundamental na raiz do projeto vá criando arquivos de duvidas para que nunca, um agente implemente algo que não tenha definição;
+- Importante:
+    - No .claude crie autonomia para que os agentes não precisem de pedir aprovação para a criação de folders, criação de aquivos no escopo deste projeto e abaixo da raiz deste projeto. Este topico é importante para que não se perca tempo com muitas aprovações não criticas.
+
+-> a estrutura de projeto deve ser a de um turborepo:
+    -> FrontEnd;
+    -> Backend;
+    -> 

@@ -99,7 +99,7 @@ O SuperCore é fundamentado em princípios que representam uma mudança paradigm
 - `object_definitions` como DNA do sistema
 - `instances` como células vivas
 - `relationships` como sinapses
-- RAG Trimodal (SQL + Graph + Vector)
+- Agentic RAG Trimodal (SQL + Graph + Vector) com CrewAI + Temporal
 - Dynamic UI generation
 - FSM engine genérico
 - Validation rules interpretadas
@@ -127,7 +127,7 @@ O SuperCore é fundamentado em princípios que representam uma mudança paradigm
 2. **Oráculo como Fundação (Pilar 1)**
    - Knowledge Graph (NebulaGraph) com conhecimento do domínio configurado
    - Ingestão contínua de documentação, regulações, políticas
-   - RAG 3D Híbrido (SQL + Graph + Vector - instances + embeddings)
+   - Agentic RAG Híbrido (SQL + Graph + Vector - instances + embeddings) com multi-agent orchestration
    - Fonte única da verdade para geração automática de objetos
 
 3. **Biblioteca de Objetos (Pilar 2)**
@@ -253,8 +253,9 @@ O SuperCore é fundamentado em princípios que representam uma mudança paradigm
 ┌─────────────────────────────────────────────────────────────┐
 │  CAMADA 0: FUNDAÇÃO (Oráculo - Knowledge Base)             │
 │  - PostgreSQL 15 (Structured Data + pgvector)               │
-│  - NebulaGraph 3.8 (Knowledge Graph)                        │
-│  - RAG 3D Trimodal (SQL + Graph + Vector)                  │
+│  - NebulaGraph 3.8 (Knowledge Graph) + Qdrant (Vector DB)   │
+│  - Agentic RAG Trimodal (SQL + Graph + Vector)             │
+│  - CrewAI Agents + Temporal Workflows (orchestration)       │
 │  - Documentação, Regulações, Políticas do Domínio           │
 └─────────────────────────────────────────────────────────────┘
                           ↕ Persiste
@@ -842,17 +843,30 @@ O Oráculo é a **consciência do sistema** - um estado de conhecimento consolid
    - Arestas: Relações semânticas (BASEADA_EM, DERIVADA_DE, GOVERNA)
    - Raciocínio sobre relações entre entidades do domínio
 
-3. **RAG 3D Trimodal (SQL + Graph + Vector)**
-   - Busca estruturada em PostgreSQL
-   - Navegação de relacionamentos em NebulaGraph
-   - Busca semântica em pgvector
-   - Síntese de resposta com LLM
+3. **Agentic RAG Trimodal (SQL + Graph + Vector)**
+   - **Router Agent (CrewAI)**: Analisa query e decide quais fontes consultar (SQL/Graph/Vector)
+   - **Retrieval Agents (3× CrewAI)**: Executam buscas especializadas em paralelo
+     - **SQL Agent**: Queries estruturadas em PostgreSQL + pgvector (hybrid search)
+     - **Graph Agent**: Navegação de relacionamentos em NebulaGraph (multi-hop reasoning)
+     - **Vector Agent**: Busca semântica em Qdrant (similarity search)
+   - **Fusion Agent (CrewAI)**: Combina resultados das 3 fontes, resolve conflitos
+   - **Generator Agent (CrewAI)**: Sintetiza resposta final usando contexto multi-source
+   - **Reflector Agent (CrewAI)**: Valida grounding, detecta hallucinations, auto-corrige
+   - **Orquestração Temporal Workflow**: Pipeline durable com checkpoints e retry logic
 
-#### Integração PostgreSQL + NebulaGraph
+**Padrões Agentic RAG Implementados**:
+1. **Routing Pattern**: Router Agent escolhe dinamicamente SQL vs Graph vs Vector
+2. **CRAG (Corrective RAG)**: Fusion Agent avalia qualidade, triggers re-query se insuficiente
+3. **Self-RAG**: Reflector Agent verifica grounding, auto-corrige hallucinations
+4. **Multi-Source Fusion**: Combina SQL (structured) + Graph (relations) + Vector (semantic)
+5. **Iterative Refinement**: Temporal Workflow gerencia loops de retry com checkpoints
 
-**Padrão Híbrido**:
+#### Integração PostgreSQL + NebulaGraph + Qdrant
+
+**Padrão Híbrido Tri-Database**:
 - **PostgreSQL**: Armazena instances com estrutura e versionamento (FSM states)
-- **NebulaGraph**: Indexa relacionamentos para queries complexas
+- **NebulaGraph**: Indexa relacionamentos para queries complexas (multi-hop traversals)
+- **Qdrant**: Armazena embeddings para busca semântica de alta performance
 - **Sincronização**: Event-driven via Apache Pulsar
 
 **Exemplo de Fluxo**:
@@ -867,42 +881,191 @@ O Oráculo é a **consciência do sistema** - um estado de conhecimento consolid
    ↓
 5. EmbeddingSyncService consome evento
    ↓
-6. Gera embedding e armazena em pgvector
+6. Gera embedding e armazena em Qdrant + pgvector (redundância)
 ```
 
 #### Padrões de Acesso
 
-**1. RAG 3D Trimodal**
+**1. Agentic RAG Trimodal com Temporal Workflow**
 
 ```python
-# rag_service.py
-class RAG3DService:
-    async def query(self, question: str, context: dict, oracle_id: str):
-        # Layer 1: SQL Query (structured)
-        sql_results = await self.postgres.query(
-            f"SELECT * FROM instances WHERE object_definition_id = $1 AND oracle_id = $2",
-            context['object_type'], oracle_id
+# agentic_rag_workflow.py
+from temporalio import workflow
+from temporalio.common import RetryPolicy
+from crewai import Agent, Task, Crew
+
+@workflow.defn
+class AgenticRAGWorkflow:
+    @workflow.run
+    async def run(self, question: str, oracle_id: str) -> dict:
+        """
+        Temporal Workflow orquestra pipeline Agentic RAG completo
+        com checkpoints, retry logic e durable execution.
+        """
+
+        # Phase 1: Routing (decide quais fontes consultar)
+        routing_decision = await workflow.execute_activity(
+            route_query,
+            args=[question],
+            start_to_close_timeout=timedelta(seconds=10),
+            retry_policy=RetryPolicy(maximum_attempts=3)
         )
 
-        # Layer 2: Graph Query (relationships)
-        graph_results = await self.nebula.execute(
-            f"MATCH (a)-[r]->(b) WHERE id(a) IN {sql_results.ids} RETURN a, r, b"
+        # Phase 2: Retrieval (paralelo 3× - SQL + Graph + Vector)
+        retrieval_tasks = []
+        if routing_decision.use_sql:
+            retrieval_tasks.append(
+                workflow.execute_activity(
+                    retrieve_from_sql,
+                    args=[question, oracle_id],
+                    start_to_close_timeout=timedelta(seconds=30)
+                )
+            )
+        if routing_decision.use_graph:
+            retrieval_tasks.append(
+                workflow.execute_activity(
+                    retrieve_from_graph,
+                    args=[question, oracle_id],
+                    start_to_close_timeout=timedelta(seconds=30)
+                )
+            )
+        if routing_decision.use_vector:
+            retrieval_tasks.append(
+                workflow.execute_activity(
+                    retrieve_from_vector,
+                    args=[question, oracle_id],
+                    start_to_close_timeout=timedelta(seconds=30)
+                )
+            )
+
+        retrieval_results = await asyncio.gather(*retrieval_tasks)
+
+        # Phase 3: Fusion (combina resultados, resolve conflitos)
+        fused_context = await workflow.execute_activity(
+            fuse_results,
+            args=[retrieval_results],
+            start_to_close_timeout=timedelta(seconds=20),
+            retry_policy=RetryPolicy(maximum_attempts=3)
         )
 
-        # Layer 3: Vector Search (semantic)
-        embeddings = await self.embed_model.encode(question)
-        vector_results = await self.postgres.query(
-            f"SELECT * FROM instances WHERE oracle_id = $1 ORDER BY embedding <=> $2 LIMIT 10",
-            oracle_id, embeddings
+        # CRAG: Avalia qualidade do contexto, re-query se insuficiente
+        if fused_context.quality_score < 0.7:
+            workflow.logger.info(f"CRAG: Low quality ({fused_context.quality_score}), re-querying...")
+            # Re-query com prompt refinado (max 3 tentativas)
+            for attempt in range(3):
+                refined_question = await workflow.execute_activity(
+                    refine_question,
+                    args=[question, fused_context.gaps],
+                    start_to_close_timeout=timedelta(seconds=10)
+                )
+                # Retry retrieval
+                retrieval_results = await asyncio.gather(*retrieval_tasks)
+                fused_context = await workflow.execute_activity(
+                    fuse_results,
+                    args=[retrieval_results],
+                    start_to_close_timeout=timedelta(seconds=20)
+                )
+                if fused_context.quality_score >= 0.7:
+                    break
+
+        # Phase 4: Generation (síntese da resposta com LLM)
+        generated_answer = await workflow.execute_activity(
+            generate_answer,
+            args=[question, fused_context],
+            start_to_close_timeout=timedelta(seconds=60),
+            retry_policy=RetryPolicy(maximum_attempts=3)
         )
 
-        # Synthesis with LLM
-        combined_context = self.merge_results(sql_results, graph_results, vector_results)
-        answer = await self.llm.generate(
-            prompt=f"Com base no contexto do Oráculo: {combined_context}\n\nResponda: {question}"
+        # Phase 5: Reflection (Self-RAG - valida grounding, detecta hallucinations)
+        reflection_result = await workflow.execute_activity(
+            reflect_on_answer,
+            args=[generated_answer, fused_context],
+            start_to_close_timeout=timedelta(seconds=30)
         )
 
-        return answer
+        # Auto-correção se hallucination detectada
+        if reflection_result.has_hallucination:
+            workflow.logger.warning(f"Self-RAG: Hallucination detected, auto-correcting...")
+            generated_answer = await workflow.execute_activity(
+                correct_hallucination,
+                args=[generated_answer, reflection_result.grounded_facts],
+                start_to_close_timeout=timedelta(seconds=40)
+            )
+
+        return {
+            "answer": generated_answer,
+            "sources": fused_context.sources,
+            "routing_decision": routing_decision,
+            "quality_score": fused_context.quality_score,
+            "grounding_score": reflection_result.grounding_score
+        }
+
+
+# CrewAI Agents Implementation
+class AgenticRAGCrew:
+    def __init__(self, oracle_id: str):
+        self.oracle_id = oracle_id
+
+        # Router Agent
+        self.router = Agent(
+            role="Query Router",
+            goal="Analyze query and decide optimal data sources (SQL, Graph, Vector)",
+            backstory="Expert in query analysis and data source selection for hybrid retrieval",
+            tools=[analyze_query_complexity, classify_query_type],
+            verbose=True
+        )
+
+        # Retrieval Agents (3×)
+        self.sql_agent = Agent(
+            role="SQL Retrieval Specialist",
+            goal="Execute structured queries in PostgreSQL + pgvector",
+            backstory="Database expert optimizing hybrid SQL + vector search",
+            tools=[postgres_query, pgvector_search],
+            verbose=True
+        )
+
+        self.graph_agent = Agent(
+            role="Graph Traversal Specialist",
+            goal="Navigate relationships in NebulaGraph with multi-hop reasoning",
+            backstory="Graph database expert finding complex entity relationships",
+            tools=[nebula_query, multi_hop_traversal],
+            verbose=True
+        )
+
+        self.vector_agent = Agent(
+            role="Semantic Search Specialist",
+            goal="Perform similarity search in Qdrant vector database",
+            backstory="Embedding expert finding semantically similar documents",
+            tools=[qdrant_search, rerank_results],
+            verbose=True
+        )
+
+        # Fusion Agent
+        self.fusion_agent = Agent(
+            role="Multi-Source Fusion Expert",
+            goal="Combine SQL + Graph + Vector results, resolve conflicts, maintain attribution",
+            backstory="Information synthesis specialist ensuring coherent multi-source context",
+            tools=[merge_results, resolve_conflicts, calculate_quality_score],
+            verbose=True
+        )
+
+        # Generator Agent
+        self.generator = Agent(
+            role="Answer Generator",
+            goal="Synthesize final answer using multi-source context",
+            backstory="LLM orchestration expert generating grounded, coherent responses",
+            tools=[llm_generate, cite_sources],
+            verbose=True
+        )
+
+        # Reflector Agent
+        self.reflector = Agent(
+            role="Answer Validator (Self-RAG)",
+            goal="Validate grounding, detect hallucinations, auto-correct if needed",
+            backstory="Quality assurance expert ensuring factual accuracy and source alignment",
+            tools=[check_grounding, detect_hallucination, extract_grounded_facts],
+            verbose=True
+        )
 ```
 
 **2. Consulta Direta de Configuração**
@@ -2585,7 +2748,7 @@ const tools = [
   },
   {
     name: "rag_query",
-    description: "Consulta RAG 3D do Oráculo",
+    description: "Consulta Agentic RAG do Oráculo (multi-agent trimodal)",
     parameters: {
       question: { type: "string", required: true },
       oracle_id: { type: "string", required: true },
@@ -3081,8 +3244,8 @@ async def upload_context(oracle_id: str, files: list, urls: list) -> ContextUplo
 ```python
 # phase_2_specification.py
 async def generate_specification(context_id: str, oracle_id: str) -> Specification:
-    # 1. Consultar Oráculo (RAG 3D)
-    oracle_knowledge = await rag_service.query(
+    # 1. Consultar Oráculo (Agentic RAG Trimodal)
+    oracle_knowledge = await agentic_rag_service.query(
         question="Qual conhecimento existe neste Oráculo sobre o domínio?",
         oracle_id=oracle_id
     )
@@ -3389,13 +3552,16 @@ func (im *InstanceManager) CreateInstance(ctx context.Context, req *CreateInstan
 - Geração de especificações
 - Geração de modelos executáveis
 
-#### RAG 3D Service
+#### Agentic RAG Service
 
 **Responsabilidades**:
-- Query routing (Keyword → Semantic → LLM)
-- Consulta trimodal (SQL + Graph + Vector)
-- Síntese de resposta com LLM
-- Cache de embeddings
+- **Router Agent (CrewAI)**: Análise de query e decisão de fontes (SQL/Graph/Vector)
+- **Retrieval Agents (3× CrewAI)**: Consulta paralela em PostgreSQL, NebulaGraph, Qdrant
+- **Fusion Agent (CrewAI)**: Combinação de resultados multi-source com resolução de conflitos
+- **Generator Agent (CrewAI)**: Síntese de resposta grounded com LLM
+- **Reflector Agent (CrewAI)**: Validação de grounding, detecção de hallucinations
+- **Temporal Workflow Orchestration**: Pipeline durable com checkpoints, retry logic, CRAG/Self-RAG
+- Cache de embeddings e agent memory (Redis + PostgreSQL)
 
 #### Code Generation Engine
 
@@ -3478,7 +3644,7 @@ func (im *InstanceManager) CreateInstance(ctx context.Context, req *CreateInstan
 ┌────────────────────────────────────────────────────────────┐
 │ FASE 2: Geração de Especificação + Refinamento Iterativo   │
 └────────────────────────────────────────────────────────────┘
-  IA consulta Oráculo (RAG 3D)
+  IA consulta Oráculo (Agentic RAG - 6 agents)
      ↓
   IA gera especificação inicial em Markdown
      ↓
@@ -3824,7 +3990,7 @@ Adotar arquitetura **híbrida PostgreSQL 15 + NebulaGraph 3.8**.
 - ✅ **Positivas**:
   - ACID transactions no PostgreSQL
   - Graph queries complexas no NebulaGraph
-  - RAG 3D Trimodal (SQL + Graph + Vector)
+  - Agentic RAG Trimodal (SQL + Graph + Vector) com CrewAI + Temporal
   - Multi-tenancy robusto (RLS no PostgreSQL)
 
 - ⚠️ **Negativas**:
@@ -5389,7 +5555,7 @@ C4Context
         System(interaction, "Interaction Broker", "Go, WebSocket/Pulsar Bridge")
         System(orchestrator, "Agent Orchestrator", "Python, CrewAI/LangGraph/LangFlow")
         System(backend, "Backend Services", "Go, gRPC/REST APIs")
-        System(oracle, "Oracle Service", "Python, RAG 3D Trimodal")
+        System(oracle, "Oracle Service", "Python, Agentic RAG Trimodal (CrewAI + Temporal)")
         System(db, "Data Layer", "PostgreSQL 15 + NebulaGraph 3.8 + pgvector")
     }
 
@@ -5455,8 +5621,9 @@ graph TB
 
     subgraph "Camada 0: Fundação - Oráculo"
         G1[PostgreSQL + pgvector]
-        G2[NebulaGraph]
-        G3[RAG 3D Trimodal]
+        G2[NebulaGraph + Qdrant]
+        G3[Agentic RAG Trimodal]
+        G4[CrewAI Agents + Temporal Workflows]
     end
 
     subgraph "Base: Dados"
@@ -5542,7 +5709,7 @@ sequenceDiagram
     participant Portal as Super Portal
     participant Oracle as Oracle Manager
     participant AI as AI Context Generator
-    participant RAG as RAG 3D Service
+    participant RAG as Agentic RAG Service
     participant CodeGen as Code Generation Engine
     participant Deploy as Deployment Orchestrator
     participant K8s as Kubernetes
@@ -5761,7 +5928,7 @@ graph TB
 1. ❌ Super Portal não implementado (bloqueador crítico)
 2. ❌ Deployment Orchestrator não implementado (bloqueador para "Play")
 3. ⚠️ Multi-tenancy implementado na Fase 0, precisa migrar Fase 1 para v3.0.0
-4. ⚠️ RAG 3D parcial (apenas PostgreSQL, falta NebulaGraph + pgvector)
+4. ⚠️ Agentic RAG parcial (apenas PostgreSQL, falta NebulaGraph + Qdrant + CrewAI Agents + Temporal Workflows)
 5. ❌ Geração automática de objetos via IA não implementada (bloqueador crítico)
 6. ❌ Geração automática de agentes via IA não implementada (bloqueador crítico)
 7. ❌ Template System + Apache Pulsar não implementados
@@ -5796,10 +5963,12 @@ graph TB
 **Objetivos**:
 - ✅ Implementar Deployment Orchestrator
 - ✅ Implementar Code Generation Engine
-- ✅ Setup NebulaGraph 3.8 cluster
+- ✅ Setup NebulaGraph 3.8 cluster + Qdrant vector database
 - ✅ Implementar GraphSyncService (PostgreSQL → NebulaGraph)
-- ✅ Implementar EmbeddingSyncService (instances → pgvector)
-- ✅ RAG 3D Trimodal completo (SQL + Graph + Vector)
+- ✅ Implementar EmbeddingSyncService (instances → Qdrant + pgvector)
+- ✅ Agentic RAG Trimodal completo (6 CrewAI agents + Temporal Workflows)
+  - Router Agent, Retrieval Agents (3×), Fusion Agent, Generator Agent, Reflector Agent
+  - Routing Pattern, CRAG, Self-RAG, Multi-Source Fusion, Iterative Refinement
 - ✅ CrewAI + LangGraph + LangFlow Orchestration
 - ✅ Biblioteca de Agentes (primeiros 10 agentes gerados automaticamente)
 - ✅ Geração automática de objetos via IA (RF011)
@@ -5808,12 +5977,12 @@ graph TB
 **Entregáveis**:
 - Deployment Orchestrator funcional
 - "Play" → deploy completo automático
-- Knowledge Graph operacional
-- RAG 3D com busca semântica
-- Crews funcionais (3+ agentes colaborando)
+- Knowledge Graph operacional (NebulaGraph + Qdrant)
+- Agentic RAG com multi-agent orchestration e error correction
+- Crews funcionais (6+ agentic RAG agents + 3+ domain agents)
 - Auto-geração de objetos consultando Oráculo
 - Auto-geração de agentes especializados
-- Primeiros fluxos end-to-end completos
+- Primeiros fluxos end-to-end completos com Agentic RAG
 
 #### Q3-Q4 2026 - Fase 4: Produção + Integração Real
 
@@ -5908,12 +6077,14 @@ graph TB
 
 #### Refactoring 4: Otimizar RAG Queries
 
-**Motivação**: RAG 3D atual faz 3 queries sequenciais (lento).
+**Motivação**: Traditional RAG faz queries sequenciais (lento). Agentic RAG with CrewAI + Temporal já implementa paralelização inteligente.
 
-**Escopo**:
-- Paralelizar queries (SQL + Graph + Vector)
-- Implementar smart routing (decidir qual query fazer com base na pergunta)
-- Cache de embeddings
+**Escopo** (IMPLEMENTADO em Agentic RAG):
+- ✅ Paralelizar queries (SQL + Graph + Vector) via Retrieval Agents
+- ✅ Implementar smart routing (Router Agent decide fontes baseado em query analysis)
+- ✅ Cache de embeddings (Redis + PostgreSQL agent memory)
+- ✅ CRAG pattern (quality evaluation + re-query)
+- ✅ Self-RAG pattern (grounding validation + hallucination detection)
 - Pre-computed indexes
 
 **Esforço**: 2-3 semanas
@@ -5995,14 +6166,16 @@ O **SuperCore v2.0** representa uma mudança paradigmática no desenvolvimento d
 4. **Camada 3 - Interface**: MCPs + Pulsar (comunicação universal)
 5. **Camada 2 - Orquestração**: Agentes autônomos (CrewAI + LangGraph + LangFlow)
 6. **Camada 1 - Abstração**: Biblioteca de Objetos (Data, Integrations, UI, Workflows, Agents)
-7. **Camada 0 - Fundação**: Oráculo (RAG 3D: SQL + Graph + Vector)
+7. **Camada 0 - Fundação**: Oráculo (Agentic RAG: SQL + Graph + Vector + CrewAI + Temporal)
 8. **Base - Dados**: Meta-objects + Instances
 
 #### Pilares
 
 1. **Pilar 1: Oráculo - A Fonte da Verdade**
    - Knowledge Graph (NebulaGraph) com conhecimento do domínio
-   - RAG 3D Trimodal (SQL + Graph + Vector)
+   - Agentic RAG Trimodal (SQL + Graph + Vector + CrewAI + Temporal)
+     - 6 agents: Router, Retrieval (3×), Fusion, Generator, Reflector
+     - 5 patterns: Routing, CRAG, Self-RAG, Multi-Source Fusion, Iterative Refinement
    - Fonte única de contexto para geração
 
 2. **Pilar 2: Biblioteca de Objetos - Os Blocos de Construção**
@@ -6059,7 +6232,10 @@ O **SuperCore v2.0** representa uma mudança paradigmática no desenvolvimento d
    - Implementar i18n Service
 
 2. **Q2 2026**:
-   - Implementar Fase 3 (NebulaGraph + RAG 3D + Agentes)
+   - Implementar Fase 3 (NebulaGraph + Qdrant + Agentic RAG + Agentes)
+   - Implementar 6 CrewAI Agents para Agentic RAG (Router, Retrieval×3, Fusion, Generator, Reflector)
+   - Implementar 5 padrões Agentic RAG (Routing, CRAG, Self-RAG, Multi-Source Fusion, Iterative Refinement)
+   - Implementar Temporal Workflows para RAG orchestration
    - Implementar Geração automática de objetos via IA (RF011) (CRÍTICO)
    - Implementar Geração automática de agentes via IA (RF021) (CRÍTICO)
    - Validar "Play" → deploy completo
@@ -6115,8 +6291,12 @@ Permite que empresas foquem no que importa: **servir clientes e inovar em seus n
 4. ✅ Adicionada arquitetura completa do fluxo "Play" → deploy
 5. ✅ Enfatizada geração 100% automática por IA (eliminada criação manual)
 6. ✅ Adicionados componentes críticos (Deployment Orchestrator, Portal UI, Oracle Manager, i18n Service)
-7. ✅ Validada presença da stack core (Pulsar, LangGraph, LangFlow, CrewAI, RAG 3D)
+7. ✅ Validada presença da stack core (Pulsar, LangGraph, LangFlow, CrewAI, Agentic RAG)
 8. ✅ Atualizados todos os diagramas com novas camadas e componentes
+9. ✅ Substituído Traditional RAG por Agentic RAG (v2.0.1 - 2026-01-01)
+   - 6 CrewAI agents: Router, Retrieval (SQL/Graph/Vector), Fusion, Generator, Reflector
+   - 5 padrões: Routing, CRAG, Self-RAG, Multi-Source Fusion, Iterative Refinement
+   - Temporal Workflows para orchestration durable com checkpoints e retry logic
 9. ✅ Adicionado ADR-008 (Geração automática), ADR-009 (Super Portal), ADR-010 (Grafo de Oráculos via MCP)
 10. ✅ Adicionado ADR-011 (Frontend-Backend Communication Pattern), ADR-012 (Multi-Tenancy Strategy), ADR-013 (Code Generation Strategy)
 11. ✅ Mantida qualidade e consistência do documento original
